@@ -75,9 +75,10 @@
     }
   }
 
-  function saveSession() {
+  /** `touch` marks real progress; background saves (load, tab hidden) keep the last-activity time. */
+  function saveSession(touch = true) {
     if (!state.session) return;
-    state.session.updatedAt = Date.now();
+    if (touch) state.session.updatedAt = Date.now();
     writeStore(STORAGE.session, state.session);
   }
 
@@ -89,6 +90,13 @@
 
   function saveHistory() {
     writeStore(STORAGE.history, state.history);
+  }
+
+  /** Re-read stored history before changing it so another open tab's answers are not overwritten. */
+  function updateHistory(change) {
+    state.history = Core.sanitizeHistory(readStore(STORAGE.history));
+    change(state.history);
+    saveHistory();
   }
 
   function saveSettings() {
@@ -964,8 +972,7 @@
           onclick: () => {
             answer.submitted = true;
             answer.correct = Core.isCorrect(q, answer);
-            Core.recordAnswer(state.history, q.id, answer.correct, s.mode);
-            saveHistory();
+            updateHistory((history) => Core.recordAnswer(history, q.id, answer.correct, s.mode));
             saveSession();
             renderQuiz(false);
             const fb = document.querySelector(".feedback");
@@ -1023,14 +1030,8 @@
     if (!s) return;
     stopTimer();
     const score = Core.scoreSession(s, state.byId, state.domains);
-    if (s.mode === "mock") {
-      score.items.forEach((item) => {
-        if (item.answered) Core.recordAnswer(state.history, item.id, item.correct, "mock");
-      });
-    }
     if (score.total === 0) {
       clearSession();
-      saveHistory();
       showToast("回答した問題がないため、結果は記録しませんでした。");
       go("#/");
       return;
@@ -1050,8 +1051,14 @@
       pool: s.settings && s.settings.pool,
       elapsedSec: Math.round(s.elapsedSec || 0),
     };
-    Core.recordSession(state.history, summary);
-    saveHistory();
+    updateHistory((history) => {
+      if (s.mode === "mock") {
+        score.items.forEach((item) => {
+          if (item.answered) Core.recordAnswer(history, item.id, item.correct, "mock");
+        });
+      }
+      Core.recordSession(history, summary);
+    });
     clearSession();
     go(`#/result/${encodeURIComponent(summary.id)}`);
   }
@@ -1508,13 +1515,29 @@
     state.settings = { pool: "verified", ...(readStore(STORAGE.settings) || {}) };
     if (!Core.POOL_STATUSES[state.settings.pool]) state.settings.pool = "verified";
     state.session = Core.reconcileSession(readStore(STORAGE.session), state.byId);
-    if (state.session) saveSession();
+    if (state.session) saveSession(false);
     else removeStore(STORAGE.session);
 
     window.addEventListener("hashchange", route);
     const persist = () => {
-      if (state.session) saveSession();
+      if (state.session) saveSession(false);
     };
+    // Keep several open tabs (or the installed app and a browser tab) in sync.
+    window.addEventListener("storage", (event) => {
+      if (event.key === STORAGE.history || event.key === null) {
+        state.history = Core.sanitizeHistory(readStore(STORAGE.history));
+      }
+      if (event.key === STORAGE.session || event.key === null) {
+        const previous = state.session;
+        state.session = Core.reconcileSession(readStore(STORAGE.session), state.byId);
+        const onQuiz = location.hash.startsWith("#/quiz");
+        if (onQuiz && previous && state.session && previous.id === state.session.id) {
+          renderQuiz(false);
+          return;
+        }
+      }
+      if (!location.hash.startsWith("#/quiz") || !state.session) route();
+    });
     document.addEventListener("visibilitychange", persist);
     window.addEventListener("pagehide", persist);
     route();

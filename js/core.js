@@ -120,10 +120,15 @@
     };
   }
 
-  /** Drop questions that no longer exist in the bank (e.g. after a data update). */
+  /** Only verified/unverified questions are ever served; outdated, ambiguous and out_of_scope are not. */
+  function isServable(question) {
+    return Boolean(question) && POOL_STATUSES.all.includes(question.status);
+  }
+
+  /** Drop questions that no longer exist or are no longer servable (e.g. after a data update). */
   function reconcileSession(session, byId) {
     if (!session || typeof session !== "object" || !Array.isArray(session.questionIds)) return null;
-    const ids = session.questionIds.filter((id) => byId.has(id));
+    const ids = session.questionIds.filter((id) => isServable(byId.get(id)));
     if (ids.length === 0) return null;
     const next = { ...session, questionIds: ids, answers: {}, order: { ...(session.order || {}) } };
     next.current = Math.min(Math.max(0, Number(session.current) || 0), ids.length - 1);
@@ -238,7 +243,7 @@
   /** Questions to review: last attempt wrong (default) or every answered question. Most recent first. */
   function reviewCandidates(history, byId, { includeCorrect = false, domain = null } = {}) {
     return Object.entries(history.questions)
-      .filter(([id, item]) => byId.has(id) && (includeCorrect || item.lastCorrect === false))
+      .filter(([id, item]) => isServable(byId.get(id)) && (includeCorrect || item.lastCorrect === false))
       .filter(([id]) => !domain || byId.get(id).domain === domain)
       .sort((a, b) => (b[1].lastAt || 0) - (a[1].lastAt || 0))
       .map(([id]) => byId.get(id));
@@ -273,6 +278,7 @@
     POOL_STATUSES,
     shuffle,
     indexBank,
+    isServable,
     filterPool,
     allocateByWeight,
     pickMock,

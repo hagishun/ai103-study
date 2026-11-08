@@ -135,6 +135,19 @@ test("practice scoring counts submitted answers only; mock counts unanswered as 
   assert.deepEqual(m.byDomain.text, { total: 1, correct: 0 });
 });
 
+test("outdated/ambiguous/out_of_scope questions are dropped from review and resumed sessions", () => {
+  const outdated = { ...single, id: "q009", status: "outdated" };
+  const byId = Core.indexBank([...bank, outdated]);
+  const history = Core.emptyHistory();
+  Core.recordAnswer(history, "q009", false, "domain", 1);
+  Core.recordAnswer(history, "q001", false, "domain", 2);
+  assert.deepEqual(Core.reviewCandidates(history, byId).map((q) => q.id), ["q001"]);
+  const session = Core.createSession({ mode: "domain", title: "t", questions: [outdated, single] });
+  assert.deepEqual(Core.reconcileSession(session, byId).questionIds, ["q001"]);
+  assert.equal(Core.isServable(dropdown), true, "unverified is servable (shown with a label)");
+  assert.equal(Core.isServable(outdated), false);
+});
+
 test("history records answers and drives review", () => {
   const byId = Core.indexBank(bank);
   const history = Core.emptyHistory();

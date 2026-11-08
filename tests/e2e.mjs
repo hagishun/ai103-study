@@ -300,13 +300,15 @@ async function main() {
   });
 
   await check("every question fits 360px (mock navigation through all questions)", async () => {
-    await injectSession(page, base, bank, "mock");
+    // outdated/ambiguous questions are never served; they are checked on the quality page below
+    const servable = bank.filter((q) => Core.isServable(q));
+    await injectSession(page, base, servable, "mock");
     await go(page, base, "#/quiz");
-    for (let i = 0; i < bank.length; i += 1) {
+    for (let i = 0; i < servable.length; i += 1) {
       await noHorizontalOverflow(page, `question ${i + 1}`);
       const hasCode = await page.$(".code");
       if (hasCode && !fs.existsSync(path.join(SCREENSHOTS || ".", "07-code.png")) && SCREENSHOTS) await shot(page, "07-code");
-      if (i < bank.length - 1) {
+      if (i < servable.length - 1) {
         await clickText(page, "#actionbar button", "次へ");
         await page.waitForFunction((n) => document.querySelector(".quiz-count")?.textContent.trim().startsWith(`${n} /`), {}, i + 2);
       }
