@@ -11,6 +11,7 @@ const log = read("data/dedup-log.json");
 const stats = read("data/stats.json");
 const domains = read("data/domains.json");
 const glossary = read("data/glossary.json");
+const ja = read("data/i18n/ja.json").questions;
 const STATUSES = ["verified", "unverified", "outdated", "ambiguous", "out_of_scope"];
 
 test("question IDs are stable and derived from source numbers", () => {
@@ -74,4 +75,26 @@ test("glossary terms appear in the question data", () => {
     assert.ok(corpus.some((text) => t.match.some((m) => text.includes(m))), `${t.term} not found in questions`);
     t.domains.forEach((d) => assert.ok(domains.domains.some((x) => x.id === d)));
   });
+});
+
+test("every adopted question has a Japanese translation aligned with the English data", () => {
+  bank.forEach((q) => {
+    const t = ja[q.id];
+    assert.ok(t && t.status !== "untranslated", `${q.id} is untranslated`);
+    assert.ok(["needs_review", "reviewed"].includes(t.status));
+    assert.ok(t.stem && t.explanation, `${q.id} missing stem/explanation`);
+    if (q.type === "dropdown") {
+      q.dropdowns.forEach((d) => assert.equal(t.dropdowns[d.id].choices.length, d.choices.length, `${q.id} ${d.id}`));
+    } else {
+      assert.equal(t.options.length, q.options.length, `${q.id} options`);
+    }
+  });
+  assert.equal(Object.keys(ja).length, bank.length);
+});
+
+test("translations are never marked human-reviewed by tooling", () => {
+  const meta = read("data/i18n/ja.json")._meta;
+  const reviewed = Object.entries(ja).filter(([, t]) => t.status === "reviewed");
+  reviewed.forEach(([id, t]) => assert.ok(t.reviewedBy && t.reviewedBy !== "ai", `${id} reviewed without a human reviewer`));
+  assert.ok(meta && meta.statusPolicy, "status policy must be documented in ja.json");
 });

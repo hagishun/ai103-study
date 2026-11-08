@@ -31,6 +31,9 @@ jobs:
       - name: Check generated question data is up to date
         run: python3 scripts/build_data.py --check
 
+      - name: Check Japanese translations (code tokens, names, numbers)
+        run: python3 scripts/check_translations.py
+
       - name: Install test tools
         run: npm ci
 
@@ -44,11 +47,12 @@ jobs:
 
       - name: Assemble static site
         run: |
-          mkdir -p _site/data _site/js _site/icons
+          mkdir -p _site/data/i18n _site/js _site/icons
           cp index.html styles.css manifest.webmanifest sw.js LICENSE .nojekyll _site/
           cp js/*.js _site/js/
           cp icons/*.png _site/icons/
           cp data/bank.json data/domains.json data/stats.json data/glossary.json data/dedup-log.csv _site/data/
+          cp data/i18n/ja.json _site/data/i18n/
           BUILD_ID="${GITHUB_SHA::12}"
           sed -i "s/const BUILD_ID = \"dev\";/const BUILD_ID = \"${BUILD_ID}\";/" _site/sw.js
           grep -q "${BUILD_ID}" _site/sw.js

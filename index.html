@@ -6,6 +6,7 @@
     <title>AI-103 学習サイト（非公式）</title>
     <meta name="description" content="Microsoft AI-103 試験の非公式学習サイト。分野別学習・模擬試験・復習・学習履歴。" />
     <meta name="theme-color" content="#0f4c81" />
+    <meta name="format-detection" content="telephone=no" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon-192.png" type="image/png" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
@@ -22,6 +23,9 @@
         <span class="brand-text">AI-103 学習<small>非公式</small></span>
       </a>
       <span id="topbarStatus" class="topbar-status" aria-live="polite"></span>
+      <button id="langToggle" class="lang-toggle" type="button" aria-pressed="false" aria-label="問題・選択肢・解説の表示言語を切り替え（日本語訳／英語原文）">
+        <span class="lang-ja is-on">日本語</span><span class="lang-en">EN</span>
+      </button>
     </header>
 
     <main id="app" class="app" tabindex="-1">

@@ -350,5 +350,18 @@
  ],
  "unverifiedOnlySkills": [
   "1.2.3"
- ]
+ ],
+ "translation": {
+  "status": {
+   "untranslated": 0,
+   "needs_review": 172,
+   "reviewed": 0
+  },
+  "lowConfidence": [
+   "q318",
+   "q530",
+   "q572",
+   "q703"
+  ]
+ }
 }

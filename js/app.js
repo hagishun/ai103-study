@@ -26,6 +26,12 @@
     out_of_scope: "現行の試験範囲外",
   };
   const TYPE_LABELS = { single: "単一選択", multiple: "複数選択", dropdown: "空欄選択" };
+  const TRANSLATION_LABELS = { untranslated: "未翻訳", needs_review: "訳: 要確認", reviewed: "訳: 確認済み" };
+  const TRANSLATION_DESCRIPTIONS = {
+    untranslated: "日本語訳がありません（英語原文を表示）",
+    needs_review: "AI による翻訳と自動チェックのみ。人による確認は済んでいません",
+    reviewed: "人が英語原文と照合して確認済み",
+  };
   const MODE_LABELS = { domain: "分野別学習", mock: "模擬試験", review: "復習" };
 
   const state = {
@@ -37,7 +43,8 @@
     stats: null,
     glossary: null,
     history: null,
-    settings: { pool: "verified" },
+    settings: { pool: "verified", lang: "ja" },
+    ja: {},
     session: null,
     timerId: null,
     lastTick: 0,
@@ -149,12 +156,81 @@
     return d ? d.shortJa : id;
   }
 
+  function translationBadge(q) {
+    const status = translationStatus(q);
+    return h("span", { class: `badge tr-${status}`, title: TRANSLATION_DESCRIPTIONS[status] }, TRANSLATION_LABELS[status]);
+  }
+
   function statusBadge(status) {
     return h("span", { class: `badge status-${status}`, title: STATUS_DESCRIPTIONS[status] }, STATUS_LABELS[status] || status);
   }
 
   function learnSearchUrl(q) {
     return `https://learn.microsoft.com/en-us/search/?terms=${encodeURIComponent(`${q.topic} Azure`)}`;
+  }
+
+  // ---------- question language (UI labels stay Japanese; question content switches) ----------
+  function isJa() {
+    return state.settings.lang !== "en";
+  }
+
+  function tr(q) {
+    const item = isJa() ? state.ja[q.id] : null;
+    return item && item.status !== "untranslated" ? item : null;
+  }
+
+  function translationStatus(q) {
+    const item = state.ja[q.id];
+    return item ? item.status || "needs_review" : "untranslated";
+  }
+
+  function qLang(q) {
+    return tr(q) ? "ja" : "en";
+  }
+
+  function stemText(q) {
+    const t = tr(q);
+    return t ? t.stem : q.stem;
+  }
+
+  function optionText(q, index) {
+    const t = tr(q);
+    return t && t.options && t.options[index] ? t.options[index] : q.options[index];
+  }
+
+  function choiceText(q, dropId, choice) {
+    const t = tr(q);
+    const d = q.dropdowns.find((item) => item.id === dropId);
+    const td = t && t.dropdowns && t.dropdowns[dropId];
+    const index = d ? d.choices.indexOf(choice) : -1;
+    return td && td.choices && index >= 0 && td.choices[index] ? td.choices[index] : choice;
+  }
+
+  function paragraphs(text, lang) {
+    return String(text)
+      .split(/\n+/)
+      .filter((line) => line.trim())
+      .map((line) => h("p", { lang }, line));
+  }
+
+  function langToggle() {
+    const button = document.getElementById("langToggle");
+    if (!button) return;
+    const ja = isJa();
+    button.setAttribute("aria-pressed", String(!ja));
+    button.querySelector(".lang-ja").classList.toggle("is-on", ja);
+    button.querySelector(".lang-en").classList.toggle("is-on", !ja);
+    button.title = ja ? "問題・選択肢・解説を英語原文で表示" : "問題・選択肢・解説を日本語訳で表示";
+  }
+
+  function switchLanguage() {
+    state.settings.lang = isJa() ? "en" : "ja";
+    saveSettings();
+    langToggle();
+    const y = window.scrollY;
+    if (location.hash.startsWith("#/quiz")) renderQuiz(false);
+    else route();
+    window.scrollTo(0, y);
   }
 
   function pageHeader(title, lead) {
@@ -728,6 +804,7 @@
       h("span", { class: "badge domain" }, domainLabel(q.domain)),
       statusBadge(q.status),
       h("span", { class: "badge type" }, q.type === "multiple" ? `${q.answer.length}つ選択` : TYPE_LABELS[q.type]),
+      isJa() ? translationBadge(q) : null,
       h("span", { class: "qid" }, q.id),
       isMock
         ? h(
@@ -747,7 +824,7 @@
         : null,
     );
 
-    const stemNodes = [h("p", { class: "stem", lang: "en" }, q.type === "dropdown" ? fillBlanks(q.stem) : q.stem)];
+    const stemNodes = [h("p", { class: "stem", lang: qLang(q) }, q.type === "dropdown" ? fillBlanks(stemText(q)) : stemText(q))];
     if (q.code) stemNodes.push(h("pre", { class: "code", lang: "en" }, h("code", null, q.type === "dropdown" ? fillBlanks(q.code) : q.code)));
 
     const body = q.type === "dropdown" ? renderDropdownInputs(q, answer, locked) : renderOptionInputs(q, answer, locked);
@@ -808,10 +885,10 @@
         });
         return h(
           "label",
-          { class: cls },
+          { class: cls, "data-option": String(optionIndex) },
           input,
           h("span", { class: "choice-letter", "aria-hidden": "true" }, optionLetter(position)),
-          h("span", { class: "choice-text", lang: "en" }, q.options[optionIndex]),
+          h("span", { class: "choice-text", lang: qLang(q) }, optionText(q, optionIndex)),
           locked && correctSet.has(optionIndex) ? h("span", { class: "choice-mark", "aria-label": "正解" }, "✓") : null,
           locked && selected && !correctSet.has(optionIndex) ? h("span", { class: "choice-mark", "aria-label": "あなたの回答" }, "✗") : null,
         );
@@ -836,31 +913,37 @@
             {
               class: "select",
               disabled: locked,
-              lang: "en",
+              lang: qLang(q),
               onchange: (event) => {
                 answer.dropdowns = { ...answer.dropdowns, [d.id]: event.target.value };
                 onAnswerChanged(q, answer);
               },
             },
             h("option", { value: "", selected: !value }, "選択してください"),
-            s.order[q.id][d.id].map((choice) => h("option", { value: choice, selected: value === choice }, choice)),
+            s.order[q.id][d.id].map((choice) => h("option", { value: choice, selected: value === choice }, choiceText(q, d.id, choice))),
           ),
-          locked && !ok ? h("span", { class: "blank-answer" }, "正解: ", h("span", { lang: "en" }, d.answer)) : null,
+          locked && !ok ? h("span", { class: "blank-answer" }, "正解: ", h("span", { lang: qLang(q) }, choiceText(q, d.id, d.answer))) : null,
         );
       }),
     );
   }
 
   function correctAnswerText(q, order) {
-    if (q.type === "dropdown") return q.dropdowns.map((d) => `${blankLabel(d.id)}: ${d.answer}`).join(" / ");
+    if (q.type === "dropdown") return q.dropdowns.map((d) => `${blankLabel(d.id)}: ${choiceText(q, d.id, d.answer)}`).join(" / ");
     return q.answer
-      .map((i) => (order ? `${optionLetter(order.indexOf(i))}. ${q.options[i]}` : q.options[i]))
+      .map((i) => (order ? `${optionLetter(order.indexOf(i))}. ${optionText(q, i)}` : optionText(q, i)))
       .sort()
       .join(" / ");
   }
 
+  function linkLabel(url) {
+    return url.replace(/^https:\/\/learn\.microsoft\.com\/(en-us|ja-jp)\//, (_, locale) => (locale === "ja-jp" ? "Learn（日本語）: " : "Learn: "));
+  }
+
   function evidenceLinks(q) {
-    if (q.evidence && q.evidence.length) {
+    const t = tr(q);
+    const urls = t && t.references && t.references.length ? t.references : q.evidence || [];
+    if (urls.length) {
       return h(
         "div",
         { class: "links" },
@@ -868,7 +951,7 @@
         h(
           "ul",
           null,
-          q.evidence.map((url) => h("li", null, h("a", { href: url, target: "_blank", rel: "noopener" }, url.replace(/^https:\/\/learn\.microsoft\.com\/(en-us\/)?/, "Learn: ")))),
+          urls.map((url) => h("li", null, h("a", { href: url, target: "_blank", rel: "noopener" }, linkLabel(url)))),
         ),
       );
     }
@@ -882,14 +965,44 @@
 
   function explanationBlock(q) {
     const nodes = [];
-    if (q.explanationJa) {
-      nodes.push(h("h4", null, "解説"), h("p", null, q.explanationJa));
-      nodes.push(h("details", { class: "original" }, h("summary", null, "原文の解説（English）"), h("p", { lang: "en" }, q.explanation)));
+    const t = tr(q);
+    if (t) {
+      nodes.push(h("h4", null, "解説"), paragraphs(t.explanation, "ja"));
+      if (q.type === "dropdown") {
+        nodes.push(
+          h(
+            "ul",
+            { class: "plain" },
+            q.dropdowns.map((d) => {
+              const td = t.dropdowns && t.dropdowns[d.id];
+              return td && td.explanation ? h("li", null, `${blankLabel(d.id)}: ${td.explanation}`) : null;
+            }),
+          ),
+        );
+      }
+      if (t.terms && t.terms.length) {
+        nodes.push(h("h4", null, "用語メモ"), h("ul", { class: "plain terms" }, t.terms.map((term) => h("li", null, h("b", { lang: "en" }, term.term), `: ${term.note}`))));
+      }
+      nodes.push(
+        h(
+          "details",
+          { class: "original" },
+          h("summary", null, "英語原文の解説（English）"),
+          h("p", { lang: "en" }, q.explanation),
+          q.type === "dropdown" ? h("ul", { class: "plain" }, q.dropdowns.filter((d) => d.explanation).map((d) => h("li", { lang: "en" }, `${d.id}: ${d.explanation}`))) : null,
+        ),
+      );
+      if (translationStatus(q) !== "reviewed") {
+        nodes.push(h("p", { class: "hint" }, `日本語訳・解説は AI が作成し、人による確認は済んでいません（${TRANSLATION_LABELS[translationStatus(q)]}）。迷ったら「EN」で英語原文を確認してください。`));
+      }
     } else {
-      nodes.push(h("h4", null, "解説（原文）"), h("p", { lang: "en" }, q.explanation));
-    }
-    if (q.type === "dropdown") {
-      nodes.push(h("ul", { class: "plain" }, q.dropdowns.filter((d) => d.explanation).map((d) => h("li", null, `${blankLabel(d.id)}: `, h("span", { lang: "en" }, d.explanation)))));
+      nodes.push(h("h4", null, "解説（英語原文）"), h("p", { lang: "en" }, q.explanation));
+      if (q.type === "dropdown") {
+        nodes.push(h("ul", { class: "plain" }, q.dropdowns.filter((d) => d.explanation).map((d) => h("li", null, `${blankLabel(d.id)}: `, h("span", { lang: "en" }, d.explanation)))));
+      }
+      if (isJa() && q.explanationJa) {
+        nodes.push(h("h4", null, "日本語の要約（品質レビュー時に作成）"), h("p", null, q.explanationJa));
+      }
     }
     if (q.notes) nodes.push(h("p", { class: "note" }, `レビューメモ: ${q.notes}`));
     if (q.status !== "verified") nodes.push(h("p", { class: "warn" }, `この問題は「${STATUS_LABELS[q.status]}」です（${STATUS_DESCRIPTIONS[q.status]}）。公式ドキュメントで確認してください。`));
@@ -902,7 +1015,7 @@
       "section",
       { class: `feedback ${ok ? "ok" : "ng"}`, "aria-live": "polite" },
       h("p", { class: "verdict" }, ok ? "正解" : "不正解"),
-      ok ? null : h("p", { class: "correct-answer" }, "正解: ", h("span", { lang: "en" }, correctAnswerText(q, state.session.order[q.id]))),
+      ok ? null : h("p", { class: "correct-answer" }, "正解: ", h("span", { lang: qLang(q) }, correctAnswerText(q, state.session.order[q.id]))),
       explanationBlock(q),
       evidenceLinks(q),
     );
@@ -1065,9 +1178,9 @@
 
   function yourAnswerText(q, item, order) {
     if (!item.answered) return "未回答";
-    if (q.type === "dropdown") return q.dropdowns.map((d) => `${blankLabel(d.id)}: ${item.dropdowns[d.id] || "—"}`).join(" / ");
+    if (q.type === "dropdown") return q.dropdowns.map((d) => `${blankLabel(d.id)}: ${item.dropdowns[d.id] ? choiceText(q, d.id, item.dropdowns[d.id]) : "—"}`).join(" / ");
     return item.selected
-      .map((i) => (order ? `${optionLetter(order.indexOf(i))}. ${q.options[i]}` : q.options[i]))
+      .map((i) => (order ? `${optionLetter(order.indexOf(i))}. ${optionText(q, i)}` : optionText(q, i)))
       .sort()
       .join(" / ");
   }
@@ -1075,16 +1188,16 @@
   const SUMMARY_STEM = 80;
 
   function shortStem(q) {
-    const stem = q.type === "dropdown" ? fillBlanks(q.stem) : q.stem;
+    const stem = q.type === "dropdown" ? fillBlanks(stemText(q)) : stemText(q);
     return stem.length > SUMMARY_STEM ? `${stem.slice(0, SUMMARY_STEM)}…` : stem;
   }
 
   function questionDetail(q, extra) {
-    const stem = q.type === "dropdown" ? fillBlanks(q.stem) : q.stem;
+    const stem = q.type === "dropdown" ? fillBlanks(stemText(q)) : stemText(q);
     return h(
       "div",
       { class: "detail" },
-      stem.length > SUMMARY_STEM ? h("p", { class: "stem", lang: "en" }, stem) : null,
+      stem.length > SUMMARY_STEM ? h("p", { class: "stem", lang: qLang(q) }, stem) : null,
       q.code ? h("pre", { class: "code", lang: "en" }, h("code", null, q.type === "dropdown" ? fillBlanks(q.code) : q.code)) : null,
       extra,
       explanationBlock(q),
@@ -1147,14 +1260,14 @@
                   return h(
                     "details",
                     { class: "review-item" },
-                    h("summary", null, h("span", { class: "qid" }, q.id), " ", h("span", { lang: "en" }, shortStem(q))),
+                    h("summary", null, h("span", { class: "qid" }, q.id), " ", h("span", { lang: qLang(q) }, shortStem(q))),
                     questionDetail(
                       q,
                       h(
                         "div",
                         { class: "answers" },
-                        h("p", null, h("b", null, "あなたの回答: "), h("span", { lang: "en" }, yourAnswerText(q, item, optionOrder))),
-                        h("p", null, h("b", null, "正解: "), h("span", { lang: "en" }, correctAnswerText(q, optionOrder))),
+                        h("p", null, h("b", null, "あなたの回答: "), h("span", { lang: qLang(q) }, yourAnswerText(q, item, optionOrder))),
+                        h("p", null, h("b", null, "正解: "), h("span", { lang: qLang(q) }, correctAnswerText(q, optionOrder))),
                       ),
                     ),
                   );
@@ -1247,7 +1360,7 @@
                   h("span", { class: "qid" }, entry.id),
                   " ",
                   h("span", { class: "list-meta" }, `${MODE_LABELS[entry.mode] || entry.mode}・${formatDate(entry.at)}`),
-                  q ? h("span", { class: "list-stem", lang: "en" }, q.stem.length > 70 ? `${q.stem.slice(0, 70)}…` : q.stem) : null,
+                  q ? h("span", { class: "list-stem", lang: qLang(q) }, shortStem(q)) : null,
                 );
               }),
             )
@@ -1283,25 +1396,32 @@
     const st = state.stats;
     let statusFilter = "";
     let domainFilter = "";
+    let translationFilter = "";
     const listHolder = h("div", { class: "review-list" });
 
     const drawList = () => {
-      const items = state.bank.filter((q) => (!statusFilter || q.status === statusFilter) && (!domainFilter || q.domain === domainFilter));
+      const items = state.bank.filter(
+        (q) =>
+          (!statusFilter || q.status === statusFilter) &&
+          (!domainFilter || q.domain === domainFilter) &&
+          (!translationFilter || translationStatus(q) === translationFilter || (translationFilter === "low" && state.ja[q.id] && state.ja[q.id].lowConfidence)),
+      );
       listHolder.replaceChildren(
         h("p", { class: "hint" }, `${items.length}問`),
         ...items.map((q) =>
           h(
             "details",
             { class: "review-item" },
-            h("summary", null, h("span", { class: "qid" }, q.id), " ", statusBadge(q.status), " ", h("span", { lang: "en" }, shortStem(q))),
+            h("summary", null, h("span", { class: "qid" }, q.id), " ", statusBadge(q.status), " ", h("span", { lang: qLang(q) }, shortStem(q))),
             questionDetail(
               q,
               h(
                 "div",
                 { class: "answers" },
-                h("p", null, h("b", null, "正解: "), h("span", { lang: "en" }, correctAnswerText(q, null))),
-                q.type !== "dropdown" ? h("ul", { class: "plain options-list", lang: "en" }, q.options.map((text, i) => h("li", { class: q.answer.includes(i) ? "is-correct" : "" }, text))) : null,
-                h("p", { class: "hint" }, `分野: ${domainLabel(q.domain)}・スキル: ${q.skills.join(", ") || "未割当"}・統合元の元問題番号: ${q.sourceNumbers.map((n) => `#${n}`).join(", ")}`),
+                h("p", null, h("b", null, "正解: "), h("span", { lang: qLang(q) }, correctAnswerText(q, null))),
+                q.type !== "dropdown" ? h("ul", { class: "plain options-list", lang: qLang(q) }, q.options.map((_, i) => h("li", { class: q.answer.includes(i) ? "is-correct" : "" }, optionText(q, i)))) : null,
+                h("p", { class: "hint" }, `分野: ${domainLabel(q.domain)}・スキル: ${q.skills.join(", ") || "未割当"}・翻訳: ${TRANSLATION_LABELS[translationStatus(q)]}・統合元の元問題番号: ${q.sourceNumbers.map((n) => `#${n}`).join(", ")}`),
+                state.ja[q.id] && state.ja[q.id].reviewNotes ? h("p", { class: "hint" }, `翻訳メモ: ${state.ja[q.id].reviewNotes}`) : null,
               ),
             ),
           ),
@@ -1370,6 +1490,31 @@
       h(
         "section",
         { class: "card" },
+        h("h2", null, "日本語訳の状態"),
+        h(
+          "div",
+          { class: "table-wrap" },
+          h(
+            "table",
+            null,
+            h("thead", null, h("tr", null, h("th", null, "翻訳状態"), h("th", null, "問題数"), h("th", null, "意味"))),
+            h(
+              "tbody",
+              null,
+              Object.keys(TRANSLATION_LABELS).map((key) =>
+                h("tr", null, h("td", null, h("span", { class: `badge tr-${key}` }, TRANSLATION_LABELS[key])), h("td", null, (st.translation && st.translation.status[key]) || 0), h("td", null, TRANSLATION_DESCRIPTIONS[key])),
+              ),
+            ),
+          ),
+        ),
+        st.translation && st.translation.lowConfidence.length
+          ? h("p", { class: "hint" }, `翻訳に自信がなく特に確認が必要な問題: ${st.translation.lowConfidence.join(", ")}`)
+          : null,
+        h("p", null, h("a", { href: `${REPO_URL}/blob/main/docs/translation-audit.md`, target: "_blank", rel: "noopener" }, "翻訳品質の監査レポート")),
+      ),
+      h(
+        "section",
+        { class: "card" },
         h("h2", null, "分野別の問題数"),
         h(
           "div",
@@ -1429,6 +1574,20 @@
             h("option", { value: "" }, "すべての分野"),
             state.domains.map((d) => h("option", { value: d.id }, d.shortJa)),
           ),
+          h(
+            "select",
+            {
+              class: "select",
+              "aria-label": "翻訳状態で絞り込み",
+              onchange: (event) => {
+                translationFilter = event.target.value;
+                drawList();
+              },
+            },
+            h("option", { value: "" }, "すべての翻訳状態"),
+            Object.keys(TRANSLATION_LABELS).map((key) => h("option", { value: key }, TRANSLATION_LABELS[key])),
+            h("option", { value: "low" }, "翻訳に自信なし"),
+          ),
         ),
         listHolder,
       ),
@@ -1450,17 +1609,23 @@
     const related = new Map(state.glossary.terms.map((t) => [t.term, corpus.filter((text) => (t.match || []).some((m) => text.includes(m))).length]));
     const draw = () => {
       const q = query.trim().toLowerCase();
-      const items = state.glossary.terms.filter((t) => !q || `${t.term} ${t.roleJa} ${(t.aliases || []).join(" ")}`.toLowerCase().includes(q));
+      const items = state.glossary.terms.filter((t) => !q || `${t.term} ${t.jaName || ""} ${t.roleJa} ${(t.aliases || []).join(" ")}`.toLowerCase().includes(q));
       holder.replaceChildren(
         ...items.map((t) =>
           h(
             "article",
             { class: "card term" },
             h("h3", { lang: "en" }, t.term),
-            t.aliases && t.aliases.length ? h("p", { class: "hint", lang: "en" }, `別名・関連語: ${t.aliases.join(", ")}`) : null,
+            t.jaName && t.jaName !== t.term ? h("p", { class: "hint" }, `Learn 日本語版の表記: ${t.jaName}`) : null,
+            t.aliases && t.aliases.length ? h("p", { class: "hint" }, `別名・旧称・関連語: ${t.aliases.join(", ")}`) : null,
             h("p", null, t.roleJa),
             h("p", { class: "hint" }, `関連分野: ${t.domains.map(domainLabel).join("・")}・関連する問題: 約${related.get(t.term)}問`),
-            h("p", null, h("a", { href: t.url, target: "_blank", rel: "noopener" }, "Microsoft Learn")),
+            h(
+              "p",
+              { class: "row" },
+              t.urlJa ? h("a", { href: t.urlJa, target: "_blank", rel: "noopener" }, "Microsoft Learn（日本語）") : null,
+              h("a", { href: t.url, target: "_blank", rel: "noopener" }, "Microsoft Learn（English）"),
+            ),
           ),
         ),
       );
@@ -1498,12 +1663,14 @@
   }
 
   async function init() {
-    const [bank, domainsDoc, stats, glossary] = await Promise.all([
+    const [bank, domainsDoc, stats, glossary, ja] = await Promise.all([
       fetchJson("data/bank.json"),
       fetchJson("data/domains.json"),
       fetchJson("data/stats.json"),
       fetchJson("data/glossary.json").catch(() => null),
+      fetchJson("data/i18n/ja.json").catch(() => null),
     ]);
+    state.ja = ja && ja.questions ? ja.questions : {};
     state.bank = bank;
     state.byId = Core.indexBank(bank);
     state.domainsDoc = domainsDoc;
@@ -1512,8 +1679,12 @@
     state.stats = stats;
     state.glossary = glossary && Array.isArray(glossary.terms) && glossary.terms.length ? glossary : null;
     state.history = Core.sanitizeHistory(readStore(STORAGE.history));
-    state.settings = { pool: "verified", ...(readStore(STORAGE.settings) || {}) };
+    state.settings = { pool: "verified", lang: "ja", ...(readStore(STORAGE.settings) || {}) };
     if (!Core.POOL_STATUSES[state.settings.pool]) state.settings.pool = "verified";
+    if (state.settings.lang !== "en") state.settings.lang = "ja";
+    const toggle = document.getElementById("langToggle");
+    if (toggle) toggle.addEventListener("click", switchLanguage);
+    langToggle();
     state.session = Core.reconcileSession(readStore(STORAGE.session), state.byId);
     if (state.session) saveSession(false);
     else removeStore(STORAGE.session);

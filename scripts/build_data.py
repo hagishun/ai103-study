@@ -6,6 +6,7 @@ Inputs (all in the repository):
   data/domains.json                 AI-103 skills measured (kept separate from question data)
   data/review/semantic-merges.json  manual decisions for semantic (paraphrased) duplicates
   data/review/quality.json          per-question quality status, evidence URLs, notes, skills
+  data/i18n/ja.json                 Japanese translations keyed by question ID (validated, not merged)
 
 Outputs:
   data/bank.json        de-duplicated questions used by the site
@@ -23,6 +24,7 @@ import argparse
 import csv
 import io
 import json
+import re
 import sys
 from collections import Counter, OrderedDict
 from pathlib import Path
@@ -33,6 +35,7 @@ SOURCE = DATA / "source" / "questions.json"
 DOMAINS = DATA / "domains.json"
 MERGES = DATA / "review" / "semantic-merges.json"
 QUALITY = DATA / "review" / "quality.json"
+JA = DATA / "i18n" / "ja.json"
 OUT_BANK = DATA / "bank.json"
 OUT_LOG_JSON = DATA / "dedup-log.json"
 OUT_LOG_CSV = DATA / "dedup-log.csv"
@@ -49,6 +52,9 @@ TEMPLATE_TAILS = [
 ]
 INCOHERENT_TAIL = "Which Microsoft Learn objective does this test most directly?"
 STATUSES = ["verified", "unverified", "outdated", "ambiguous", "out_of_scope"]
+# Translation workflow state, independent from the quality status above.
+# "reviewed" may only be set by a human reviewer; AI translations and AI checks stay "needs_review".
+TRANSLATION_STATUSES = ["untranslated", "needs_review", "reviewed"]
 TYPE_MAP = {
     "Single answer": "single",
     "Multiple response (2 correct)": "multiple",
@@ -226,8 +232,48 @@ def build():
             )
     log_rows.sort(key=lambda row: row["sourceNumber"])
 
+    translation = check_translations(bank, load_json(JA, {"questions": {}}).get("questions", {}))
     stats = make_stats(source, bank, log_rows, domains)
+    stats["translation"] = translation
     return bank, log_rows, stats
+
+
+def check_translations(bank, ja):
+    """Validate data/i18n/ja.json against the bank and count translation states."""
+    ids = {q["id"] for q in bank}
+    unknown = sorted(set(ja) - ids)
+    assert not unknown, f"translations for unknown question IDs: {unknown}"
+    counts = Counter()
+    low_confidence = []
+    for q in bank:
+        tr = ja.get(q["id"])
+        status = tr.get("status", "needs_review") if tr else "untranslated"
+        assert status in TRANSLATION_STATUSES, f"{q['id']}: unknown translation status {status}"
+        counts[status] += 1
+        if not tr or status == "untranslated":
+            continue
+        cid = q["id"]
+        assert isinstance(tr.get("stem"), str) and tr["stem"].strip(), f"{cid}: missing Japanese stem"
+        assert isinstance(tr.get("explanation"), str) and tr["explanation"].strip(), f"{cid}: missing Japanese explanation"
+        blanks_en = sorted(re.findall(r"\[\[drop\d+\]\]", q["stem"]))
+        blanks_ja = sorted(re.findall(r"\[\[drop\d+\]\]", tr["stem"]))
+        assert blanks_en == blanks_ja, f"{cid}: dropdown placeholders changed in Japanese stem"
+        if q["type"] == "dropdown":
+            for d in q["dropdowns"]:
+                td = (tr.get("dropdowns") or {}).get(d["id"])
+                assert td and len(td.get("choices", [])) == len(d["choices"]), f"{cid}: {d['id']} choices must align with English"
+        else:
+            options = tr.get("options")
+            assert isinstance(options, list) and len(options) == len(q["options"]), f"{cid}: options must align with English"
+            assert all(isinstance(o, str) and o.strip() for o in options), f"{cid}: empty Japanese option"
+        for url in tr.get("references", []):
+            assert url.startswith("https://"), f"{cid}: reference must be https: {url}"
+        if tr.get("lowConfidence"):
+            low_confidence.append(cid)
+    return OrderedDict(
+        status=OrderedDict((s, counts.get(s, 0)) for s in TRANSLATION_STATUSES),
+        lowConfidence=low_confidence,
+    )
 
 
 def make_stats(source, bank, log_rows, domains):

@@ -132,20 +132,17 @@ async function selectCorrect(page, q, { wrong = false } = {}) {
     }
     return;
   }
-  const targets = q.answer.map((i) => q.options[i]);
-  if (wrong) targets[targets.length - 1] = q.options.find((_, i) => !q.answer.includes(i));
-  for (const text of targets) {
-    await clickChoice(page, text);
+  const targets = [...q.answer];
+  if (wrong) targets[targets.length - 1] = q.options.findIndex((_, i) => !q.answer.includes(i));
+  for (const index of targets) {
+    await clickChoice(page, index);
   }
 }
 
-async function clickChoice(page, text) {
-  const handle = await page.evaluateHandle(
-    (t) => [...document.querySelectorAll("label.choice")].find((el) => el.querySelector(".choice-text").textContent === t),
-    text,
-  );
-  const el = handle.asElement();
-  assert(el, `no choice "${text}"`);
+// Options are addressed by their original index, so the helpers work in Japanese and English.
+async function clickChoice(page, index) {
+  const el = await page.$(`label.choice[data-option="${index}"]`);
+  assert(el, `no choice with original index ${index}`);
   await press(el);
 }
 
@@ -264,6 +261,65 @@ async function main() {
     assert(hint.includes("対象 5 問"), `include-correct should offer 5, got ${hint}`);
   });
 
+  await check("Japanese by default; one-tap switch to English mid-question keeps the answer", async () => {
+    const ja = JSON.parse(fs.readFileSync(path.join(root, "data/i18n/ja.json"), "utf8")).questions;
+    const q = bank.find((item) => Core.isServable(item) && item.type === "single" && ja[item.id]);
+    const d = bank.find((item) => Core.isServable(item) && item.type === "dropdown" && ja[item.id]);
+    const wrongIndex = q.options.findIndex((_, i) => !q.answer.includes(i));
+    await injectSession(page, base, [q, d], "domain");
+    await go(page, base, "#/quiz");
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("ai103.settings.v1") || "{}").lang || "ja");
+    assert(stored === "ja", `default language should be ja, got ${stored}`);
+    let stem = await page.$eval(".stem", (el) => [el.textContent, el.lang]);
+    assert(stem[1] === "ja" && stem[0] === ja[q.id].stem, `Japanese stem expected, got ${stem}`);
+    const jaOption = await page.$eval(`label.choice[data-option="${wrongIndex}"] .choice-text`, (el) => el.textContent);
+    assert(jaOption === ja[q.id].options[wrongIndex], "Japanese option text expected");
+    await clickChoice(page, wrongIndex);
+    await shot(page, "13-ja-question");
+    await press(await page.$("#langToggle"));
+    stem = await page.$eval(".stem", (el) => [el.textContent, el.lang]);
+    assert(stem[1] === "en" && stem[0] === q.stem, "English stem expected after one tap");
+    const enOption = await page.$eval(`label.choice[data-option="${wrongIndex}"] .choice-text`, (el) => el.textContent);
+    assert(enOption === q.options[wrongIndex], "English option text expected");
+    const stillChecked = await page.$eval(`label.choice[data-option="${wrongIndex}"] input`, (el) => el.checked);
+    assert(stillChecked, "selection must survive the language switch");
+    await noHorizontalOverflow(page, "English question");
+    await clickText(page, "#actionbar button", "回答する");
+    await page.waitForSelector(".feedback");
+    assert((await page.$eval(".verdict", (el) => el.textContent)) === "不正解", "verdict must not depend on language");
+    const enFeedback = await page.$eval(".feedback", (el) => el.textContent);
+    assert(enFeedback.includes(q.options[q.answer[0]]) && enFeedback.includes(q.explanation), "English feedback expected");
+    await press(await page.$("#langToggle"));
+    const jaFeedback = await page.$eval(".feedback", (el) => el.textContent);
+    const firstLine = ja[q.id].explanation.split(/\n+/)[0];
+    assert(jaFeedback.includes(ja[q.id].options[q.answer[0]]) && jaFeedback.includes(firstLine), "Japanese feedback expected");
+    assert((await page.$eval(".verdict", (el) => el.textContent)) === "不正解", "verdict unchanged after switching back");
+    await noHorizontalOverflow(page, "Japanese feedback");
+    await shot(page, "14-ja-feedback");
+    // dropdown: Japanese labels, English values; answer survives a switch
+    await clickText(page, "#actionbar button", "次へ");
+    await page.waitForSelector(".blank select");
+    for (let i = 0; i < d.dropdowns.length; i += 1) {
+      const selects = await page.$$(".blank select");
+      await selects[i].select(d.dropdowns[i].answer);
+    }
+    await press(await page.$("#langToggle"));
+    const values = await page.$$eval(".blank select", (els) => els.map((el) => el.value));
+    assert(JSON.stringify(values) === JSON.stringify(d.dropdowns.map((x) => x.answer)), "dropdown answers must survive the switch");
+    await press(await page.$("#langToggle"));
+    await clickText(page, "#actionbar button", "回答する");
+    assert((await page.$eval(".verdict", (el) => el.textContent)) === "正解", "dropdown verdict");
+    // the choice persists across reloads
+    await press(await page.$("#langToggle"));
+    await go(page, base, "#/quiz");
+    assert((await page.$eval(".stem", (el) => el.lang)) === "en", "English should persist after reload");
+    await press(await page.$("#langToggle"));
+    await go(page, base, "#/");
+    const lang = await page.evaluate(() => JSON.parse(localStorage.getItem("ai103.settings.v1")).lang);
+    assert(lang === "ja", "Japanese should be saved again");
+    await clickText(page, ".resume button", "破棄");
+  });
+
   await check("multiple-response and dropdown scoring in the UI", async () => {
     const multi = bank.filter((q) => q.type === "multiple" && q.status === "verified").slice(0, 2).map((q) => q.id);
     const drop = bank.filter((q) => q.type === "dropdown" && q.status === "verified").slice(0, 2).map((q) => q.id);
@@ -279,10 +335,10 @@ async function main() {
       const [id, wrong, expected] = expectations[i];
       const q = byId.get(id);
       if (q.type === "multiple") {
-        await clickChoice(page, q.options[q.answer[0]]);
+        await clickChoice(page, q.answer[0]);
         const label = await page.$eval("#actionbar .btn.primary", (b) => [b.disabled, b.textContent]);
         assert(label[0] && label[1].includes("1/2"), `one of two selected should keep submit disabled: ${label}`);
-        await clickChoice(page, q.options[q.answer[0]]);
+        await clickChoice(page, q.answer[0]);
       }
       await selectCorrect(page, q, { wrong });
       if (i === 2) {

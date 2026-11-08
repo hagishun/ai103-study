@@ -1,521 +1,624 @@
 {
-  "description": "問題データに登場する Microsoft の製品・機能名と役割の早見表です。リンクはすべて Microsoft Learn（2026-11-08 に HTTP 200 を確認）。名称は変更されることがあるため、最新情報は Learn で確認してください。",
+  "description": "問題データに登場する Microsoft の製品・機能名と役割の早見表です。名称と日本語表記は 2026-11-08 に Microsoft Learn（英語版・日本語版）で確認しました。名称は変更されることがあるため、最新情報は Learn で確認してください。",
   "terms": [
     {
       "term": "Microsoft Foundry",
+      "jaName": "Microsoft Foundry",
       "aliases": [
-        "Azure AI Foundry"
+        "Azure AI Foundry（旧称）",
+        "Azure AI Studio（旧称）"
       ],
-      "match": [
-        "foundry"
-      ],
+      "roleJa": "生成AIアプリとエージェントを構築・評価・運用するプラットフォーム。旧称は Azure AI Foundry（さらに前は Azure AI Studio）。プロジェクト単位でモデルのデプロイ、ツール、評価、エージェントをまとめて管理します。",
       "domains": [
         "plan",
         "genai"
       ],
-      "roleJa": "生成AIアプリとエージェントを構築・評価・運用するプラットフォーム。プロジェクト単位でモデルのデプロイ、ツール、評価、エージェントをまとめて管理します。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/what-is-foundry",
+      "match": [
+        "foundry"
+      ]
     },
     {
       "term": "Foundry Agent Service",
+      "jaName": "Microsoft Foundry Agent Service",
       "aliases": [],
+      "roleJa": "指示・ツール・知識を持つエージェントをホストして実行するサービス。現行 SDK では create_version() と PromptAgentDefinition でエージェントを定義します（旧 create_agent() からの移行が案内されています）。",
+      "domains": [
+        "genai"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/agents/overview",
       "match": [
         "agent service",
         "create_version",
         "promptagentdefinition"
-      ],
-      "domains": [
-        "genai"
-      ],
-      "roleJa": "指示・ツール・知識を持つエージェントをホストして実行するサービス。現行 SDK では create_version() と PromptAgentDefinition でエージェントを定義します（旧 create_agent() からの移行が案内されています）。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/overview"
+      ]
     },
     {
       "term": "Agent memory",
+      "jaName": "メモリ",
       "aliases": [],
-      "match": [
-        "memory"
-      ],
+      "roleJa": "ユーザーの好みなどをセッションをまたいで保持するエージェントの長期メモリ。事実に関する回答は、管理された知識ソースからの取得と組み合わせます。",
       "domains": [
         "plan",
         "genai"
       ],
-      "roleJa": "ユーザーの好みなどをセッションをまたいで保持するエージェントの長期メモリ。事実に関する回答は、管理された知識ソースからの取得と組み合わせます。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-memory"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-memory",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/what-is-memory",
+      "match": [
+        "memory"
+      ]
     },
     {
       "term": "Function calling / tools",
+      "jaName": "関数呼び出し / ツール",
       "aliases": [
         "tool schema"
       ],
+      "roleJa": "モデルやエージェントが外部 API・関数を呼び出す仕組み。ツールの名前・説明・パラメーターのスキーマを定義し、必要に応じて承認を挟みます。",
+      "domains": [
+        "genai"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/function-calling",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/function-calling",
       "match": [
         "tool schema",
         "function",
         "tool_choice",
         "tool call"
-      ],
-      "domains": [
-        "genai"
-      ],
-      "roleJa": "モデルやエージェントが外部 API・関数を呼び出す仕組み。ツールの名前・説明・パラメーターのスキーマを定義し、必要に応じて承認を挟みます。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/function-calling"
+      ]
     },
     {
       "term": "Multi-agent orchestration",
+      "jaName": "AI エージェント オーケストレーション パターン",
       "aliases": [
         "handoff",
         "Magentic",
         "sequential",
         "concurrent"
       ],
+      "roleJa": "複数エージェントの連携パターン（逐次、並行、handoff、Magentic など）。タスクの依存関係や役割分担に応じて選びます。",
+      "domains": [
+        "genai"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns",
       "match": [
         "handoff",
         "magentic",
         "orchestration"
-      ],
-      "domains": [
-        "genai"
-      ],
-      "roleJa": "複数エージェントの連携パターン（逐次、並行、handoff、Magentic など）。タスクの依存関係や役割分担に応じて選びます。",
-      "url": "https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+      ]
     },
     {
       "term": "Azure OpenAI in Foundry Models",
+      "jaName": "Microsoft Foundry Models の Azure OpenAI",
       "aliases": [
         "Azure OpenAI"
       ],
-      "match": [
-        "openai",
-        "deployment"
-      ],
+      "roleJa": "GPT などのモデルをデプロイして推論 API で利用するサービス。デプロイ種別、モデル バージョン、クォータ（TPM/RPM）を管理します。",
       "domains": [
         "plan",
         "genai"
       ],
-      "roleJa": "GPT などのモデルをデプロイして推論 API で利用するサービス。デプロイ種別、モデル バージョン、クォータ（TPM/RPM）を管理します。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/working-with-models",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/working-with-models",
+      "match": [
+        "openai",
+        "deployment"
+      ]
     },
     {
       "term": "Provisioned throughput",
+      "jaName": "プロビジョニング済みスループット",
       "aliases": [
         "PTU"
       ],
-      "match": [
-        "provisioned"
-      ],
+      "roleJa": "専用の処理容量を確保するデプロイ。予測可能なスループットと安定したレイテンシが必要な本番ワークロード向けです。",
       "domains": [
         "plan"
       ],
-      "roleJa": "専用の処理容量を確保するデプロイ。予測可能なスループットと安定したレイテンシが必要な本番ワークロード向けです。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/provisioned-throughput"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/provisioned-throughput",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/provisioned-throughput",
+      "match": [
+        "provisioned"
+      ]
     },
     {
       "term": "Quota (TPM / RPM)",
+      "jaName": "クォータ（TPM / RPM）",
       "aliases": [
         "rate limit"
       ],
+      "roleJa": "デプロイごとに割り当てる 1 分あたりのトークン数・要求数の上限。429 エラー時はクォータ、再試行、デプロイの割り当てを見直します。",
+      "domains": [
+        "plan"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/quota",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/quota",
       "match": [
         "quota",
         "tpm",
         "rate-limit",
         "rate limit"
-      ],
-      "domains": [
-        "plan"
-      ],
-      "roleJa": "デプロイごとに割り当てる 1 分あたりのトークン数・要求数の上限。429 エラー時はクォータ、再試行、デプロイの割り当てを見直します。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/quota"
+      ]
     },
     {
       "term": "Structured outputs / JSON mode",
+      "jaName": "構造化出力 / JSON モード",
       "aliases": [
         "response_format",
         "json_schema"
       ],
-      "match": [
-        "json"
-      ],
+      "roleJa": "モデルの出力を JSON やスキーマに沿わせる機能。下流の自動処理には JSON スキーマを指定する Structured Outputs が推奨されます。",
       "domains": [
         "genai",
         "text"
       ],
-      "roleJa": "モデルの出力を JSON やスキーマに沿わせる機能。下流の自動処理には JSON スキーマを指定する Structured Outputs が推奨されます。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/structured-outputs",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/structured-outputs",
+      "match": [
+        "json"
+      ]
     },
     {
-      "term": "Evaluators",
+      "term": "Evaluation / evaluators",
+      "jaName": "評価 / エバリュエーター",
       "aliases": [
         "groundedness",
         "retrieval",
         "tool call accuracy"
       ],
+      "roleJa": "Foundry の評価機能。エバリュエーター（評価器）で、回答の根拠性（groundedness）、取得の関連性、完全性、エージェントのツール呼び出し精度などを測ります。",
+      "domains": [
+        "genai",
+        "plan"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/concepts/evaluation-evaluators/rag-evaluators",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators",
       "match": [
         "evaluat",
         "groundedness"
-      ],
-      "domains": [
-        "genai",
-        "plan"
-      ],
-      "roleJa": "回答の根拠性（groundedness）、取得の関連性、完全性、エージェントのツール呼び出し精度などを測る Foundry の評価機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+      ]
     },
     {
       "term": "Tracing",
+      "jaName": "エージェント トレース",
       "aliases": [
         "observability"
       ],
-      "match": [
-        "tracing",
-        "trace"
-      ],
+      "roleJa": "LLM 呼び出し、ツール実行、handoff、レイテンシ、例外などを記録して可視化する仕組み。エージェントのエラー分析や監査に使います。",
       "domains": [
         "genai",
         "plan"
       ],
-      "roleJa": "LLM 呼び出し、ツール実行、handoff、レイテンシ、例外などを記録して可視化する仕組み。エージェントのエラー分析や監査に使います。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/observability/concepts/trace-agent-concept"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/observability/concepts/trace-agent-concept",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept",
+      "match": [
+        "tracing",
+        "trace"
+      ]
     },
     {
       "term": "Guardrails",
+      "jaName": "ガードレール",
       "aliases": [
         "content filters"
       ],
+      "roleJa": "ユーザー入力、ツール呼び出し、ツール応答、最終出力などの介入ポイントでリスクを検出・ブロックする Foundry の安全機能です。",
+      "domains": [
+        "plan",
+        "vision",
+        "text"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/guardrails/guardrails-overview",
       "match": [
         "guardrail",
         "filter",
         "safety"
+      ]
+    },
+    {
+      "term": "Azure AI Content Safety",
+      "jaName": "Azure AI Content Safety / プロンプト シールド",
+      "aliases": [
+        "Prompt Shields"
       ],
+      "roleJa": "有害なテキスト・画像の分類や、ジェイルブレイク・間接プロンプトインジェクションの検出（Prompt Shields）を行うサービスです。",
       "domains": [
         "plan",
         "vision",
         "text"
       ],
-      "roleJa": "ユーザー入力、ツール呼び出し、ツール応答、最終出力などの介入ポイントでリスクを検出・ブロックする Foundry の安全機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview"
-    },
-    {
-      "term": "Azure AI Content Safety",
-      "aliases": [
-        "Prompt Shields"
-      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/overview",
       "match": [
         "content safety",
         "prompt shield",
         "injection"
-      ],
-      "domains": [
-        "plan",
-        "vision",
-        "text"
-      ],
-      "roleJa": "有害なテキスト・画像の分類や、ジェイルブレイク・間接プロンプトインジェクションの検出（Prompt Shields）を行うサービスです。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview"
+      ]
     },
     {
       "term": "Managed identity",
+      "jaName": "マネージド ID",
       "aliases": [
         "DefaultAzureCredential",
         "keyless"
       ],
+      "roleJa": "コードにシークレットを書かずに Azure リソースへ認証する ID。アクセスできる範囲は RBAC のロール割り当てで制御します。",
+      "domains": [
+        "plan"
+      ],
+      "url": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/entra/identity/managed-identities-azure-resources/overview",
       "match": [
         "managed identity",
         "defaultazurecredential",
         "keyless"
-      ],
-      "domains": [
-        "plan"
-      ],
-      "roleJa": "コードにシークレットを書かずに Azure リソースへ認証する ID。アクセスできる範囲は RBAC のロール割り当てで制御します。",
-      "url": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview"
+      ]
     },
     {
       "term": "Private Link",
+      "jaName": "ネットワーク分離 / プライベート リンク",
       "aliases": [
         "private endpoint"
       ],
-      "match": [
-        "private"
-      ],
+      "roleJa": "Foundry などへの通信をプライベートネットワーク経由に限定する仕組み。DNS とロール割り当ても合わせて確認します。",
       "domains": [
         "plan"
       ],
-      "roleJa": "Foundry などへの通信をプライベートネットワーク経由に限定する仕組み。DNS とロール割り当ても合わせて確認します。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/how-to/configure-private-link",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/how-to/configure-private-link",
+      "match": [
+        "private"
+      ]
     },
     {
       "term": "Azure AI Search",
+      "jaName": "Azure AI Search",
       "aliases": [
         "Azure Cognitive Search"
       ],
-      "match": [
-        "search"
-      ],
+      "roleJa": "コンテンツを取り込んでインデックス化し、キーワード・ベクトル・ハイブリッド・セマンティック検索を提供するサービス。RAG の検索基盤として使います。",
       "domains": [
         "extract",
         "genai",
         "plan"
       ],
-      "roleJa": "コンテンツを取り込んでインデックス化し、キーワード・ベクトル・ハイブリッド・セマンティック検索を提供するサービス。RAG の検索基盤として使います。",
-      "url": "https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search"
+      "url": "https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/search/search-what-is-azure-search",
+      "match": [
+        "search"
+      ]
     },
     {
       "term": "Hybrid search",
+      "jaName": "ハイブリッド検索",
       "aliases": [],
-      "match": [
-        "hybrid"
-      ],
+      "roleJa": "キーワード検索とベクトル検索を 1 つの要求で実行し、結果を統合する検索。製品コードの完全一致と概念的な質問の両方に対応できます。",
       "domains": [
         "extract",
         "plan"
       ],
-      "roleJa": "キーワード検索とベクトル検索を 1 つの要求で実行し、結果を統合する検索。製品コードの完全一致と概念的な質問の両方に対応できます。",
-      "url": "https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview"
+      "url": "https://learn.microsoft.com/en-us/azure/search/hybrid-search-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-overview",
+      "match": [
+        "hybrid"
+      ]
     },
     {
       "term": "Semantic ranker",
+      "jaName": "セマンティック ランキング",
       "aliases": [
         "semantic ranking"
       ],
-      "match": [
-        "semantic"
-      ],
+      "roleJa": "検索結果を言語モデルで再ランク付けし、キャプションや回答を生成する Azure AI Search の機能です。",
       "domains": [
         "extract"
       ],
-      "roleJa": "検索結果を言語モデルで再ランク付けし、キャプションや回答を生成する Azure AI Search の機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/search/semantic-search-overview"
+      "url": "https://learn.microsoft.com/en-us/azure/search/semantic-search-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/search/semantic-search-overview",
+      "match": [
+        "semantic"
+      ]
     },
     {
       "term": "Vector search",
+      "jaName": "ベクター検索",
       "aliases": [
         "embeddings",
         "VectorizedQuery"
       ],
-      "match": [
-        "vector"
-      ],
+      "roleJa": "埋め込みベクトルの類似度で関連コンテンツを探す検索。フィルターの適用タイミング（preFilter / postFilter）も設定できます。",
       "domains": [
         "extract"
       ],
-      "roleJa": "埋め込みベクトルの類似度で関連コンテンツを探す検索。フィルターの適用タイミング（preFilter / postFilter）も設定できます。",
-      "url": "https://learn.microsoft.com/en-us/azure/search/vector-search-overview"
+      "url": "https://learn.microsoft.com/en-us/azure/search/vector-search-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/search/vector-search-overview",
+      "match": [
+        "vector"
+      ]
     },
     {
       "term": "Indexer / skillset",
+      "jaName": "インデクサー / スキルセット",
       "aliases": [
         "AI enrichment"
       ],
-      "match": [
-        "indexer",
-        "skillset",
-        "enrichment"
-      ],
+      "roleJa": "データソースから定期的にコンテンツを取り込むインデクサーと、OCR やレイアウト抽出などのスキルで内容を加工するスキルセットです。",
       "domains": [
         "extract",
         "plan"
       ],
-      "roleJa": "データソースから定期的にコンテンツを取り込むインデクサーと、OCR やレイアウト抽出などのスキルで内容を加工するスキルセットです。",
-      "url": "https://learn.microsoft.com/en-us/azure/search/search-indexer-overview"
+      "url": "https://learn.microsoft.com/en-us/azure/search/search-indexer-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/search/search-indexer-overview",
+      "match": [
+        "indexer",
+        "skillset",
+        "enrichment"
+      ]
     },
     {
       "term": "Azure Content Understanding",
+      "jaName": "Foundry Tools の Azure Content Understanding",
       "aliases": [
         "Content Understanding in Foundry Tools"
       ],
-      "match": [
-        "content understanding"
-      ],
+      "roleJa": "文書・画像・音声・動画からスキーマ定義のフィールドや Markdown を抽出するサービス。RAG やエージェント向けの整った表現を作ります。",
       "domains": [
         "extract",
         "vision"
       ],
-      "roleJa": "文書・画像・音声・動画からスキーマ定義のフィールドや Markdown を抽出するサービス。RAG やエージェント向けの整った表現を作ります。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/overview",
+      "match": [
+        "content understanding"
+      ]
     },
     {
       "term": "Azure Document Intelligence",
+      "jaName": "Azure Document Intelligence",
       "aliases": [
         "Form Recognizer",
         "Azure AI Document Intelligence"
       ],
-      "match": [
-        "document intelligence",
-        "prebuilt-"
-      ],
+      "roleJa": "OCR とレイアウト分析、請求書などの事前構築済みモデルで文書からフィールドを抽出するサービスです。",
       "domains": [
         "extract"
       ],
-      "roleJa": "OCR とレイアウト分析、請求書などの事前構築済みモデルで文書からフィールドを抽出するサービスです。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/overview",
+      "match": [
+        "document intelligence",
+        "prebuilt-"
+      ]
     },
     {
       "term": "Image generation",
+      "jaName": "画像生成",
       "aliases": [
         "gpt-image",
         "DALL-E",
         "inpainting"
       ],
+      "roleJa": "テキストプロンプトや参照画像から画像を生成・編集（マスクによるインペインティングなど）する機能です。",
+      "domains": [
+        "vision"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/dall-e",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/dall-e",
       "match": [
         "image generation",
         "inpainting",
         "generated image"
-      ],
-      "domains": [
-        "vision"
-      ],
-      "roleJa": "テキストプロンプトや参照画像から画像を生成・編集（マスクによるインペインティングなど）する機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/dall-e"
+      ]
     },
     {
       "term": "Video generation (Sora)",
+      "jaName": "ビデオ生成（Sora 2、プレビュー）",
       "aliases": [
         "Sora"
       ],
-      "match": [
-        "video generation",
-        "generated video"
-      ],
+      "roleJa": "テキストや参照メディアから動画を生成する機能です。",
       "domains": [
         "vision"
       ],
-      "roleJa": "テキストや参照メディアから動画を生成する機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/video-generation"
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/video-generation",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/video-generation",
+      "match": [
+        "video generation",
+        "generated video"
+      ]
     },
     {
       "term": "Image Analysis (Azure AI Vision)",
+      "jaName": "画像キャプション（Image Analysis 4.0）",
       "aliases": [
         "captions",
         "object detection"
       ],
+      "roleJa": "画像のキャプション生成や物体検出を行う API。Image Analysis API は 2028-09-25 に廃止予定で、マルチモーダルモデルや Content Understanding への移行が案内されています。",
+      "domains": [
+        "vision"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/concept-describe-images-40",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-describe-images-40",
       "match": [
         "caption",
         "object detection",
         "alt-text",
         "alt text",
         "image analysis"
-      ],
-      "domains": [
-        "vision"
-      ],
-      "roleJa": "画像のキャプション生成や物体検出を行う API。Image Analysis API は 2028-09-25 に廃止予定で、マルチモーダルモデルや Content Understanding への移行が案内されています。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/concept-describe-images-40"
+      ]
     },
     {
-      "term": "Azure Video Indexer",
+      "term": "Azure AI Video Indexer",
+      "jaName": "Azure AI Video Indexer",
       "aliases": [],
-      "match": [
-        "video indexer"
-      ],
+      "roleJa": "動画から人物・テキスト・トピックなどのインサイトを抽出するサービスです。",
       "domains": [
         "vision"
       ],
-      "roleJa": "動画から人物・テキスト・トピックなどのインサイトを抽出するサービスです。",
-      "url": "https://learn.microsoft.com/en-us/azure/azure-video-indexer/video-indexer-overview"
+      "url": "https://learn.microsoft.com/en-us/azure/azure-video-indexer/video-indexer-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/azure-video-indexer/video-indexer-overview",
+      "match": [
+        "video indexer"
+      ]
     },
     {
       "term": "Azure Language",
+      "jaName": "Azure Language（Azure 言語）",
       "aliases": [
         "Text Analytics"
       ],
+      "roleJa": "エンティティ抽出、PII 検出、感情分析、キーフレーズ抽出などのテキスト分析機能。感情分析とキーフレーズ抽出は 2029-03-31 に廃止予定です。",
+      "domains": [
+        "text"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/overview",
       "match": [
         "entity",
         "sentiment",
         "key phrase",
         "pii"
-      ],
-      "domains": [
-        "text"
-      ],
-      "roleJa": "エンティティ抽出、PII 検出、感情分析、キーフレーズ抽出などのテキスト分析機能。感情分析とキーフレーズ抽出は 2029-03-31 に廃止予定です。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview"
+      ]
     },
     {
       "term": "Azure Translator",
+      "jaName": "Azure Translator",
       "aliases": [
         "Translator in Foundry Tools"
       ],
-      "match": [
-        "translator"
-      ],
+      "roleJa": "テキストや文書を翻訳するサービスです。",
       "domains": [
         "text"
       ],
-      "roleJa": "テキストや文書を翻訳するサービスです。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/translator/overview"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/translator/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/translator/overview",
+      "match": [
+        "translator"
+      ]
     },
     {
       "term": "Azure Speech",
+      "jaName": "Azure Speech（音声サービス）",
       "aliases": [
         "Speech SDK"
       ],
-      "match": [
-        "speech"
-      ],
+      "roleJa": "音声認識（speech to text）、音声合成（text to speech）、音声翻訳、発音評価などを提供するサービスです。",
       "domains": [
         "text"
       ],
-      "roleJa": "音声認識（speech to text）、音声合成（text to speech）、音声翻訳、発音評価などを提供するサービスです。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/overview",
+      "match": [
+        "speech"
+      ]
     },
     {
       "term": "Voice Live API",
+      "jaName": "Voice Live API",
       "aliases": [],
-      "match": [
-        "voice live"
-      ],
+      "roleJa": "音声認識・生成AI・音声合成を 1 つのリアルタイム API で扱う音声エージェント向け機能。モデルを別途デプロイせずに利用できます。",
       "domains": [
         "text"
       ],
-      "roleJa": "音声認識・生成AI・音声合成を 1 つのリアルタイム API で扱う音声エージェント向け機能。モデルを別途デプロイせずに利用できます。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/voice-live"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/voice-live",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live",
+      "match": [
+        "voice live"
+      ]
     },
     {
       "term": "Custom speech",
+      "jaName": "Custom Speech",
       "aliases": [
         "phrase list"
       ],
+      "roleJa": "業界用語や雑音環境に合わせて音声認識の精度を上げる機能。軽量な対策としてフレーズリストもあります。",
+      "domains": [
+        "text"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/custom-speech-overview",
       "match": [
         "custom speech",
         "phrase list",
         "jargon"
-      ],
-      "domains": [
-        "text"
-      ],
-      "roleJa": "業界用語や雑音環境に合わせて音声認識の精度を上げる機能。軽量な対策としてフレーズリストもあります。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-speech-overview"
+      ]
     },
     {
       "term": "Custom voice (Custom Neural Voice)",
+      "jaName": "カスタム音声（Custom Neural Voice）",
       "aliases": [
         "Custom Neural Voice"
       ],
+      "roleJa": "ブランド専用の合成音声を作る機能。Limited Access で、利用申請と責任ある AI の要件を満たす必要があります。",
+      "domains": [
+        "text"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-neural-voice",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/custom-neural-voice",
       "match": [
         "custom neural voice",
         "brand voice",
         "custom voice"
-      ],
-      "domains": [
-        "text"
-      ],
-      "roleJa": "ブランド専用の合成音声を作る機能。Limited Access で、利用申請と責任ある AI の要件を満たす必要があります。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/custom-neural-voice"
+      ]
     },
     {
       "term": "Speech translation",
+      "jaName": "音声翻訳",
       "aliases": [],
+      "roleJa": "話された音声を認識し、別の言語のテキストや音声に翻訳する機能です。",
+      "domains": [
+        "text"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-translation",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/speech-translation",
       "match": [
         "speech translation",
         "spoken",
         "translation_config",
         "to_languages"
+      ]
+    },
+    {
+      "term": "Foundry Tools",
+      "jaName": "Foundry Tools",
+      "aliases": [
+        "Azure AI services（旧称）"
       ],
+      "roleJa": "Speech、Language、Translator、Document Intelligence、Content Understanding などの AI サービス群の総称。旧称は Azure AI services です。",
       "domains": [
-        "text"
+        "plan",
+        "vision",
+        "text",
+        "extract"
       ],
-      "roleJa": "話された音声を認識し、別の言語のテキストや音声に翻訳する機能です。",
-      "url": "https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-translation"
+      "url": "https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/ai-services/what-are-ai-services",
+      "match": [
+        "foundry tools"
+      ]
+    },
+    {
+      "term": "Monitoring",
+      "jaName": "監視",
+      "aliases": [
+        "observability"
+      ],
+      "roleJa": "本番の AI アプリやエージェントの品質（groundedness など）、安全性、パフォーマンスを継続的に確認すること。Foundry ではトレースや評価の結果を使って監視します。",
+      "domains": [
+        "plan",
+        "genai"
+      ],
+      "url": "https://learn.microsoft.com/en-us/azure/foundry/observability/concepts/trace-agent-concept",
+      "urlJa": "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept",
+      "match": [
+        "monitor"
+      ]
     }
   ]
 }

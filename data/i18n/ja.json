@@ -1,0 +1,4702 @@
+{
+ "_meta": {
+  "language": "ja",
+  "source": "data/bank.json（英語原文）。選択肢は英語の options と同じ順序（元の選択肢 ID）で対応する。dropdown の choices も同じ順序で対応し、回答値は英語の値のまま保存する。",
+  "createdOn": "2026-11-08",
+  "method": "AI が英語原文と公式ドキュメント（Microsoft Learn）を基に翻訳・解説を作成し、別の AI が英語原文と照合してクロスチェックした。",
+  "statusPolicy": "untranslated=未翻訳、needs_review=要確認（AI の翻訳・AI の自動チェックのみ）、reviewed=確認済み（人が英語原文と照合した場合だけ。reviewedBy に確認者を記録）。AI による自動チェックだけでは reviewed にしない。"
+ },
+ "questions": {
+  "q001": {
+   "status": "needs_review",
+   "stem": "示されたコードで、OpenAI クライアントの資格情報として使用されている値はどれですか？",
+   "options": [
+    "DefaultAzureCredential から作成された Microsoft Entra トークン プロバイダー",
+    "ハードコードされた Azure OpenAI キー",
+    "音声サービスのエンドポイント ID",
+    "Azure AI Search のクエリ キー"
+   ],
+   "explanation": "get_bearer_token_provider は DefaultAzureCredential をラップし、スコープ https://ai.azure.com/.default の Microsoft Entra トークンを返すトークン プロバイダーを作成します。このプロバイダーを OpenAI クライアントの api_key に渡すことで、API キーを使わないキーレス認証になります。\nコード中にキー文字列はハードコードされておらず、音声サービスのエンドポイント ID や Azure AI Search のクエリ キーも使われていません。\nMicrosoft Entra ID によるキーレス認証では、シークレットをコードに含めずにトークンでアクセスを認証できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/api-version-lifecycle"
+   ],
+   "terms": [
+    {
+     "term": "DefaultAzureCredential",
+     "note": "Azure Identity ライブラリのクラスで、実行環境で利用できる資格情報（開発者のサインインやマネージド ID など）を使って Microsoft Entra トークンを取得します。"
+    },
+    {
+     "term": "キーレス認証",
+     "note": "API キーの代わりに Microsoft Entra ID のトークンで認証する方式です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q002": {
+   "status": "needs_review",
+   "stem": "このリクエストで構成されている reasoning effort（推論の労力）の値はどれですか？",
+   "options": [
+    "medium",
+    "low",
+    "high",
+    "このコードでは reasoning effort は構成されていない"
+   ],
+   "explanation": "リクエストで reasoning_effort=\"medium\" が明示的に指定されているため、medium が正解です。\nlow や high はコード内に現れません。また reasoning_effort パラメーターは明示的に設定されているので、「構成されていない」も誤りです。\nreasoning_effort は推論モデルが回答する前にどの程度思考するかを制御するパラメーターで、サポートされる値や既定値はモデルによって異なります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/reasoning"
+   ],
+   "terms": [
+    {
+     "term": "reasoning_effort",
+     "note": "推論モデルが回答前に行う思考の量を制御するパラメーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q003": {
+   "status": "needs_review",
+   "stem": "本番アプリについて、このコードで指摘すべきセキュリティ上の弱点はどれですか？",
+   "options": [
+    "アプリケーション コードにクエリ キーを直接埋め込んでいる",
+    "選択しているフィールドが多すぎる",
+    "セマンティック構成を使用している",
+    "マネージド ID を使用している"
+   ],
+   "explanation": "AzureKeyCredential に API キーの文字列を直接埋め込んでいる点が問題です。Learn では、本番ワークロードでは Microsoft Entra ID とロールベースのアクセス制御 (RBAC) に切り替え、API キーを使う場合も Azure Key Vault などの別の場所に安全に保管するよう推奨しています。\nこのコードでは select によるフィールドの選択もセマンティック構成も使われておらず、マネージド ID も使われていません（マネージド ID はむしろ推奨される方法です）。\nAzure AI Search では、API キー認証のほかに、DefaultAzureCredential などを使った RBAC によるキーレス接続を利用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-security-api-keys",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-security-rbac-client-code"
+   ],
+   "terms": [
+    {
+     "term": "AzureKeyCredential",
+     "note": "Azure SDK で API キーを資格情報としてクライアントに渡すためのクラスです。"
+    },
+    {
+     "term": "Azure Key Vault",
+     "note": "キーやシークレットを安全に保管・管理するための Azure のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "コードからはクエリ キーか管理者キーかは判別できないが、SearchClient によるクエリ用途のため選択肢の「クエリ キー」をそのまま訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q004": {
+   "status": "needs_review",
+   "stem": "このクエリが Azure AI Search に返すよう求めているドキュメントの最大数はいくつですか？",
+   "options": [
+    "5",
+    "7",
+    "10",
+    "一致するすべてのドキュメント"
+   ],
+   "explanation": "top パラメーターは 1 ページに返す検索結果の件数を指定します。このクエリでは top=5 のため、返されるドキュメントは最大 5 件です。\n7 や 10 はコード内のどこにも指定されていません。また top を省略した場合の既定値は 50 なので、一致するすべてのドキュメントが返されるわけでもありません。include_total_count=True は一致した件数を取得するためのもので、返されるドキュメント数は増えません。\nAzure AI Search では、top などのパラメーターで検索結果のページ サイズやレイアウトを制御します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-pagination-page-layout"
+   ],
+   "terms": [
+    {
+     "term": "include_total_count",
+     "note": "クエリに一致したドキュメントの件数を返すよう要求するパラメーターで、REST API の count に相当します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q005": {
+   "status": "needs_review",
+   "stem": "モデル デプロイ名のために設定する必要がある環境変数はどれですか？",
+   "options": [
+    "MODEL_DEPLOYMENT_NAME",
+    "PROJECT_ENDPOINT",
+    "AZURE_SEARCH_ENDPOINT",
+    "SPEECH_REGION"
+   ],
+   "explanation": "コードでは model 引数が os.environ[\"MODEL_DEPLOYMENT_NAME\"] から読み込まれるため、MODEL_DEPLOYMENT_NAME が正解です。\nPROJECT_ENDPOINT、AZURE_SEARCH_ENDPOINT、SPEECH_REGION は、このコードのどこからも参照されていません。\nFoundry Agent Service では、エージェントが使用するモデルをモデル デプロイ名で指定します。\nなお、このコードの project_client.agents.create_agent(..., tool_resources=...) は旧 SDK のパターンで、現在は create_version() と PromptAgentDefinition を使う形への移行が求められています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/migrate"
+   ],
+   "terms": [
+    {
+     "term": "Foundry Agent Service",
+     "note": "Microsoft Foundry でエージェントを構築・実行するためのサービスです。"
+    },
+    {
+     "term": "PromptAgentDefinition",
+     "note": "現行の SDK でモデル、指示、ツールなどからなるエージェントを定義するクラスで、create_version() に渡して使います。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q006": {
+   "status": "needs_review",
+   "stem": "選択したモデルについて、リージョン内の TPM クォータが残っていないため、デプロイが失敗します。問題を解決できる操作はどの2つですか？",
+   "options": [
+    "モデル/リージョンのクォータの引き上げを要求する",
+    "利用可能であれば、別のデプロイから TPM を再割り当てする",
+    "応答の temperature を上げる",
+    "画像キャプションに切り替える"
+   ],
+   "explanation": "Azure OpenAI のクォータは、サブスクリプションに対してリージョン、モデル、デプロイの種類ごとに TPM 単位で割り当てられます。そのため、クォータの引き上げを要求するか、他のデプロイに割り当てたクォータを編集して空いた TPM を再配分することで解決できます。\ntemperature は生成される応答のランダム性を調整するパラメーターでクォータとは無関係であり、画像キャプションへの切り替えも TPM クォータ不足の解決策にはなりません。\nデプロイに TPM を割り当てると、その値に比例して RPM のレート制限も設定されます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/quota"
+   ],
+   "terms": [
+    {
+     "term": "TPM",
+     "note": "Tokens Per Minute（1 分あたりのトークン数）の略で、デプロイに割り当てるクォータの単位です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "stem: 「選択したモデルのリージョンに」だと、クォータがモデル単位であるニュアンス（the selected model has no remaining TPM quota in the region）が弱いため修正"
+    ]
+   }
+  },
+  "q007": {
+   "status": "needs_review",
+   "stem": "取得拡張生成 (RAG) アプリが根拠のない主張を生成し始めました。最も直接的に関連する監視/評価のシグナルはどれですか？",
+   "options": [
+    "groundedness（根拠性）と取得の関連性の評価",
+    "テキスト読み上げの音声品質",
+    "画像のトリミング領域",
+    "顔の生体検出スコア"
+   ],
+   "explanation": "根拠のない主張は、取得したコンテキストに含まれない内容をモデルが生成していることを示すため、Groundedness エバリュエーターで検出します。あわせて、取得したチャンクがクエリに関連しているかを Retrieval エバリュエーターで評価すると、取得側に問題があるかどうかを切り分けられます。\nテキスト読み上げの音声品質、画像のトリミング領域、顔の生体検出スコアは、いずれも RAG の応答が根拠に基づいているかとは無関係です。\nFoundry の RAG エバリュエーターは、RAG システムの取得と生成の品質を評価するための組み込みのエバリュエーター群です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "Groundedness エバリュエーター",
+     "note": "応答が与えられたコンテキストに基づいているか、コンテキストにない内容を生成していないかを評価します。"
+    },
+    {
+     "term": "Retrieval エバリュエーター",
+     "note": "取得したチャンクがクエリにどの程度関連しているかを評価します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q008": {
+   "status": "needs_review",
+   "stem": "Python アプリから、シークレットを埋め込まずに Foundry と Azure AI Search を呼び出す必要があります。何を構成すべきですか？",
+   "options": [
+    "RBAC を伴うマネージド ID と、サポートされている場合はキーレス資格情報",
+    "コードにハードコードされた管理者キー",
+    "キーをプロンプトに保存する",
+    "インデックスの認証を無効にする"
+   ],
+   "explanation": "マネージド ID とロールベースのアクセス制御 (RBAC) による Microsoft Entra ID のキーレス認証を使えば、コードにシークレットを埋め込まずに Foundry と Azure AI Search にアクセスできます。Learn では Foundry の本番ワークロードでマネージド ID と最小特権の RBAC を推奨しており、Azure AI Search でも DefaultAzureCredential によるキーレス接続が案内されています。\n管理者キーのハードコードやプロンプトへのキーの保存はシークレットを露出させ、認証の無効化はアクセス制御そのものをなくすため、いずれも不適切です。\nRBAC では、マネージド ID などに必要最小限のロールを割り当ててリソースへのアクセスを制御します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/authentication-authorization-foundry",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-security-rbac-client-code"
+   ],
+   "terms": [
+    {
+     "term": "マネージド ID",
+     "note": "Azure リソースに割り当てられる Microsoft Entra ID の ID で、資格情報を自分で管理せずに他の Azure サービスへ認証できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q009": {
+   "status": "needs_review",
+   "stem": "規制対象のワークロードでは、Foundry に接続されたサービスへのプライベートなアクセス経路が必要です。何を検証すべきですか？",
+   "options": [
+    "プライベート リンク/ネットワーク分離、リージョンのサポート、ロールの割り当て",
+    "UI テーマの設定のみ",
+    "モデルの temperature のみ",
+    "TTS の音声名のみ"
+   ],
+   "explanation": "Foundry のプライベート リンクでは、プライベート エンドポイントの作成とパブリック ネットワーク アクセスの無効化によってネットワーク分離を実現します。プライベート エンドポイントは仮想ネットワークと同じリージョンに作成する必要があり、作成・承認には Network Contributor や Contributor などのロールが必要なため、これらをまとめて検証する必要があります。\nUI テーマ、モデルの temperature、TTS の音声名だけを確認しても、プライベートなアクセス経路やアクセス制御は確保できません。\nプライベート エンドポイントを使うと、仮想ネットワークからプライベート接続で Foundry リソースにアクセスできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/how-to/configure-private-link"
+   ],
+   "terms": [
+    {
+     "term": "プライベート エンドポイント",
+     "note": "仮想ネットワーク内のプライベート IP アドレスを使って Azure サービスに接続するためのネットワーク インターフェイスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q010": {
+   "status": "needs_review",
+   "stem": "エージェントのワークフローでは、どこにガードレールを適用すべきですか？",
+   "options": [
+    "入力、取得したコンテキスト、ツール呼び出し、ツールの応答、最終出力",
+    "最終出力の後のみ",
+    "ブラウザー内のみ",
+    "課金データのエクスポート時のみ"
+   ],
+   "explanation": "Foundry のガードレールは、ユーザー入力、ツール呼び出し、ツールの応答、出力という複数の介入ポイントでリスクを検出できます。ツールの応答（ツール経由で取得したコンテンツ）には間接プロンプト インジェクションが含まれる可能性があるため、最終出力だけでなく中間のコンテンツにも適用する必要があります。\n最終出力の後だけでは途中の段階で入り込んだリスクを防げず、ブラウザー内や課金データのエクスポート時はエージェントの処理経路ではありません。\n各介入ポイントでは、ジェイルブレイクや間接攻撃などのリスクに対して注釈やブロックといったアクションを構成できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/guardrails/guardrails-overview",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/guardrails/intervention-points"
+   ],
+   "terms": [
+    {
+     "term": "介入ポイント",
+     "note": "ガードレールのコントロールを適用する箇所で、ユーザー入力、ツール呼び出し、ツールの応答、出力の 4 つがあります。"
+    },
+    {
+     "term": "間接プロンプト インジェクション",
+     "note": "ツールの応答などユーザー入力以外の経路に埋め込まれた悪意のある指示で、エージェントを操作しようとする攻撃です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Learn の介入ポイントは 4 つ（ユーザー入力、ツール呼び出し、ツールの応答、出力）で、「取得したコンテキスト」は独立した介入ポイントとしては定義されていない（ツールの応答に相当）。ツール呼び出し・ツールの応答はプレビューで、対応ツールも限定される。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q011": {
+   "status": "needs_review",
+   "stem": "あるチームは、サポート チケットを 12 のカテゴリに低レイテンシで分類する必要があります。ラベルは安定しており、入力は短いです。最初に選ぶモデルとして最も適切なのはどれですか？",
+   "options": [
+    "Foundry にデプロイした小規模言語モデルまたは特化型の分類モデル",
+    "利用可能な最大のマルチモーダル モデル",
+    "動画生成モデル",
+    "Custom Speech モデル"
+   ],
+   "explanation": "入力が短くラベルが固定された分類のような限定的なタスクでは、小規模言語モデル (SLM) や特化型モデルで十分なことが多く、レイテンシとコストを抑えられます。Learn では、SLM はモデル サイズが小さいため低レイテンシであり、特化したタスクでは大規模なモデルに匹敵し得ると説明されています。\n最大のマルチモーダル モデルはこの要件には過剰でレイテンシとコストが増え、動画生成モデルや Custom Speech モデルはテキストの分類という用途に合いません。\nFoundry の model router も、タスクに十分な場合は小さく安価なモデルを使う仕組みです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/azure-sovereign-clouds/private/foundry-local/concept-models",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/model-router"
+   ],
+   "terms": [
+    {
+     "term": "小規模言語モデル (SLM)",
+     "note": "大規模言語モデルよりパラメーター数が少ないコンパクトな生成 AI モデルで、低レイテンシで動作します。"
+    },
+    {
+     "term": "model router",
+     "note": "プロンプトごとに適したモデルを選んで要求を振り分ける、Foundry のデプロイ可能なモデルです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "SLM の根拠は Foundry Local on Azure Local の記事であり、Foundry クラウド向けの直接的なモデル選択ガイドではない。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q012": {
+   "status": "needs_review",
+   "stem": "非公開のポリシー文書に基づき、引用付きで従業員の質問に回答するアプリを構築する必要があります。主となるアーキテクチャ パターンはどれにすべきですか？",
+   "options": [
+    "Azure AI Search や Foundry のナレッジ ソースなど、ガバナンスが適用された取得ソースを使う RAG",
+    "グラウンディングなしでのモデルの直接呼び出し",
+    "参照メディアを使った画像生成",
+    "テキスト読み上げのバッチ合成"
+   ],
+   "explanation": "非公開の社内文書に基づき引用付きで回答するには、Azure AI Search や Foundry IQ のナレッジ ソースから取得したコンテンツで応答を生成する 取得拡張生成 (RAG) パターンが適しています。RAG は独自のコンテンツで応答をグラウンディングし、引用によって回答の出所を追跡できるようにします。\nグラウンディングなしでモデルを直接呼び出しても、モデルは非公開文書の内容を参照できず引用も示せません。画像生成やテキスト読み上げのバッチ合成は、文書に基づく質問応答という要件とは無関係です。\nAzure AI Search は、RAG における情報取得の基盤としてインデックス作成とクエリの機能を提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview"
+   ],
+   "terms": [
+    {
+     "term": "取得拡張生成 (RAG)",
+     "note": "外部のナレッジから取得した情報をモデルに渡し、その情報に基づいて応答を生成させるパターンです。"
+    },
+    {
+     "term": "Foundry IQ",
+     "note": "エンタープライズ コンテンツを、エージェントが再利用できるアクセス許可対応のナレッジ ベースに変換するマネージド ナレッジ レイヤーです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「governed retrieval source」は「ガバナンスが適用された取得ソース」と訳した。",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "explanation: 解説で初出の RAG を用語表どおり「取得拡張生成 (RAG)」に修正"
+    ]
+   }
+  },
+  "q013": {
+   "status": "needs_review",
+   "stem": "ユーザーは製品 ID を検索するだけでなく、概念的な質問もします。どの取得アプローチを優先すべきですか？",
+   "options": [
+    "キーワード取得とベクター取得によるハイブリッド検索（必要に応じてセマンティック ランキング）",
+    "すべてのクエリでベクターのみの検索",
+    "すべてのクエリでキーワードのみの検索",
+    "SSML を使ったテキスト読み上げ"
+   ],
+   "explanation": "製品 ID のような完全一致が必要なクエリはキーワード検索が得意で、概念的な質問は意味の類似性を扱えるベクター検索が得意です。ハイブリッド検索は両者を 1 つのクエリで組み合わせ、必要に応じてセマンティック ランカーで再ランク付けできるため、両方のニーズに対応できます。\nベクターのみの検索は製品コードなどの完全一致に弱く、キーワードのみの検索は言い回しの異なる概念的な質問に弱くなります。SSML を使ったテキスト読み上げは検索とは無関係です。\nAzure AI Search のハイブリッド検索では、キーワード検索とベクター検索の結果を RRF (Reciprocal Rank Fusion) で統合します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-overview"
+   ],
+   "terms": [
+    {
+     "term": "ハイブリッド検索",
+     "note": "フルテキスト（キーワード）検索とベクター検索を 1 つの要求で実行し、結果を統合する Azure AI Search の機能です。"
+    },
+    {
+     "term": "セマンティック ランカー",
+     "note": "初回の検索結果の上位を、クエリとの意味的な関連性に基づいて再ランク付けする機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q014": {
+   "status": "needs_review",
+   "stem": "エージェントはセッションをまたいでユーザーの好みを記憶しつつ、回答はガバナンスが適用されたドキュメントに基づいて行う必要があります。正しい設計はどれですか？",
+   "options": [
+    "好みは長期メモリに保存し、事実に関する回答はガバナンスが適用されたナレッジ ソースから取得する",
+    "すべてのソース ドキュメントをメモリに保存する",
+    "取得を無効にし、会話履歴に依存する",
+    "ユーザーの好みに画像キャプションを使用する"
+   ],
+   "explanation": "Foundry Agent Service のメモリは、会話からユーザーの好みなどの重要な情報を抽出し、セッションをまたいで保持する長期メモリです。一方、組織のキュレーション済みコンテンツへのグラウンディングには Foundry IQ のナレッジ ベースを使うため、両者を使い分ける設計が正解です。\nソース ドキュメントをすべてメモリに保存するのはメモリの用途に合わず、取得を無効にして会話履歴に頼るとドキュメントに基づく回答ができません。画像キャプションはユーザーの好みの保存とは無関係です。\nメモリはユーザー固有のコンテキスト、ナレッジ ベースは組織のコンテンツへのグラウンディングという役割分担になります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/what-is-memory"
+   ],
+   "terms": [
+    {
+     "term": "メモリ（Foundry Agent Service）",
+     "note": "エージェントがセッションをまたいで保持する永続的な知識で、ユーザーの好みなどを会話から抽出して保存します。"
+    },
+    {
+     "term": "Foundry IQ ナレッジ ベース",
+     "note": "組織のキュレーション済みコンテンツにエージェントをグラウンディングするためのナレッジ ベースです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q015": {
+   "status": "needs_review",
+   "stem": "本番ワークロードでは、予測可能なスループット、コスト管理、モデル バージョンの固定が必要です。この要件に最も合うデプロイ オプションはどれですか？",
+   "options": [
+    "プロビジョニング済みデプロイ",
+    "Standard の試験的デプロイ",
+    "管理されていないローカル スクリプトのみ",
+    "Video Indexer の試用アカウント"
+   ],
+   "explanation": "プロビジョニング済みスループットはモデル処理用の専用容量を確保するため、保証されたスループットと一貫したレイテンシが得られ、トラフィックが予測可能な本番ワークロードではコストも管理しやすくなります。また自動モデル更新は Standard デプロイの種類のみが対象で、プロビジョニング済みデプロイではモデル バージョンの移行時期を利用者が管理できます。\nStandard デプロイはトークン単位の従量課金でレイテンシの SLA がなく、トラフィックの変動が大きいワークロードなどに向いています。管理されていないローカル スクリプトは本番の要件を満たさず、Video Indexer の試用アカウントはモデルのデプロイ方法ではありません。\nなお、Standard デプロイでも NoAutoUpgrade を設定してバージョンを固定できるため、この問題の決め手は予測可能なスループットです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/provisioned-throughput",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/working-with-models"
+   ],
+   "terms": [
+    {
+     "term": "プロビジョニング済みスループット",
+     "note": "モデル処理用の容量を事前に確保し、安定したスループットとレイテンシを得るためのデプロイ オプションです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「Standard experimental deployment」は実在のデプロイ種別ではないため、直訳の「Standard の試験的デプロイ」とした。",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "explanation: 「Standard の試験的デプロイという種類は存在しない」という断定を、Learn で確認できる Standard デプロイの特徴（従量課金・レイテンシ SLA なし・変動するトラフィック向け）による説明に置き換え"
+    ]
+   }
+  },
+  "q076": {
+   "status": "needs_review",
+   "stem": "この Azure AI Search クエリがハイブリッド クエリになっている理由はどれですか？",
+   "options": [
+    "search_text と vector_queries の両方を送信している",
+    "top を 10 に設定している",
+    "Address/City を選択している",
+    "exhaustive=True のみを使用している"
+   ],
+   "explanation": "search_text（キーワード/フルテキスト検索）と vector_queries（ベクター クエリ）を同じリクエストで送信しているため、ハイブリッド クエリになります。ハイブリッド検索では、テキスト クエリとベクター クエリが 1 つの検索要求の中で並列に実行され、結果が RRF で統合されます。\ntop は返す件数、select の Address/City は返すフィールドを指定するだけで、クエリの種類は変わりません。exhaustive=True はベクター クエリで網羅的な KNN 検索を行う指定であり、それだけではハイブリッドになりません。\nAzure AI Search のハイブリッド検索は、完全一致に強いキーワード検索と意味の類似性に強いベクター検索を組み合わせる機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-how-to-query"
+   ],
+   "terms": [
+    {
+     "term": "RRF (Reciprocal Rank Fusion)",
+     "note": "複数の検索結果リストの順位を基に、1 つのランキングに統合する手法です。"
+    },
+    {
+     "term": "exhaustive",
+     "note": "HNSW でインデックス化されたフィールドでも、クエリ時に網羅的な KNN 検索を実行させるベクター クエリのパラメーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q078": {
+   "status": "needs_review",
+   "stem": "このクエリでベクターの類似度に使用されるインデックス フィールドはどれですか？",
+   "options": [
+    "DescriptionVector",
+    "HotelName",
+    "Address/City",
+    "Category"
+   ],
+   "explanation": "VectorizedQuery の fields 引数は、クエリの対象とするベクター フィールドを指定します。このコードでは fields=\"DescriptionVector\" なので、類似度検索は DescriptionVector フィールドに対して実行されます。\nHotelName、Address/City、Category はこのベクター クエリの fields に指定されていないため、ベクターの類似度の計算には使われません。\nAzure AI Search のベクター クエリでは、クエリのベクターとインデックスのベクター フィールドに格納された埋め込みを比較して、類似したドキュメントを見つけます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-how-to-query",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-query"
+   ],
+   "terms": [
+    {
+     "term": "VectorizedQuery",
+     "note": "Azure AI Search の Python SDK で、ベクター（埋め込み）を直接指定してベクター クエリを作成するクラスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q079": {
+   "status": "needs_review",
+   "stem": "この Foundry エージェントの定義における WebSearchTool() の目的は何ですか？",
+   "options": [
+    "構成されたツールを通じて、エージェントがパブリック Web の情報を取得できるようにする",
+    "音声認識エンジンを作成する",
+    "グラウンディングを無効にする",
+    "長期メモリを保存する"
+   ],
+   "explanation": "WebSearchTool は、エージェントがパブリック Web からリアルタイムの情報を取得し、引用付きで応答をグラウンディングできるようにするツールです。このコードでは PromptAgentDefinition の tools に WebSearchTool() を追加し、create_version() でエージェントを作成しています。\nこのツールは音声認識とは無関係で、グラウンディングを無効にするのではなく Web の情報でグラウンディングを行います。長期メモリの保存は Foundry Agent Service のメモリ機能の役割です。\nFoundry Agent Service のツールは、ベース モデルだけでは得られない情報の取得やアクションの実行をエージェントに追加します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/web-search"
+   ],
+   "terms": [
+    {
+     "term": "WebSearchTool",
+     "note": "Foundry Agent Service のエージェントがパブリック Web の最新情報を取得し、インライン引用付きで回答できるようにするツールです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q080": {
+   "status": "needs_review",
+   "stem": "このクエリでセマンティック ランキングを有効にしているパラメーターはどれですか？",
+   "options": [
+    "query_type=\"semantic\"",
+    "include_total_count=True",
+    "top=5",
+    "select=[...]"
+   ],
+   "explanation": "query_type=\"semantic\" を指定するとセマンティック ランカーが呼び出され、上位の検索結果が再ランク付けされます。このとき、使用するセマンティック構成を semantic_configuration_name で指定します。\ninclude_total_count=True は一致件数の取得、top=5 は返す件数、select=[...] は返すフィールドの指定であり、いずれもランキングの方法は変えません。\nセマンティック ランキングは、初回の検索結果をクエリとの意味的な関連性に基づいて再スコアリングする Azure AI Search の機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/semantic-how-to-query-request"
+   ],
+   "terms": [
+    {
+     "term": "セマンティック構成",
+     "note": "セマンティック ランキングで使用するフィールドを指定する、インデックス内の設定です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q081": {
+   "status": "needs_review",
+   "stem": "このクエリで geo.distance フィルターはいつ適用されますか？",
+   "options": [
+    "vector_filter_mode が postFilter であるため、ベクター検索の後",
+    "top=5 であるため、ベクター検索の前",
+    "音声合成の実行中",
+    "セマンティック再ランク付けが無効になった後のみ"
+   ],
+   "explanation": "vector_filter_mode はベクター クエリに対してフィルターをいつ適用するかを制御し、postFilter はクエリの実行後にフィルターを適用します（事後フィルター処理）。そのため、geo.distance フィルターはベクター検索の後に適用されます。\ntop=5 は返す件数を指定するだけでフィルターの適用タイミングとは無関係であり、音声合成やセマンティック再ランク付けもこのクエリのフィルター処理とは関係ありません。\nAzure AI Search のフィルター モードには preFilter（2023 年 10 月 15 日以降に作成されたインデックスの既定値）、postFilter、strictPostFilter（プレビュー）があります。厳密には、postFilter は各シャードで HNSW の走査後にフィルターを適用してからグローバルな上位 k 件に集約するため、選択性の高いフィルターや小さい k では一致するドキュメントが結果から漏れる（偽陰性）ことがあります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-filters"
+   ],
+   "terms": [
+    {
+     "term": "vector_filter_mode",
+     "note": "ベクター クエリでフィルターを実行前（preFilter）と実行後（postFilter など）のどちらで適用するかを指定するパラメーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Learn では postFilter はシャードごとに HNSW 走査とフィルターを行ってからグローバルな上位 k に集約すると説明されている（グローバル上位 k の確定後に適用するのは strictPostFilter（プレビュー））。この補足を解説の最後に追加した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q082": {
+   "status": "needs_review",
+   "stem": "この Foundry エージェントで有効になっているツールはどれですか？",
+   "options": [
+    "Code Interpreter",
+    "Azure AI Search",
+    "音声翻訳",
+    "Document Intelligence の事前構築済み請求書モデル"
+   ],
+   "explanation": "tools=[CodeInterpreterTool()] が指定されているため、このエージェントでは Code Interpreter が有効になります。Code Interpreter を使うと、エージェントはサンドボックス化された実行環境で Python コードを実行し、データの分析やグラフの作成などを行えます。\nAzure AI Search、音声翻訳、Document Intelligence の事前構築済み請求書モデルは、このエージェント定義の tools に含まれていません。\n現在の Foundry Agent Service では、PromptAgentDefinition の tools にツールを指定し、create_version() でエージェントを作成します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/code-interpreter"
+   ],
+   "terms": [
+    {
+     "term": "Code Interpreter",
+     "note": "Foundry のエージェントが Microsoft の管理するサンドボックス内で Python コードを実行できるようにするツールです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「Document Intelligence prebuilt invoice」は「Document Intelligence の事前構築済み請求書モデル」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q083": {
+   "status": "needs_review",
+   "stem": "Azure AI Search ツールをエージェントに接続しているのは、どの2つの引数ですか？",
+   "options": [
+    "tools=ai_search.definitions と tool_resources=ai_search.resources",
+    "model と name",
+    "instructions と name",
+    "top と select"
+   ],
+   "explanation": "旧 SDK では、tools=ai_search.definitions でツール定義を、tool_resources=ai_search.resources で接続先インデックスなどのリソースを create_agent() に渡して、Azure AI Search ツールをエージェントに接続していました。\nmodel、name、instructions は使用するモデル、エージェント名、指示を指定する引数です。top と select は検索クエリのパラメーターで、このコードには含まれていません。\nAzure AI Search ツールを使うと、エージェントは Azure AI Search のインデックスから情報を取得して応答をグラウンディングできます。\nなお、このコードの create_agent() と tool_resources は旧 SDK のパターンで、現在は create_version() と PromptAgentDefinition を使い、AzureAISearchTool を tools に指定する形への移行が求められています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/migrate",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/ai-search"
+   ],
+   "terms": [
+    {
+     "term": "AzureAISearchTool",
+     "note": "Foundry のエージェントを Azure AI Search のインデックスに接続し、取得した情報で応答をグラウンディングするためのツールです。"
+    },
+    {
+     "term": "tool_resources",
+     "note": "旧 Agents API でツールが使うリソース（インデックスやファイルなど）をエージェントに渡すための引数です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q084": {
+   "status": "needs_review",
+   "stem": "実行時に必須となる構造化入力はどれですか？",
+   "options": [
+    "vector_store_id",
+    "analysis_file_id",
+    "MODEL_DEPLOYMENT_NAME",
+    "query_vector"
+   ],
+   "explanation": "`structured_inputs` では `vector_store_id` が `StructuredInputDefinition(required=True)` として定義されているため、実行時に必須なのは `vector_store_id` です。`FileSearchTool` の `vector_store_ids` にある `{{vector_store_id}}` プレースホルダーは、応答の作成時に渡された実際のベクター ストア ID に置き換えられます。\n`analysis_file_id`、`MODEL_DEPLOYMENT_NAME`、`query_vector` は、このコードの `structured_inputs` に定義されていないため、実行時の必須入力ではありません。\nFoundry Agent Service の構造化入力は、ハンドルバー テンプレート構文（`{{variableName}}`）で定義したプレースホルダーに実行時の値を渡し、エージェントのバージョンを分けずに指示やツールの設定をカスタマイズできる機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/structured-inputs"
+   ],
+   "terms": [
+    {
+     "term": "構造化入力（structured inputs）",
+     "note": "エージェント定義に `{{変数名}}` 形式のプレースホルダーを置き、実行時に実際の値を渡して指示やツール リソースの設定を切り替える Foundry Agent Service の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q085": {
+   "status": "needs_review",
+   "stem": "このリクエストで tool_choice=\"required\" は何を強制しますか？",
+   "options": [
+    "応答の生成時に、モデルがツールを使用しなければならない",
+    "応答が動画でなければならない",
+    "モデルがアップロードされたファイルを無視しなければならない",
+    "ベクター ストアが削除されなければならない"
+   ],
+   "explanation": "`tool_choice` を `required` に設定すると、モデルは 1 つ以上のツールを呼び出す必要があります。Learn の構造化入力の Code Interpreter の例でも、`tool_choice=\"required\"` を指定してツールの使用を強制しています。\n`tool_choice` は、応答の形式（動画など）、アップロードしたファイルの扱い、ベクター ストアの削除を指定するパラメーターではありません。\nFoundry Agent Service では、`tool_choice` に `none`（ツールを呼び出さない）、`auto`（モデルが判断する）、`required`（ツール呼び出しが必要）を指定して、ツール呼び出しを決定的に制御できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/tool-best-practice",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/structured-inputs"
+   ],
+   "terms": [
+    {
+     "term": "tool_choice",
+     "note": "応答の作成時にモデルがツールを呼び出すかどうかを制御するパラメーターで、none・auto・required などを指定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q086": {
+   "status": "needs_review",
+   "stem": "最終的な結果を整形する前に、このベクター クエリは何件の最近傍を要求しますか？",
+   "options": [
+    "10",
+    "5",
+    "7",
+    "300"
+   ],
+   "explanation": "`VectorizedQuery` の `k_nearest_neighbors` は、上位ヒットとして返す最近傍の件数を指定するパラメーターです。このコードでは `k_nearest_neighbors=10` が指定されているため、ベクター クエリは 10 件の最近傍を要求します（REST API の `k` に相当します）。\n5、7、300 はいずれもこのコードで指定されている値ではありません。また、`exhaustive=True` は件数ではなく、クエリ時に網羅的な KNN を実行するための設定です。\nAzure AI Search のハイブリッド クエリでは、`k` がベクター クエリから返されて RRF ランカーに渡される一致数を決め、最終的に返す結果の件数は `top` で指定します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/python/api/azure-search-documents/azure.search.documents.models.vectorizedquery?view=azure-python",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-query",
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-how-to-query"
+   ],
+   "terms": [
+    {
+     "term": "VectorizedQuery",
+     "note": "Azure AI Search の Python SDK で、ベクター値そのものを渡してベクター検索を行うためのクエリ クラスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「final result shaping」は「最終的な結果を整形する」と訳しました（top などで最終件数を決める前、という意味と解釈）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q087": {
+   "status": "needs_review",
+   "stem": "このスニペットで、セマンティック ハイブリッド検索に必要な行はどの2つですか？",
+   "options": [
+    "vector_queries=[vector_query]",
+    "query_type=\"semantic\"",
+    "audio_config=audio_config",
+    "locale=\"en-US\""
+   ],
+   "explanation": "セマンティック ハイブリッド検索では、テキスト検索と `vector_queries=[vector_query]` によるベクター検索を組み合わせ、`query_type=\"semantic\"` でセマンティック ランキングを有効にします。Learn の Python クイックスタートにある Semantic hybrid search の例も、同じ構成です。\n`audio_config` は音声に関する設定、`locale=\"en-US\"` はロケールの指定であり、ハイブリッド検索やセマンティック ランキングを有効にする設定ではありません。\nなお厳密には `search_text` と `semantic_configuration_name` も必要で、Learn ではハイブリッド クエリでセマンティック ランキングを使う場合に queryType と semanticConfiguration が必須と明記されています。Azure AI Search のハイブリッド検索は、キーワード検索とベクター検索を 1 つの要求で並列に実行し、RRF で結果を統合する機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-get-started-vector?pivots=python",
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-how-to-query"
+   ],
+   "terms": [
+    {
+     "term": "ハイブリッド検索",
+     "note": "Azure AI Search で、キーワード検索とベクター検索を 1 つの要求で並列に実行し、Reciprocal Rank Fusion (RRF) で結果を統合して返す検索方法です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q088": {
+   "status": "needs_review",
+   "stem": "エージェントが正しいツールを選択して呼び出しているかを確認するエバリュエーターはどれですか？",
+   "options": [
+    "Tool Call Accuracy",
+    "BLEU のみ",
+    "キャプション密度",
+    "音声合成の形式"
+   ],
+   "explanation": "Tool Call Accuracy は、エージェントが正しいパラメーターで、冗長性のない適切なツール呼び出しを行ったかを測るプロセス評価のエバリュエーターです。\nBLEU は生成テキストと参照テキストの n グラムの一致を測る指標で、ツールの選択や呼び出しは評価しません。キャプション密度と音声合成の形式も、エージェントのツール利用を評価するものではありません。\nMicrosoft Foundry のエージェント エバリュエーターには、ツール呼び出しなどワークフローの各ステップを調べるプロセス評価が含まれ、Tool Selection や Tool Input Accuracy などのより細かいエバリュエーターも用意されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/agent-evaluators",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/textual-similarity-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "Tool Call Accuracy",
+     "note": "エージェントが正しいパラメーターで適切なツール呼び出しを行ったかを評価する、Microsoft Foundry のエージェント エバリュエーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "エバリュエーター名は Foundry の名称として英語のまま残しました（Learn 日本語版では「ツール呼び出しの精度」など表記が揺れています）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q089": {
+   "status": "needs_review",
+   "stem": "エージェント型システムにおいて、分散トレースは何の診断に役立ちますか？",
+   "options": [
+    "LLM 呼び出し、ツール呼び出し、ハンドオフ、レイテンシ、例外",
+    "認定資格の更新のみ",
+    "画像サイズのみ",
+    "音声の性別のみ"
+   ],
+   "explanation": "Foundry のトレースは、エージェント実行中の入力と出力、ツールの呼び出しと結果、レイテンシなどを記録し、「どのステップでエラーやレイテンシの急増が発生したか」を特定するのに役立ちます。マルチエージェント向けの規約ではエージェント呼び出し、モデル呼び出し、ツール実行をスパンとして記録し、Azure Architecture Center もすべてのエージェント操作と handoff（ハンドオフ）の計装を推奨しています。\n認定資格の更新、画像サイズ、音声の性別は、エージェントの実行フローやボトルネックの診断とは関係がありません。\nMicrosoft Foundry のトレースは OpenTelemetry のセマンティック規則に基づいており、テレメトリは Azure Monitor Application Insights に格納されます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept",
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "トレース（Microsoft Foundry）",
+     "note": "エージェント実行に関わる各ステップの入力と出力を呼び出し順に記録し、動作の理解やデバッグを助ける Microsoft Foundry の可観測性機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q090": {
+   "status": "needs_review",
+   "stem": "コンプライアンス要約に対して、モデルの出力が創造的すぎます。ばらつきを減らす可能性が最も高いパラメーター変更はどれですか？",
+   "options": [
+    "temperature を下げる",
+    "ランダムな画像シードを増やすのみ",
+    "すべての取得を無効にする",
+    "ビデオ アナライザーを使用する"
+   ],
+   "explanation": "temperature を低くすると、モデルの出力はより集中的で具体的になり、ばらつきが減ります。Learn では法的文書の生成にかなり低い temperature を使うことが推奨されており、コンプライアンス要約にも同じ考え方が当てはまります。\n画像シードやビデオ アナライザーはテキスト生成のばらつきとは関係がなく、すべての取得を無効にすることも、temperature のように出力のランダム性を調整する方法ではありません。\ntemperature は 0～2 の範囲で設定でき、値を大きくすると出力がよりランダムになります。なお、Learn はこれらの手法が gpt-5 や o シリーズなどの推論モデルには推奨されないと注記しています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/prompt-engineering"
+   ],
+   "terms": [
+    {
+     "term": "temperature",
+     "note": "モデル出力のランダム性を調整するパラメーターで、0～2 の範囲で設定し、値を小さくすると出力がより集中的で具体的になります。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q091": {
+   "status": "needs_review",
+   "stem": "取得拡張生成 (RAG) の実装を最もよく表している手順の順序はどれですか？",
+   "options": [
+    "取り込み、チャンク分割、埋め込み、インデックス作成、取得、拡張、生成、評価",
+    "生成、翻訳、合成、秘匿化",
+    "トレーニング、デプロイ、削除、消去",
+    "キャプション、トリミング、透かし、読み上げ"
+   ],
+   "explanation": "Learn では、RAG のデータ パイプラインをチャンク分割、チャンクのエンリッチ、埋め込み、検索インデックスへの格納として説明し、クエリ時の流れを取得（Retrieve）、拡張（Augment）、生成（Generate）として説明しています。さらにテストと評価も手順に含まれるため、取り込みから評価までの順序が RAG の実装を最もよく表しています。\n他の選択肢は翻訳や合成、モデルのトレーニングと削除、画像の加工や読み上げの手順であり、データを取得して応答をグラウンディングする RAG の流れを含んでいません。\nRAG は、検索と大規模言語モデルを組み合わせ、応答を自分のデータにグラウンディングさせるパターンです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation",
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/rag/rag-solution-design-and-evaluation-guide"
+   ],
+   "terms": [
+    {
+     "term": "取得拡張生成 (RAG)",
+     "note": "検索と大規模言語モデルを組み合わせ、自分のデータから取得した内容に応答をグラウンディングさせるパターンです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q093": {
+   "status": "needs_review",
+   "stem": "取得拡張生成 (RAG) の回答に、捏造された主張と無関係なコンテキストが含まれています。最も関連性の高いエバリュエーターはどの2つですか？",
+   "options": [
+    "Groundedness",
+    "Retrieval",
+    "テキスト読み上げ",
+    "画像のトリミング"
+   ],
+   "explanation": "Groundedness は、応答が与えられたコンテキストに沿っており、コンテキスト外の内容（捏造）を含まないかという精度の側面を測るエバリュエーターです。Retrieval は、取得したコンテキスト チャンクがクエリにどの程度関連しているかを LLM ジャッジで測るエバリュエーターで、この 2 つが捏造された主張と無関係なコンテキストという 2 つの問題にそれぞれ対応します。\nテキスト読み上げと画像のトリミングは音声や画像の処理であり、RAG の回答や取得結果を評価するものではありません。\nMicrosoft Foundry の RAG エバリュエーターは、AI システムがコンテキストを取得・使用して、グラウンディングされた応答を生成する方法を評価します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "groundedness（根拠性）",
+     "note": "応答が提供されたコンテキストにどれだけ沿っているかを示す指標で、コンテキスト外の内容を含まないかという精度の側面を評価します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "エバリュエーター名（Groundedness、Retrieval）は Foundry の名称として英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q095": {
+   "status": "needs_review",
+   "stem": "エージェントが返金 API を呼び出す必要があります。ツール スキーマには何を定義すべきですか？",
+   "options": [
+    "関数の目的、必須パラメーター、パラメーターの型、想定される出力",
+    "モデルの temperature のみ",
+    "ユーザー インターフェイスの色のみ",
+    "デプロイ リージョンのみ"
+   ],
+   "explanation": "Foundry エージェントの関数呼び出しでは、関数の名前、パラメーター、説明（目的）を定義し、パラメーターは型や必須項目（`required`）を含む JSON スキーマで記述します。API を OpenAPI ツールとして公開する場合は、仕様に `operationId` や応答（`responses`）も記述するため、目的・必須パラメーター・型・想定される出力を定義するのが適切です。\nモデルの temperature、ユーザー インターフェイスの色、デプロイ リージョンだけでは、エージェントはツールを正しく安全に呼び出す方法を判断できません。\nなお、Foundry の関数ツールの定義（name・description・parameters）自体には出力スキーマは含まれず、「想定される出力」は OpenAPI 仕様の responses に相当します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/function-calling",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/openapi"
+   ],
+   "terms": [
+    {
+     "term": "関数呼び出し",
+     "note": "エージェントに独自の関数を定義しておき、モデルが呼び出しを要求するとアプリが関数を実行して結果を返す Foundry Agent Service の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q096": {
+   "status": "needs_review",
+   "stem": "カスタマー サポート エージェントには、セッションをまたいだ継続性が必要です。どの機能を検討すべきですか？",
+   "options": [
+    "最小限の永続的な事実を保持する長期メモリ",
+    "セマンティック キャプション",
+    "プロビジョニング済みスループットのみ",
+    "固定の画像マスク"
+   ],
+   "explanation": "Foundry Agent Service のメモリは、セッションをまたいでエージェントの継続性を実現するマネージドな長期メモリ ソリューションです。会話からユーザーの好みや事実などの重要な情報を抽出し、重複を統合して永続的な知識として保持し、後続のセッションで取得します。\nセマンティック キャプション、プロビジョニング済みスループット、画像マスクは、それぞれ検索結果、デプロイの処理能力、画像編集に関するもので、セッション間で情報を保持する機能ではありません。\nなお、Foundry Agent Service のメモリはプレビュー機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/what-is-memory"
+   ],
+   "terms": [
+    {
+     "term": "メモリ（Foundry Agent Service）",
+     "note": "会話から重要な情報を抽出・統合してメモリ ストアに保存し、セッションをまたいでエージェントが利用できるようにするマネージドな長期メモリ機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q097": {
+   "status": "needs_review",
+   "stem": "契約書のワークフローで、テンプレートの選択、条項の起草、コンプライアンス レビュー、リスク スコアリングをこの順序で実行する必要があります。適合するオーケストレーション パターンはどれですか？",
+   "options": [
+    "シーケンシャル オーケストレーション",
+    "コンカレント オーケストレーション",
+    "画像のインペインティング",
+    "テキスト読み上げのバッチ合成"
+   ],
+   "explanation": "シーケンシャル オーケストレーションは、定義済みの線形順序でエージェントをつなぎ、各エージェントが前のエージェントの出力を処理するパターンで、明確な依存関係のある多段階の処理に適しています。Azure Architecture Center でも、テンプレート選択、条項のカスタマイズ、規制コンプライアンス、リスク評価の各エージェントを順に実行する契約書生成の例が紹介されています。\nコンカレント オーケストレーションは複数のエージェントを並列に実行するパターンであり、決まった順序で依存する処理には適しません。画像のインペインティングとテキスト読み上げのバッチ合成は、エージェントのオーケストレーション パターンではありません。\nAI エージェントのオーケストレーション パターンは、複数の専門エージェントをどのように連携させるかを定める設計パターンです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "シーケンシャル オーケストレーション",
+     "note": "定義済みの線形順序でエージェントをつなぎ、各エージェントが前のエージェントの出力を処理するマルチエージェントのパターンで、パイプラインとも呼ばれます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q098": {
+   "status": "needs_review",
+   "stem": "独立した4人のアナリストが同じドキュメントを並列に評価し、結果を集約する必要があります。適合するパターンはどれですか？",
+   "options": [
+    "コンカレント オーケストレーション",
+    "シーケンシャルのみ",
+    "単一の直接モデル呼び出し",
+    "音声翻訳"
+   ],
+   "explanation": "コンカレント オーケストレーションは、同じタスクに対して複数のエージェントを同時に実行し、それぞれの観点から独立した分析を行わせて結果を集約するパターンで、ファンアウト/ファンインとも呼ばれます。\nシーケンシャルのみでは各ステップが順番に実行されるため並列処理になりません。単一の直接モデル呼び出しでは複数の独立した観点を並列に得られず、音声翻訳はオーケストレーション パターンではありません。\n結果を集約する場合は、分類なら多数決、スコア付きの推奨なら重み付きマージなど、タスクに合った戦略を選択します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "コンカレント オーケストレーション",
+     "note": "同じタスクに対して複数のエージェントを並列に実行し、独立した結果を必要に応じて集約するパターンで、ファンアウト/ファンインとも呼ばれます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q099": {
+   "status": "needs_review",
+   "stem": "ライター エージェントとレビュアー エージェントが、基準を満たすまで応答を反復的に改善します。これを最もよく表すパターンはどれですか？",
+   "options": [
+    "グループ チャットの maker-checker ループ",
+    "ベクターのみの検索",
+    "プロビジョニング済みデプロイ",
+    "顔の検証"
+   ],
+   "explanation": "maker-checker ループはグループ チャット オーケストレーションの一種で、maker（作成者）が成果物を作成し、checker（確認者）が定義された基準に照らして評価します。checker が問題を見つけるとフィードバックを返し、maker が修正して再提出するサイクルを、承認されるか最大反復回数に達するまで繰り返します。\nベクターのみの検索、プロビジョニング済みデプロイ、顔の検証は、エージェント同士で反復的にレビューと改善を行うパターンではありません。\nグループ チャット オーケストレーションでは、すべてのエージェントの出力が 1 つのスレッドに蓄積されるため、透明性と監査可能性が得られます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "maker-checker ループ",
+     "note": "作成役のエージェントが出力を作り、確認役のエージェントが基準に照らして評価し、承認されるまで修正を繰り返すグループ チャット オーケストレーションの一種です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "maker-checker は Learn 日本語版で「確認者付き製作者ループ」「作成者チェッカー ループ」など表記が揺れているため、英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q100": {
+   "status": "needs_review",
+   "stem": "エージェントは一般的なトリアージから開始し、問題が明らかに請求に関するものである場合は請求エージェントに引き継ぎます。適合するパターンはどれですか？",
+   "options": [
+    "ハンドオフ オーケストレーション",
+    "マゼンティックのみ",
+    "セマンティック チャンク分割",
+    "テキスト読み上げ"
+   ],
+   "explanation": "handoff（ハンドオフ）オーケストレーションは、各エージェントがタスクを自分で処理するか、より適切なエージェントに転送するかを判断するパターンで、ルーティングやトリアージとも呼ばれます。Azure Architecture Center にも、トリアージ サポート エージェントが請求に関する紛争を財務解決エージェントに引き継ぐ例が掲載されています。\nマゼンティック オーケストレーションは事前の計画がないオープンエンドな問題向けに、マネージャー エージェントがタスク台帳を作成しながら計画を立てるパターンであり、条件に応じて担当を引き継ぐこの場面には合いません。セマンティック チャンク分割とテキスト読み上げは、エージェントのオーケストレーション パターンではありません。\nなお、最初の入力の時点で担当エージェントが明確な場合、Learn は handoff ではなく決定論的なルーティングや単純なディスパッチャーを推奨しています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "handoff（ハンドオフ）オーケストレーション",
+     "note": "各エージェントが自分で処理するか、より適切な専門エージェントにタスクを転送するかを判断するパターンで、ルーティングやトリアージとも呼ばれます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "選択肢では長さの偏りを避けるため「ハンドオフ」のみとし、解説の初出で「handoff（ハンドオフ）」と表記しました。Magentic は Learn 日本語版の表記「マゼンティック」に合わせました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q101": {
+   "status": "needs_review",
+   "stem": "解決への道筋が不明なため、インシデント対応システムはタスク台帳を作成して更新する必要があります。適合するパターンはどれですか？",
+   "options": [
+    "マゼンティック オーケストレーション",
+    "直接モデル呼び出し",
+    "固定の OCR パイプライン",
+    "高密度キャプション"
+   ],
+   "explanation": "マゼンティック オーケストレーションは、事前に決まった計画がないオープンエンドで複雑な問題向けのパターンで、マネージャー エージェントがタスク台帳を作成・更新しながら計画を立てて実行します。Azure Architecture Center でも、SRE チームのインシデント対応の例として紹介されています。\n直接モデル呼び出しや固定の OCR パイプラインには、状況に応じて計画を動的に更新する仕組みがありません。高密度キャプションは画像の複数の領域に説明を生成する Image Analysis 4.0 の機能であり、オーケストレーション パターンではありません。\nマゼンティック オーケストレーションは、動的オーケストレーション、タスク台帳ベースのオーケストレーション、アダプティブ計画とも呼ばれます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-describe-images-40"
+   ],
+   "terms": [
+    {
+     "term": "タスク台帳（task ledger）",
+     "note": "マゼンティック オーケストレーションでマネージャー エージェントが作成・更新する、目標とサブ目標を含む計画の記録です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Magentic は Learn 日本語版の表記「マゼンティック」に合わせました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q102": {
+   "status": "needs_review",
+   "stem": "取得拡張生成 (RAG) アプリは流ちょうな回答を返しますが、想定される重要な情報が欠けています。想定される情報の再現率を対象とするのに最も適したエバリュエーターはどれですか？",
+   "options": [
+    "Response Completeness",
+    "TTS の音声品質",
+    "物体検出",
+    "ライブネス検出"
+   ],
+   "explanation": "Response Completeness は、グラウンド トゥルースと比較して、応答が想定される重要な情報を漏れなくカバーしているかという再現率（recall）の側面を測るエバリュエーターです。\nTTS の音声品質、物体検出、ライブネス検出は、音声や画像・顔の分析に関するもので、RAG の回答に含まれる情報の網羅性は評価しません。\nGroundedness が応答の精度（コンテキスト外の内容を含まないこと）に焦点を当てるのに対し、Response Completeness は再現率に焦点を当てます。なお、Response Completeness はプレビュー機能で、評価にはグラウンド トゥルースが必要です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "Response Completeness",
+     "note": "グラウンド トゥルースと比べて、応答が重要な情報をどれだけ網羅しているかを評価する Microsoft Foundry の RAG エバリュエーター（プレビュー）です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "エバリュエーター名は Foundry の名称として英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q108": {
+   "status": "needs_review",
+   "stem": "ハイブリッド クエリで、自然言語の関連性を高めるためにセマンティック再ランク付けが必要です。何を追加すべきですか？",
+   "options": [
+    "query_type='semantic' とセマンティック構成名",
+    "TTS の音声名",
+    "より大きなオーバーラップのみ",
+    "顔検出モデル"
+   ],
+   "explanation": "セマンティック ランキングを使うには、クエリで queryType を semantic に設定し、あわせて semanticConfiguration（セマンティック構成）を指定する必要があります。Learn のハイブリッド クエリの例でも、queryType と semanticConfiguration が必須と明記されています。\nTTS の音声名や顔検出モデルは検索の関連性とは関係がなく、オーバーラップを大きくするだけではクエリでセマンティック ランキングは有効になりません。\nAzure AI Search のセマンティック ランカーは言語理解モデルで検索結果を再ランク付けする機能で、最大 50 件の一致を入力として使うため、ベクター クエリと組み合わせる場合は k を 50 に設定することが推奨されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/semantic-how-to-query-request",
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-how-to-query",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-query"
+   ],
+   "terms": [
+    {
+     "term": "セマンティック ランカー",
+     "note": "Azure AI Search で、Microsoft の言語理解モデルを使って検索結果を再ランク付けし、関連性を高める機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "semantic reranking は Learn 日本語版の表記に合わせて「セマンティック再ランク付け」と訳しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q176": {
+   "status": "needs_review",
+   "stem": "リクエストに画像が含まれていることをモデルに伝える入力タイプはどれですか？",
+   "options": [
+    "image_url",
+    "text",
+    "audio_config",
+    "vector_queries"
+   ],
+   "explanation": "user メッセージの content 配列に含まれる `{\"type\": \"image_url\", \"image_url\": {\"url\": ...}}` の要素によって画像の参照が渡され、リクエストに画像が含まれることがモデルに伝わります。\n`text` 型の要素は質問文などのテキストを渡すためのものです。`audio_config` と `vector_queries` はチャット メッセージの content の型ではなく、このリクエストにも含まれていません。\nvision 対応のチャット モデルは、アップロードされた画像を分析し、画像に関する質問にテキストで回答できる大規模マルチモーダル モデルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [
+    {
+     "term": "vision 対応チャット モデル",
+     "note": "画像を分析して、その内容に関する質問にテキストで回答できる大規模マルチモーダル モデル（GPT-4o など）です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q177": {
+   "status": "needs_review",
+   "stem": "画像分析の応答に対して要求されている最大出力トークン数の値はいくつですか？",
+   "options": [
+    "300",
+    "5",
+    "10",
+    "5000"
+   ],
+   "explanation": "コードで `max_tokens=300` が指定されているため、要求されている応答の最大出力トークン数は 300 です。\n5、10、5000 はいずれもこのリクエストで指定されている値ではありません。\nLearn では、`max_tokens` または `max_completion_tokens` を設定しないと出力が途中で切れると案内されており、o シリーズの推論モデルでは `max_tokens` の代わりに `max_completion_tokens` を使用します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q178": {
+   "status": "needs_review",
+   "stem": "画像に関する自然言語の質問を提供しているのは、メッセージのどの部分ですか？",
+   "options": [
+    "{\"type\": \"text\", \"text\": \"What's in this image?\"}",
+    "{\"type\": \"image_url\", ...}",
+    "max_tokens=300",
+    "model=\"gpt-4o\""
+   ],
+   "explanation": "content 配列のうち、`{\"type\": \"text\"}` の要素が質問文（\"What's in this image?\"）を、`{\"type\": \"image_url\"}` の要素が画像を提供します。そのため、画像に関する自然言語の質問を提供しているのは text 要素です。\n`image_url` の要素は画像の参照を渡すもので、質問文ではありません。`max_tokens=300` と `model=\"gpt-4o\"` はリクエストのパラメーターであり、このスニペット（content 配列）にも含まれていません。\nvision 対応のチャット モデルでは、1 つの user メッセージの content 配列にテキストと画像を組み合わせて渡せます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q179": {
+   "status": "needs_review",
+   "stem": "ユーザーが画像内の証拠について質問します。回答を何にグラウンディングさせるべきですか？",
+   "options": [
+    "画像から得られる視覚的な証拠",
+    "モデルのトレーニング データのみ",
+    "無関係な検索結果",
+    "音声のボイス メタデータ"
+   ],
+   "explanation": "vision 対応モデルはアップロードされた画像を分析し、画像の内容に関する質問にテキストで回答するため、画像内の証拠に関する質問では、回答を画像から得られる視覚的な証拠にグラウンディングさせるべきです。AI-103 の学習ガイドにも、視覚的な証拠にグラウンディングされた質問応答を可能にするソリューションの実装がスキルとして含まれています。\nモデルのトレーニング データのみ、無関係な検索結果、音声のボイス メタデータは、質問対象の画像の内容を根拠として示すものではありません。\nvision 対応のチャット モデルは、自然言語処理と視覚的な理解を組み合わせた大規模マルチモーダル モデルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q180": {
+   "status": "needs_review",
+   "stem": "棚の画像から、商品、ブランド、欠陥のフィールドをスキーマ定義に基づいて抽出する必要があります。最も適しているサービスはどれですか？",
+   "options": [
+    "Azure Content Understanding",
+    "テキスト読み上げ",
+    "スキーマなしでのモデルの直接呼び出し",
+    "Azure Translator"
+   ],
+   "explanation": "Azure Content Understanding では、抽出するフィールド、説明、出力型をスキーマとして定義し、画像を分析して構造化データを得られます。Learn では製造の欠陥検出や棚分析・在庫管理がユースケースとして挙げられており、商品・ブランド・欠陥フィールドの抽出に適しています。\nテキスト読み上げはテキストから音声を合成する機能、Azure Translator はテキストを翻訳するサービスで、画像からのフィールド抽出は行いません。スキーマなしでモデルを直接呼び出す方法では、定義したフィールドに沿った構造化データが得られる保証がありません。\nContent Understanding は、大量の非構造化画像データから標準化された構造化データを抽出し、下流の分析ワークフローへの統合を容易にします。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/image/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding",
+     "note": "スキーマで定義したフィールドを、画像などの非構造化コンテンツから構造化データとして抽出するサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q181": {
+   "status": "needs_review",
+   "stem": "アップロードされた長い動画から、文字起こし、翻訳、要約を含む深い分析情報を得る必要があります。検討すべきサービスはどれですか？",
+   "options": [
+    "Azure AI Video Indexer",
+    "Azure Vision OCR のみ",
+    "小規模なテキスト分類器",
+    "マネージド ID のみ"
+   ],
+   "explanation": "Azure AI Video Indexer は、ライブおよびアップロードされた動画や音声から深い分析情報を抽出するサービスで、文字起こし、翻訳、物体検出、動画要約などの機能をサポートしています。そのため、長い動画の文字起こし・翻訳・要約という要件に合致します。\nAzure Vision OCR のみでは画像内の文字を読み取るだけで、音声の文字起こしや要約は行えません。小規模なテキスト分類器はテキストを分類するもので動画を分析できず、マネージド ID は認証の仕組みであって分析機能ではありません。\nVideo Indexer は機械学習と生成 AI モデルを使用し、クラウドで使うことも、Azure Arc 経由でエッジにデプロイすることもできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/azure-video-indexer/video-indexer-overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure AI Video Indexer",
+     "note": "動画や音声から文字起こし、翻訳、物体検出、要約などの分析情報を抽出する AI ソリューションです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q182": {
+   "status": "needs_review",
+   "stem": "アップロードされたスクリーンショットに、ポリシーを無視するようモデルに指示する隠しテキストが含まれています。これはどのようなリスクですか？",
+   "options": [
+    "画像に埋め込まれたテキストを介した間接プロンプト インジェクション",
+    "クォータの再割り当て",
+    "TTS のキャンセル",
+    "ベクター フィルター モード"
+   ],
+   "explanation": "画像内に埋め込まれた隠しテキストでモデルにポリシーの無視を指示するのは、画像の埋め込みテキストを介した間接プロンプト インジェクションです。AI-103 のスタディ ガイドでも、画像の埋め込みテキストを使った間接プロンプト インジェクションの検出と軽減がスキルとして明記されています。\nクォータの再割り当てはデプロイの容量管理、TTS のキャンセルは音声合成処理の中断、ベクター フィルター モードは Azure AI Search のベクター検索でフィルターを適用する方法に関するもので、いずれも攻撃のリスクを表すものではありません。\nAzure AI Content Safety のプロンプト シールドは、ドキュメント、メール、Web ページなどのコンテンツに埋め込まれた隠し指示をドキュメント攻撃として検出します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/concepts/jailbreak-detection",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/computer-use"
+   ],
+   "terms": [
+    {
+     "term": "プロンプト シールド",
+     "note": "Azure AI Content Safety の機能で、ユーザー プロンプト攻撃と、コンテンツに埋め込まれた隠し指示によるドキュメント攻撃を検出します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q183": {
+   "status": "needs_review",
+   "stem": "あるブランド アプリケーションでは、禁止シンボルを含む画像を拒否し、生成コンテンツに透かしを適用する必要があります。問われているのはどの分野ですか？",
+   "options": [
+    "責任ある AI と視覚ポリシーの適用",
+    "音声翻訳",
+    "検索のスコアリング プロファイル",
+    "エージェントのメモリ"
+   ],
+   "explanation": "禁止シンボルを含む画像の拒否や生成コンテンツへの透かしの適用は、AI-103 スタディ ガイドの「マルチモーダル コンテンツに責任ある AI を実装する」にある、視覚ポリシー ルールの適用（透かしの適用、禁止シンボルのフラグ付け、ブランド使用要件の順守など）に該当します。\n音声翻訳は話し言葉の翻訳、検索のスコアリング プロファイルは Azure AI Search の関連性スコアの調整、エージェントのメモリは会話の文脈や情報の保持に関するもので、画像のポリシー適用とは関係ありません。\nMicrosoft Foundry は、コンテンツ資格情報 (C2PA) と不可視の透かしを使って、AI で生成されたコンテンツの来歴を示します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/responsible-ai/content-safety/provenance-disclosure"
+   ],
+   "terms": [
+    {
+     "term": "Content Credentials（コンテンツ資格情報、C2PA）",
+     "note": "暗号化署名されたメタデータをコンテンツに付加し、AI 生成コンテンツの来歴を示す仕組みです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「What area is being tested?」は出題分野を問うメタ的な設問のため「問われているのはどの分野ですか？」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q184": {
+   "status": "needs_review",
+   "stem": "マーケティング チームが、自然言語のプロンプトから新しい製品コンセプト画像を作成する必要があります。どの機能を使用すべきですか？",
+   "options": [
+    "Foundry/Azure OpenAI の画像生成モデル",
+    "Azure AI Search のみ",
+    "音声テキスト変換",
+    "ドキュメント レイアウト モデル"
+   ],
+   "explanation": "自然言語のプロンプトから新しい画像を作成するには、Foundry/Azure OpenAI の画像生成モデル（gpt-image 系など）を使用します。Learn の画像生成ガイドでは、これらのモデルがユーザーの指定したテキスト プロンプトと任意の参照画像から画像を作成すると説明されています。\nAzure AI Search は既存コンテンツのインデックス作成と検索、音声テキスト変換は音声の文字起こし、ドキュメント レイアウト モデルは文書の構造の抽出を行うもので、いずれも新しい画像は作成しません。\nなお、DALL-E 3 は退役済みのため、画像生成には gpt-image 系モデルを使うよう案内されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/dall-e",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q185": {
+   "status": "needs_review",
+   "stem": "デザイナーが、生成した画像内の 1 つのオブジェクトだけを置き換え、残りの部分は保持したいと考えています。最も関連性の高い編集方法はどれですか？",
+   "options": [
+    "マスクベースのインペインティング",
+    "セマンティック ランキング",
+    "音声合成",
+    "長期メモリ"
+   ],
+   "explanation": "画像の一部だけを置き換えて残りを保持するには、マスクベースのインペインティングを使用します。画像編集 API の mask パラメーターでは、編集したい領域を完全に透明なピクセル（アルファ値 0）で指定し、マスクは入力画像と同じサイズの PNG ファイルにする必要があります。\nセマンティック ランキングは検索結果の並べ替え、音声合成はテキストからの音声生成、長期メモリはエージェントが情報を保持する仕組みで、画像の部分編集には使えません。\ngpt-image 系モデルは、マスクとプロンプトによるインペインティングをサポートしています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/dall-e",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q186": {
+   "status": "needs_review",
+   "stem": "アプリで、アップロードされた画像の簡潔な説明を生成してアクセシビリティを向上させる必要があります。関連する機能はどれですか？",
+   "options": [
+    "画像キャプション / 代替テキスト生成",
+    "プロビジョニング済みスループットのみ",
+    "エージェントの handoff（ハンドオフ）",
+    "キーワード フィルターのみ"
+   ],
+   "explanation": "画像の内容を簡潔に説明してアクセシビリティを高めるには、画像キャプション / 代替テキスト生成を使用します。Image Analysis 4.0 のキャプション機能は画像全体の内容を 1 文で説明し、透明性ノートでも、代替テキストとして使える人間が読める説明を生成できると記載されています。\nプロビジョニング済みスループットはモデル デプロイの処理容量を確保する仕組み、エージェントの handoff は別のエージェントに処理を引き継ぐ仕組み、キーワード フィルターは特定の語句による絞り込みで、いずれも画像の説明は生成しません。\nAI-103 スタディ ガイドでも、マルチモーダル モデルを使ったキャプションや、アクセシビリティに沿った代替テキストの生成がスキルとして挙げられています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-describe-images-40",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/responsible-ai/computer-vision/image-analysis-transparency-note",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Image Analysis 4.0",
+     "note": "Azure Vision の画像分析 API で、画像全体を 1 文で説明する Caption や、領域ごとに説明する Dense Captions などの機能を提供します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q216": {
+   "status": "needs_review",
+   "stem": "テキスト読み上げの音声合成用に構成されている音声名はどれですか？",
+   "options": [
+    "en-US-Ava:DragonHDLatestNeural",
+    "en-US",
+    "SPEECH_KEY",
+    "YourEndpointId"
+   ],
+   "explanation": "コードでは speech_synthesis_voice_name プロパティに \"en-US-Ava:DragonHDLatestNeural\" が設定されており、これが音声合成に使われる音声名です。Learn の Python 用テキスト読み上げクイックスタートでも同じ設定が使われています。\nen-US は言語ロケールで音声名ではなく、SPEECH_KEY はリソース キーを読み込むための環境変数名です。YourEndpointId はこのコードでは使われていない値です。\nAzure Speech（音声サービス）の SpeechSynthesizer は、SpeechConfig で指定した音声を使ってテキストを音声に変換します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-text-to-speech?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechConfig",
+     "note": "Speech SDK で、キーやエンドポイント、音声合成に使う音声名などの設定を保持するオブジェクトです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q217": {
+   "status": "needs_review",
+   "stem": "テキスト読み上げ操作が正常に完了したことを示す結果の理由 (reason) はどれですか？",
+   "options": [
+    "speechsdk.ResultReason.SynthesizingAudioCompleted",
+    "speechsdk.ResultReason.Canceled",
+    "speechsdk.CancellationReason.Error",
+    "speechsdk.ResultReason.NoMatch"
+   ],
+   "explanation": "Learn の Python 用テキスト読み上げクイックスタートでは、speak_text_async(text).get() の結果の reason が speechsdk.ResultReason.SynthesizingAudioCompleted であれば合成成功として扱っています。\nspeechsdk.ResultReason.Canceled は合成がキャンセルまたはエラーになった場合の値で、speechsdk.CancellationReason.Error はキャンセルの理由（エラー）を表す別の列挙型の値です。speechsdk.ResultReason.NoMatch は、音声認識で音声を認識できなかった場合に使われる値です。\nSpeech SDK の ResultReason 列挙型は、認識や合成の結果がどのような理由で生成されたかを示します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-text-to-speech?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-speech-to-text?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "ResultReason",
+     "note": "Speech SDK の列挙型で、認識や合成の結果が生成された理由（完了、キャンセル、一致なしなど）を表します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q218": {
+   "status": "needs_review",
+   "stem": "このループで翻訳先言語として追加される言語コードはどれですか？",
+   "options": [
+    "de",
+    "en-US",
+    "SPEECH_REGION",
+    "AvaNeural"
+   ],
+   "explanation": "ループでは to_languages の各要素（de、it、pt）が add_target_language() に渡され、翻訳先言語として追加されます。選択肢の中で該当するのは de です。\nen-US は speech_recognition_language に設定された音声認識（ソース）言語で、翻訳先ではありません。SPEECH_REGION はリージョンを表す環境変数名、AvaNeural は音声合成の音声名の一部で、いずれも言語コードではありません。\nSpeechTranslationConfig では、add_target_language を呼び出すたびに新しい翻訳先言語が追加されます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-translate-speech?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechTranslationConfig",
+     "note": "Speech SDK で音声翻訳を構成するオブジェクトで、認識（ソース）言語や翻訳先言語を設定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q219": {
+   "status": "needs_review",
+   "stem": "このスニペットで感情分析を実行するメソッドはどれですか？",
+   "options": [
+    "analyze_sentiment",
+    "recognize_pii_entities",
+    "begin_analyze_document",
+    "speak_text_async"
+   ],
+   "explanation": "Learn の Python クイックスタートでは、TextAnalyticsClient の analyze_sentiment(documents, show_opinion_mining=True) で感情分析とオピニオン マイニングを実行しています。\nrecognize_pii_entities はテキスト内の個人を特定できる情報 (PII) を検出するメソッド、begin_analyze_document は Azure Document Intelligence でドキュメントを分析するメソッド、speak_text_async は Speech SDK でテキストを音声に合成するメソッドです。\nAzure Language の感情分析は、テキストに肯定的・中立・否定的などの感情ラベルを割り当てます。なお、Azure Language の感情分析とオピニオン マイニングは 2029 年 3 月 31 日に提供終了予定で、Microsoft Foundry への移行が推奨されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/sentiment-opinion-mining/quickstart?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/sentiment-opinion-mining/overview"
+   ],
+   "terms": [
+    {
+     "term": "TextAnalyticsClient",
+     "note": "Azure Language のテキスト分析機能（感情分析や PII 検出など）を Python から呼び出すためのクライアント クラスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q220": {
+   "status": "needs_review",
+   "stem": "感情分析の要求でオピニオン マイニングを有効にする引数はどれですか？",
+   "options": [
+    "show_opinion_mining=True",
+    "logging_enable=True",
+    "include_total_count=True",
+    "query_type=\"semantic\""
+   ],
+   "explanation": "analyze_sentiment に show_opinion_mining=True を指定すると、文書や文レベルの感情に加えて、テキスト内の特定の側面（ターゲット）とその評価を対応付けるオピニオン マイニングの結果が返されます。\nlogging_enable=True は Azure SDK で HTTP 情報のログ記録を有効にする引数、include_total_count=True と query_type=\"semantic\" は Azure AI Search の search メソッドで使う引数で、オピニオン マイニングとは関係ありません。\nAzure Language の感情分析とオピニオン マイニングは、ブランドやトピックについて人々がどう考えているかを把握するのに役立ちます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/sentiment-opinion-mining/quickstart?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/sentiment-opinion-mining/overview"
+   ],
+   "terms": [
+    {
+     "term": "オピニオン マイニング",
+     "note": "感情分析の拡張機能で、テキスト内の特定の側面とそれに対する評価や感情を対応付けて返します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q221": {
+   "status": "needs_review",
+   "stem": "このコードが主に実行している処理はどれですか？",
+   "options": [
+    "テキスト読み上げによる音声合成",
+    "音声テキスト変換による音声認識",
+    "ハイブリッド検索",
+    "Content Understanding による分析"
+   ],
+   "explanation": "このコードは SpeechSynthesizer を AudioOutputConfig(use_default_speaker=True) で作成し、speak_text_async() でテキストから音声を合成して既定のスピーカーに出力しているため、テキスト読み上げです。\n音声テキスト変換では SpeechRecognizer と recognize_once_async() などを使用します。ハイブリッド検索は Azure AI Search の機能、Content Understanding による分析は Content Understanding のアナライザーで行う処理で、いずれもこのコードには含まれていません。\nAzure Speech（音声サービス）のテキスト読み上げでは、speech_synthesis_voice_name で指定した音声でテキストを読み上げます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-text-to-speech?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechSynthesizer",
+     "note": "Speech SDK でテキストを音声に合成するクラスで、出力先は AudioOutputConfig で指定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q222": {
+   "status": "needs_review",
+   "stem": "Voice Live API がサーバー間のリアルタイム イベントに使用するトランスポートはどれですか？",
+   "options": [
+    "WebSocket メッセージ",
+    "バッチ REST ポーリングのみ",
+    "SMTP メッセージ",
+    "Blob Storage 内の静的 JSON ファイル"
+   ],
+   "explanation": "Learn によると、Voice Live API は WebSocket イベントを通じてサポートされており、バックエンドや中間層サービスが WebSocket 経由で接続するサーバー間統合が容易に行えます。WebSocket メッセージを直接使用して API とやり取りすることもできます。\nバッチ REST ポーリングのみ、SMTP（メール送信のプロトコル）によるメッセージ、Blob Storage 内の静的 JSON ファイルは、いずれも Learn に記載された Voice Live API の接続方法ではありません。\nVoice Live API は、複数のコンポーネントを手動で組み合わせることなく、音声エージェント向けの低遅延で高品質な音声対音声のやり取りを実現するソリューションです。なお、コードは接続の流れを示す概念的な例で、実際の SDK の API 形状とは異なります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live-how-to"
+   ],
+   "terms": [
+    {
+     "term": "Voice Live API",
+     "note": "音声エージェント向けに、低遅延の音声対音声のやり取りを WebSocket 経由で提供する API です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q223": {
+   "status": "needs_review",
+   "stem": "Voice Live と Foundry Agent Service を組み合わせる設計で、モデルへの指示を直接指定する代わりにエージェント ID を使用するのはなぜですか？",
+   "options": [
+    "エージェントが Foundry でプロンプトと動作の構成を一元管理する",
+    "Azure サブスクリプションが不要になる",
+    "音声入力が無効になる",
+    "バッチのみの文字起こしが強制される"
+   ],
+   "explanation": "Voice Live を Foundry Agent Service と組み合わせると、セッション コードで instructions を指定する代わりに、エージェント内で管理される組み込みのプロンプトと構成を利用できます。エージェント ID で接続すれば必要な設定は内部で処理され、クライアント コードを変更せずに会話フローを管理・更新できるため、保守性と拡張性が向上します。\nエージェントを使う場合も前提条件として Azure サブスクリプションは必要であり、音声入力が無効になったり、バッチのみの文字起こしが強制されたりすることもありません。\nなお、コード中の agent_id を含む session_config は概念的な表現で、最新のクイックスタートではエージェント名やプロジェクト名などを指定して接続します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live-agents-quickstart"
+   ],
+   "terms": [
+    {
+     "term": "Foundry Agent Service",
+     "note": "Microsoft Foundry でエージェントを作成・実行するサービスで、プロンプトなどの構成をエージェント側で管理できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q224": {
+   "status": "needs_review",
+   "stem": "エージェントが自身の音声出力をユーザー入力として認識しないようにするのに役立つ機能はどれですか？",
+   "options": [
+    "エコー キャンセル",
+    "セマンティック ランキング",
+    "ドキュメント レイアウト抽出",
+    "OCR クエリ フィールド"
+   ],
+   "explanation": "Voice Live のエコー キャンセルは、エージェントが自身の応答音声を拾わないようにする機能です。そのため、エージェント自身の発話がユーザー入力として認識されるのを防げます。\nセマンティック ランキングは Azure AI Search の検索結果の並べ替え、ドキュメント レイアウト抽出と OCR クエリ フィールドは Azure Document Intelligence などによる文書からの情報抽出に関する機能で、音声の入出力とは関係ありません。\nVoice Live は、ノイズ抑制、エコー キャンセル、中断検出、ターン終了検出などの高度な会話機能を提供します。\nなお、コード中の \"echo_cancellation\": True や \"near_field\" は Voice Live の実際のプロパティ名・値と異なり（エコー キャンセルは input_audio_echo_cancellation に {\"type\": \"server_echo_cancellation\"} を指定）、コードの設定内容が正確でない点で曖昧な問題です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live-how-to"
+   ],
+   "terms": [
+    {
+     "term": "Voice Live API",
+     "note": "音声エージェント向けの API で、ノイズ抑制やエコー キャンセルなどの会話機能をセッション設定で有効にできます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Learn 日本語版の表記に合わせ「Echo cancellation」を「エコー キャンセル」と訳した。status=ambiguous: コードの \"echo_cancellation\": True と \"near_field\"（Azure OpenAI Realtime API のノイズ低減タイプ）は Voice Live の正式な設定ではない。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q225": {
+   "status": "needs_review",
+   "stem": "Microsoft Learn によると、Voice Live を使用するために個別にデプロイする必要がないものはどれですか？",
+   "options": [
+    "オーディオ モデル",
+    "Foundry プロジェクト",
+    "サポート対象リージョン",
+    "クライアント アプリケーション"
+   ],
+   "explanation": "Learn の Voice Live クイックスタートには、Voice Live を使用するために Microsoft Foundry リソースでオーディオ モデルをデプロイする必要はなく、Voice Live はフル マネージドでモデルが自動的にデプロイされると記載されています。\nFoundry のリソースやプロジェクトは引き続き必要で、サポート対象リージョンに作成する必要があります。また、Voice Live API に接続して音声をやり取りするクライアント アプリケーションも利用者が用意します。\nVoice Live では、GPT-5、GPT-4.1、GPT-4o、Phi など、会話の要件に合わせて複数の生成 AI モデルから選択できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live-quickstart",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live"
+   ],
+   "terms": [
+    {
+     "term": "Voice Live API",
+     "note": "フル マネージドの音声エージェント向け API で、オーディオ モデルを自分でデプロイせずに利用できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q226": {
+   "status": "needs_review",
+   "stem": "マイクからの 1 回限りの音声認識操作を開始するメソッドはどれですか？",
+   "options": [
+    "recognize_once_async().get()",
+    "speak_text_async(text).get()",
+    "begin_analyze_document(...)",
+    "search_client.search(...)"
+   ],
+   "explanation": "AudioConfig を渡さずに SpeechRecognizer を作成すると既定のマイクが使われ、recognize_once_async().get() で 1 回分の発話を認識します。Learn のクイックスタートによると、この操作は最大 30 秒の発話、または無音が検出されるまでを文字起こしします。\nspeak_text_async(text).get() はテキスト読み上げ、begin_analyze_document(...) は Azure Document Intelligence のドキュメント分析、search_client.search(...) は Azure AI Search の検索を実行するもので、音声認識ではありません。\nより長い音声を認識する場合は、連続認識を使用します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-recognize-speech?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-speech-to-text?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechRecognizer",
+     "note": "Speech SDK で音声をテキストに変換するクラスで、AudioConfig を省略すると既定のマイクを入力に使います。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q227": {
+   "status": "needs_review",
+   "stem": "発音のスコアリングを有効にするために、認識器に適用されるオブジェクトはどれですか？",
+   "options": [
+    "pronunciation_assessment_config",
+    "speech_synthesizer",
+    "SearchClient",
+    "VectorizedQuery"
+   ],
+   "explanation": "Learn の発音評価ガイド (Python) では、PronunciationAssessmentConfig のインスタンスを pronunciation_assessment_config.apply_to(speech_recognizer) で認識器に適用してから recognize_once() を呼び出し、PronunciationAssessmentResult で結果を取得します。\nspeech_synthesizer はテキスト読み上げ用のオブジェクト、SearchClient は Azure AI Search のクライアント、VectorizedQuery は Azure AI Search のベクター クエリを表すクラスで、発音評価には使いません。\nAzure Speech の発音評価では、オプションで強勢、イントネーション、話す速度、リズムなどを評価する韻律評価も有効にできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-pronunciation-assessment?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "発音評価",
+     "note": "Azure Speech の機能で、話された音声の発音を評価し、全文・単語・音素などのレベルでスコアを返します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q228": {
+   "status": "needs_review",
+   "stem": "発音評価の生の JSON 結果を取得するプロパティはどれですか？",
+   "options": [
+    "SpeechServiceResponse_JsonResult",
+    "SpeechServiceConnection_LanguageIdMode",
+    "SpeechSynthesisVoiceName",
+    "SpeechServiceResponse_RequestSentenceBoundary"
+   ],
+   "explanation": "Learn の発音評価ガイドでは、speech_recognition_result.properties.get(speechsdk.PropertyId.SpeechServiceResponse_JsonResult) で発音評価の結果を JSON 文字列として取得しています。SpeechServiceResponse_JsonResult は JSON 形式の Speech サービス応答出力で、認識結果オブジェクトでのみ使用できます。\nSpeechServiceConnection_LanguageIdMode は言語識別のモード（AtStart または Continuous）、SpeechServiceResponse_RequestSentenceBoundary は WordBoundary イベントで文の境界を要求するかどうか、SpeechSynthesisVoiceName はテキスト読み上げの音声名に関するもので、いずれも JSON 結果の取得には使いません。\nSpeech SDK では、PropertyId 列挙型の値を指定して認識結果などのプロパティを取得します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-pronunciation-assessment?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/dotnet/api/microsoft.cognitiveservices.speech.propertyid?view=azure-dotnet"
+   ],
+   "terms": [
+    {
+     "term": "PropertyId",
+     "note": "Speech SDK の列挙型で、構成や結果から取得・設定するプロパティ（JSON 結果など）を識別します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q230": {
+   "status": "needs_review",
+   "stem": "この JSON で構成されている発音評価の粒度 (granularity) はどれですか？",
+   "options": [
+    "Phoneme",
+    "Word",
+    "Sentence",
+    "Document"
+   ],
+   "explanation": "JSON の granularity に \"Phoneme\" が設定されています。Learn によると、Phoneme を指定すると全文、単語、音節、音素の各レベルでスコアが返されます。\nWord は有効な値ですが、全文と単語レベルのスコアを返す設定で、このコードでは指定されていません。Sentence と Document は granularity の有効な値ではなく、受け付けられる値は Phoneme、Word、FullText です。\n発音評価の Granularity は評価の最下位レベルを決め、そのレベル以上のスコアを返します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-pronunciation-assessment?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "発音評価",
+     "note": "Azure Speech の機能で、参照テキストに対する発音を評価し、指定した粒度でスコアを返します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q231": {
+   "status": "needs_review",
+   "stem": "音声翻訳用に構成されている翻訳先言語はどれですか？",
+   "options": [
+    "it",
+    "en-US",
+    "ENDPOINT",
+    "SPEECH_KEY"
+   ],
+   "explanation": "Learn の音声翻訳クイックスタート (Python) と同様に、SpeechTranslationConfig の add_target_language(to_language) で \"it\"（イタリア語）が翻訳先言語として追加されています。\nen-US は speech_recognition_language に設定された音声認識（ソース）言語で、翻訳先ではありません。ENDPOINT と SPEECH_KEY は、エンドポイントとリソース キーを読み込むための環境変数名です。\nAzure Speech の音声翻訳では、ソース言語の音声を認識し、追加した各翻訳先言語の翻訳結果を返します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/get-started-speech-translation?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechTranslationConfig",
+     "note": "Speech SDK で音声翻訳を構成するオブジェクトで、認識（ソース）言語と翻訳先言語を設定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q232": {
+   "status": "needs_review",
+   "stem": "連続認識ループを停止する呼び出しはどれですか？",
+   "options": [
+    "translation_recognizer.stop_continuous_recognition()",
+    "translation_recognizer.start_continuous_recognition()",
+    "speech_synthesizer.speak_text_async()",
+    "client.search()"
+   ],
+   "explanation": "Speech SDK の連続翻訳サンプルでは、`start_continuous_recognition()` で認識を開始し、完了を待ってから `translation_recognizer.stop_continuous_recognition()` を呼び出して連続認識を停止します。\n`start_continuous_recognition()` は認識を開始する呼び出しで、停止には使いません。`speech_synthesizer.speak_text_async()` は翻訳結果を音声合成する呼び出しで、`client.search()` も Speech SDK の認識を制御する呼び出しではありません。\nAzure Speech（音声サービス）の音声翻訳は、音声をリアルタイムで認識し、別の言語のテキストや音声に翻訳する機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-translate-speech?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "Speech SDK",
+     "note": "Azure Speech（音声サービス）の音声認識、音声翻訳、音声合成などの機能をアプリから使うためのソフトウェア開発キットです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q233": {
+   "status": "needs_review",
+   "stem": "連続言語識別モードを構成するプロパティはどれですか？",
+   "options": [
+    "SpeechServiceConnection_LanguageIdMode",
+    "SpeechServiceResponse_JsonResult",
+    "SpeechServiceResponse_RequestSentenceBoundary",
+    "SpeechSynthesisVoiceName"
+   ],
+   "explanation": "`SpeechServiceConnection_LanguageIdMode` は言語識別のモードを指定するプロパティで、値には `AtStart`（既定）または `Continuous` を設定します。このプロパティは連続言語識別を使う場合にのみ必要で、音声翻訳でも `translation_config.set_property()` で `Continuous` を指定します。\n`SpeechServiceResponse_JsonResult` は認識結果の JSON 形式の応答出力、`SpeechServiceResponse_RequestSentenceBoundary` は音声合成の WordBoundary イベントで文の境界を要求するかどうかの設定、`SpeechSynthesisVoiceName` は音声合成に使う音声の指定で、いずれも言語識別のモードとは関係ありません。\nAzure Speech（音声サービス）の言語識別は、音声で話されている言語を、指定した候補言語の中から識別する機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/language-identification?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "連続言語識別 (continuous LID)",
+     "note": "音声の途中で言語が変わる可能性がある場合に使う言語識別のモードで、連続認識でのみサポートされ、音声中の複数の言語を識別できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q234": {
+   "status": "needs_review",
+   "stem": "Custom Neural Voice を使用する前に、組織が一般に行う必要があることは何ですか？",
+   "options": [
+    "制限付きアクセスを申請し、責任ある使用の要件を満たす",
+    "セマンティック ランキングを有効にする",
+    "ベクター インデックスのみを作成する",
+    "同意なしに任意の公開音声サンプルを使用する"
+   ],
+   "explanation": "Custom Neural Voice（カスタム音声）へのアクセスは適格性と利用基準に基づいて制限されており（Limited Access）、受付フォーム（intake form）からアクセスを申請する必要があります。また、プロの音声を微調整する前に、ボイス タレントが音声データの使用に同意するステートメントの録音を提出する必要があります。\nセマンティック ランキングやベクター インデックスは Azure AI Search の検索機能で、音声モデルの利用条件とは関係ありません。同意なしに公開音声サンプルを使うことは、ボイス タレントの同意を求める要件に反します。\nAzure Speech（音声サービス）のカスタム音声は、人の音声サンプルを使ってブランドやキャラクター向けの独自の合成音声を作成するテキスト読み上げの機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/custom-neural-voice"
+   ],
+   "terms": [
+    {
+     "term": "Limited Access（制限付きアクセス）",
+     "note": "カスタム音声のように、適格性と利用基準に基づいて受付フォームで申請し、承認された場合にのみ利用できる機能のアクセス方式です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Learn では名称が custom voice（日本語版は「カスタム音声」）に変わっていますが、問題文の Custom Neural Voice は用語表に従い英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q235": {
+   "status": "needs_review",
+   "stem": "テキストから、アバターが話す合成ビデオを作成する Speech の機能はどれですか？",
+   "options": [
+    "テキスト読み上げアバター",
+    "発音評価",
+    "Search のセマンティック キャプション",
+    "Document Intelligence のレイアウト"
+   ],
+   "explanation": "テキスト読み上げアバターは、テキストを、自然な音声で話すフォトリアリスティックな人物（標準アバターまたはカスタム アバター）のデジタル ビデオに変換する機能で、バッチ合成またはリアルタイムで生成できます。\n発音評価は話された音声の正確さや流暢さを評価する機能、セマンティック キャプションは Azure AI Search の検索結果から内容を要約する文やフレーズを抽出する機能、Document Intelligence のレイアウトは文書からテキストや構造を抽出する機能で、いずれもビデオを生成しません。\nAzure Speech（音声サービス）のテキスト読み上げはテキストを自然な音声に変換する機能で、テキスト読み上げアバターはこの音声で話す人物のビデオを生成します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/text-to-speech-avatar/what-is-text-to-speech-avatar"
+   ],
+   "terms": [
+    {
+     "term": "テキスト読み上げアバター",
+     "note": "Azure Speech の機能で、標準アバターまたはカスタム アバターがテキストを話すデジタル ビデオを生成します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q236": {
+   "status": "needs_review",
+   "stem": "音声アシスタントは、エージェントが推論する前に、ユーザーの音声入力をテキストに変換する必要があります。最初に必要な手順はどれですか？",
+   "options": [
+    "音声テキスト変換による文字起こし",
+    "テキストからの画像生成",
+    "セマンティック ランキング",
+    "インペインティング"
+   ],
+   "explanation": "Azure Speech（音声サービス）の音声テキスト変換は、音声ストリームや音声ファイルをテキストに変換する機能で、エージェントが内容を推論する前に音声入力をテキスト化する最初の手順になります。\nテキストからの画像生成とインペインティングは画像を生成・編集する機能、セマンティック ランキングは Azure AI Search の検索結果の関連性を再評価する機能で、どれも音声をテキストに変換しません。\n音声テキスト変換には、リアルタイム文字起こし、高速文字起こし、バッチ文字起こしの方式があります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/speech-to-text"
+   ],
+   "terms": [
+    {
+     "term": "音声テキスト変換",
+     "note": "Azure Speech（音声サービス）の機能で、リアルタイム、高速、バッチの各方式で音声をテキストに変換します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q238": {
+   "status": "needs_review",
+   "stem": "アプリで英語の音声を認識し、ドイツ語のテキストを返す必要があります。必要な機能はどれですか？",
+   "options": [
+    "音声翻訳",
+    "Dense captions",
+    "プロビジョニング済みスループット",
+    "Groundedness Pro"
+   ],
+   "explanation": "Azure Speech（音声サービス）の音声翻訳は、指定したソース言語の音声ストリームを受け取り、ターゲット言語に翻訳したテキスト（または合成音声）を返す機能です。英語の音声からドイツ語のテキストを得る要件に該当します。\nDense captions は画像内の複数の領域を説明するキャプションを生成する Image Analysis 4.0 の機能、プロビジョニング済みスループットはデプロイに必要なスループットを確保する方式、Groundedness Pro は応答がコンテキストに厳密に準拠しているかを評価するエバリュエーターで、いずれも音声を翻訳しません。\n音声翻訳は Speech SDK と Speech CLI から利用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/speech-translation"
+   ],
+   "terms": [
+    {
+     "term": "Groundedness Pro",
+     "note": "Azure AI Content Safety を利用して、応答が与えられたコンテキストに厳密に準拠しているかを判定する Microsoft Foundry のエバリュエーター（プレビュー）です。"
+    },
+    {
+     "term": "Dense captions",
+     "note": "Image Analysis 4.0 の機能で、画像全体に加えて最大 10 個の領域についてそれぞれ 1 文の説明と境界ボックスを返します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Dense captions は Learn 日本語版でも英語表記（Dense Captions）のため、英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q239": {
+   "status": "needs_review",
+   "stem": "ある企業では、承認されたシナリオのために、ブランド固有の合成音声が必要です。該当する機能はどれですか？",
+   "options": [
+    "Custom neural voice（提供状況/制限付きアクセスの対象）",
+    "ベクター クエリ",
+    "レイアウト チャンク分割",
+    "A2A のみ"
+   ],
+   "explanation": "Custom Neural Voice（カスタム音声）は、人の音声サンプルを微調整用のデータとして使い、ブランドやキャラクター向けの独自の合成音声を作成する機能です。アクセスは適格性と利用基準に基づいて制限されています（Limited Access）。\nベクター クエリは Azure AI Search でベクター検索を行うクエリ、レイアウト チャンク分割は文書のレイアウト（見出しなどの構造）に基づいてチャンク分割する手法、A2A はエージェント間通信のプロトコルで、いずれも合成音声を作成しません。\nカスタム音声は Azure Speech（音声サービス）のテキスト読み上げの機能で、Learn では現在「カスタム音声」（custom voice）と呼ばれています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/custom-neural-voice"
+   ],
+   "terms": [
+    {
+     "term": "Custom Neural Voice（カスタム音声）",
+     "note": "人の音声サンプルで微調整し、ブランドやキャラクター向けの独自の合成音声を作成する Azure Speech の機能で、利用には申請と承認が必要です。"
+    },
+    {
+     "term": "A2A",
+     "note": "Agent2Agent プロトコルのことで、Foundry Agent Service では A2A ツールを使って外部のエージェントと標準化された方法で通信できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "選択肢の Custom neural voice は製品名のため英語のまま残しました。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q240": {
+   "status": "needs_review",
+   "stem": "コンプライアンス アプリで、テキスト内の組織、人物、キー フレーズを識別する必要があります。最も関連性の高い機能はどれですか？",
+   "options": [
+    "Azure AI Language のテキスト分析/エンティティ抽出",
+    "画像のインペインティング",
+    "ビデオの要約のみ",
+    "TTS の出力形式"
+   ],
+   "explanation": "Azure Language の名前付きエンティティ認識 (NER) は非構造化テキストから人物、場所、組織などのエンティティを識別・分類し、キー フレーズ抽出はテキストの主要な概念を抽出します。組織、人物、キー フレーズの識別には、これらのテキスト分析機能が該当します。\n画像のインペインティングは画像の編集、ビデオの要約のみは動画の内容の要約、TTS の出力形式は合成音声の形式の設定であり、いずれもテキストからエンティティやキー フレーズを抽出しません。\nAzure Language（選択肢では旧称の Azure AI Language）は、テキストを理解・分析するための自然言語処理の機能を提供するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/named-entity-recognition/overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/key-phrase-extraction/overview"
+   ],
+   "terms": [
+    {
+     "term": "名前付きエンティティ認識 (NER)",
+     "note": "Azure Language の機能で、非構造化テキストから人物、場所、組織などのエンティティを識別して分類します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "選択肢の Azure AI Language は旧称ですが、製品名のため原文どおり英語で残しました（現在の名称は Azure Language）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q241": {
+   "status": "needs_review",
+   "stem": "生成ワークフローで、invoice_id、vendor、total を持つ有効なオブジェクトを出力する必要があります。何を追加する必要がありますか？",
+   "options": [
+    "厳密なスキーマまたは構造化出力の検証",
+    "ランダムな音声",
+    "顔モデル",
+    "より大きな画像マスク"
+   ],
+   "explanation": "構造化出力は、モデルの出力を、指定した JSON スキーマに厳密に従わせる機能で、構造化データの抽出や多段階のワークフローに使用されます。invoice_id、vendor、total を持つ有効なオブジェクトを確実に得るには、厳密なスキーマによる構造化出力や出力の検証を追加します。\nランダムな音声、顔モデル、より大きな画像マスクは、それぞれ音声、顔、画像に関するもので、出力の構造を制約しません。\nAzure OpenAI では、Chat Completions API の `response_format` または Responses API の `text.format` にスキーマを定義して構造化出力を使用します。従来の JSON モードは有効な JSON を保証しますが、指定したスキーマへの厳密な準拠は保証しません。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/structured-outputs",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "構造化出力",
+     "note": "モデルの応答を、推論 API 呼び出しで指定した JSON スキーマに厳密に従わせる Azure OpenAI の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q242": {
+   "status": "needs_review",
+   "stem": "コンタクト センターのダッシュボードで、メッセージを肯定的/中立的/否定的に分類する必要があります。適合する機能はどれですか？",
+   "options": [
+    "感情分析",
+    "ベクター インデックス作成のみ",
+    "画像生成",
+    "エージェント間エンドポイント"
+   ],
+   "explanation": "Azure Language の感情分析は、文やドキュメントの単位で positive/neutral/negative のラベルと 0〜1 の信頼度スコアを返すため、メッセージの極性の分類に適しています。\nベクター インデックス作成のみでは検索用のインデックスを作るだけで、画像生成は画像を作成する機能、エージェント間エンドポイントはエージェント同士が通信するための接続先であり、いずれもテキストの感情を分類しません。\nAzure Language は、感情分析に加えて、テキスト内の特定の対象に対する意見を抽出するオピニオン マイニングも提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/sentiment-opinion-mining/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "感情分析",
+     "note": "Azure Language の機能で、テキストの文やドキュメントに positive/neutral/negative などのラベルと信頼度スコアを付けます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q243": {
+   "status": "needs_review",
+   "stem": "多言語アプリで、サポートされている言語間の予測可能な翻訳が必要です。最も簡単に適合するサービスはどれですか？",
+   "options": [
+    "Azure Translator",
+    "Document Intelligence のレイアウト",
+    "Magentic オーケストレーション",
+    "コード インタープリター"
+   ],
+   "explanation": "Azure Translator は、クラウドベースのニューラル機械翻訳サービスで、サポートされている言語間でテキストを翻訳する専用のサービスです。そのため、予測可能な翻訳を最も簡単に実現できます。\nDocument Intelligence のレイアウトは文書からテキストや構造を抽出する機能、Magentic オーケストレーションはマネージャー エージェントが専門エージェントを動的に調整するマルチエージェントのパターン、コード インタープリターはエージェントがサンドボックス環境で Python コードを実行するツールで、いずれも翻訳専用のサービスではありません。\nAzure Translator は Foundry Tools の一部として提供されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/translator/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Magentic オーケストレーション",
+     "note": "Microsoft Agent Framework のオーケストレーション パターンの 1 つで、マネージャー エージェントが専門エージェントを動的に調整します。"
+    },
+    {
+     "term": "コード インタープリター",
+     "note": "Microsoft Foundry のエージェントが、サンドボックス環境で Python コードを記述・実行してデータ分析などを行えるようにするツールです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q256": {
+   "status": "needs_review",
+   "stem": "この Document Intelligence のリクエストで使用される事前構築済みモデルはどれですか？",
+   "options": [
+    "prebuilt-invoice",
+    "prebuilt-layout",
+    "prebuilt-receipt",
+    "prebuilt-documentSearch"
+   ],
+   "explanation": "`begin_analyze_document()` の第 1 引数には分析に使うモデル ID を渡します。このコードでは `prebuilt-invoice` を指定しているため、請求書モデルが使用されます。\n`prebuilt-layout` はテキストや表などの文書構造を抽出するレイアウト モデル、`prebuilt-receipt` はレシート用のモデルで、どちらもこのコードでは指定されていません。`prebuilt-documentSearch` は Azure Content Understanding の事前構築済みアナライザーです。\nAzure Document Intelligence は、請求書やレシートなどの文書からフィールドや構造を抽出する事前構築済みモデルを提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/quickstarts/get-started-sdks-rest-api?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "事前構築済みモデル",
+     "note": "Azure Document Intelligence があらかじめ用意している、請求書やレシートなど特定の種類の文書向けの分析モデルで、`prebuilt-invoice` のようなモデル ID で指定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q257": {
+   "status": "needs_review",
+   "stem": "分析リクエストにドキュメントの URL を渡すプロパティはどれですか？",
+   "options": [
+    "url_source",
+    "query_fields",
+    "locale",
+    "include_total_count"
+   ],
+   "explanation": "Document Intelligence の Python クイックスタートでは、分析対象のドキュメントの URL を `AnalyzeDocumentRequest(url_source=invoiceUrl)` のように `url_source` で渡します。\n`query_fields` はクエリ フィールドのアドオン機能で追加抽出するフィールド名の指定、`locale` はテキスト認識と文書分析のためのロケールのヒント、`include_total_count` は Azure AI Search の検索で結果の総数を取得するかどうかの指定で、どれもドキュメントの URL は渡しません。\nAzure Document Intelligence の `begin_analyze_document()` は、モデル ID と分析リクエストを受け取り、`poller.result()` で分析結果を取得します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/quickstarts/get-started-sdks-rest-api?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "AnalyzeDocumentRequest",
+     "note": "Document Intelligence の Python SDK で分析リクエストを表すクラスで、`url_source` で分析対象のドキュメントの URL を指定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q258": {
+   "status": "needs_review",
+   "stem": "query_fields で要求されている 2 つのフィールド名はどれですか？",
+   "options": [
+    "Address と InvoiceNumber",
+    "VendorName と TotalTax",
+    "HotelName と Description",
+    "MerchantName と TransactionDate"
+   ],
+   "explanation": "Document Intelligence のアドオン機能のサンプルでは、`features=[DocumentAnalysisFeature.QUERY_FIELDS]` でクエリ フィールド機能を有効にし、`query_fields=[\"Address\", \"InvoiceNumber\"]` で追加で抽出するフィールド名を指定しています。そのため、要求されているのは Address と InvoiceNumber です。\nほかの組み合わせ（VendorName と TotalTax、HotelName と Description、MerchantName と TransactionDate）は、コードの `query_fields` のリストに含まれていません。\nクエリ フィールドは、追加のトレーニングなしで、事前構築済みモデルが抽出するスキーマを拡張できる Azure Document Intelligence のアドオン機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/concept/add-on-capabilities"
+   ],
+   "terms": [
+    {
+     "term": "クエリ フィールド",
+     "note": "Document Intelligence のアドオン機能で、追加のトレーニングなしに、抽出するスキーマにフィールドを追加できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q259": {
+   "status": "needs_review",
+   "stem": "選択されている Content Understanding のアナライザーはどれですか？",
+   "options": [
+    "prebuilt-invoice",
+    "prebuilt-documentSearch",
+    "prebuilt-receipt",
+    "my-semantic-config"
+   ],
+   "explanation": "`client.begin_analyze()` では `analyzer_id` で使用するアナライザーを指定します。このコードは `analyzer_id=\"prebuilt-invoice\"` を指定しているため、請求書から構造化データを抽出する `prebuilt-invoice` アナライザーが使用されます。\n`prebuilt-documentSearch` は文書から Markdown コンテンツを抽出する RAG 向けのアナライザー、`prebuilt-receipt` はレシート用のアナライザーで、どちらもこのコードでは指定されていません。`my-semantic-config` もコードで指定されている値ではありません。\nAzure Content Understanding は、文書、画像、音声、ビデオからアナライザーを使って構造化データや Markdown を抽出するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/quickstart/use-rest-api?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "アナライザー (Content Understanding)",
+     "note": "Content Understanding でコンテンツの分析方法と抽出内容を決める単位で、`prebuilt-invoice` のような事前構築済みアナライザーとカスタム アナライザーがあります。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q260": {
+   "status": "needs_review",
+   "stem": "Content Understanding の結果から Markdown コンテンツとして出力されるプロパティはどれですか？",
+   "options": [
+    "content.markdown",
+    "content.fields",
+    "result.documents",
+    "invoice.fields"
+   ],
+   "explanation": "このコードでは、`prebuilt-documentSearch` で分析した結果から `result.contents[0]` を取得し、`print(content.markdown)` でドキュメントの Markdown 表現を出力しています。\n`content.fields` は `prebuilt-invoice` などのアナライザーが抽出したフィールドを参照するプロパティ、`result.documents` と `invoice.fields` は Document Intelligence SDK のサンプルで分析結果を参照する際に使われるもので、どれもこのコードで Markdown として出力されていません。\n`prebuilt-documentSearch` は、レイアウトの保持、表の検出、図の分析を行い、文書から構造化された Markdown を抽出する RAG 向けのアナライザーです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/python/api/overview/azure/ai-contentunderstanding-readme"
+   ],
+   "terms": [
+    {
+     "term": "prebuilt-documentSearch",
+     "note": "Azure Content Understanding の事前構築済みアナライザーで、PDF、画像、Office 文書から Markdown と要約を抽出し、RAG アプリケーション向けに最適化されています。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q261": {
+   "status": "needs_review",
+   "stem": "さまざまな契約書からスキーマ定義に基づく抽出を行う必要があり、グラウンディングを伴う推論されたフィールドも必要です。検討すべきサービスはどれですか？",
+   "options": [
+    "Azure Content Understanding",
+    "音声認識エンジンのみ",
+    "キーワード検索のみ",
+    "画像生成"
+   ],
+   "explanation": "Azure Content Understanding では、定義したスキーマに基づいてフィールドの値を抽出（Extract）、分類（Classify）、生成（Generate）でき、各値に信頼度スコアとグラウンディング（抽出元の領域）を付けられます。そのため、さまざまな契約書からスキーマ定義に基づいて抽出する用途に適しています。\n音声認識エンジンのみでは音声をテキストに変換するだけで、キーワード検索のみでは一致する文書を探すだけでスキーマに基づくフィールド抽出は行えず、画像生成は画像を作成する機能です。\nAzure Content Understanding は、文書、画像、音声、ビデオなどのコンテンツから構造化された情報を抽出する Foundry Tools のサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/overview"
+   ],
+   "terms": [
+    {
+     "term": "グラウンディング (Content Understanding)",
+     "note": "抽出したフィールドの値が、元のコンテンツのどの領域から得られたかを示す情報です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q262": {
+   "status": "needs_review",
+   "stem": "法務向けの RAG アプリで、条項 ID の完全一致と概念的な取得の両方が必要です。最も適した検索モードはどれですか？",
+   "options": [
+    "ハイブリッド検索（必要に応じてセマンティック ランキングを併用）",
+    "フィルターなしのベクターのみ",
+    "TTS バッチ",
+    "顔の検証"
+   ],
+   "explanation": "ハイブリッド検索は、1 つのリクエストでベクター検索（概念的に類似した情報の検索）とキーワード検索（製品コードなどの完全一致に強い）を組み合わせ、必要に応じてセマンティック ランキングも適用できます。そのため、条項 ID の完全一致と概念的な取得の両方が必要な法務向けの取得拡張生成 (RAG) アプリに最も適しています。\nフィルターなしのベクターのみでは、条項 ID のような完全一致の検索に弱くなります。TTS バッチは音声合成、顔の検証は顔の照合に関するもので、文書の取得には使いません。\nAzure AI Search のハイブリッド検索は、フルテキスト検索とベクター検索を並列に実行し、Reciprocal Rank Fusion (RRF) で結果を統合します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "ハイブリッド検索",
+     "note": "Azure AI Search で、フルテキスト検索とベクター検索を 1 つのリクエストで並列に実行し、RRF で結果を統合する検索方法です。"
+    },
+    {
+     "term": "セマンティック ランキング",
+     "note": "Azure AI Search で、言語理解を使って上位の検索結果の関連性スコアを再計算し、並べ替える機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q263": {
+   "status": "needs_review",
+   "stem": "エージェントは、エンタープライズのインデックス付きコンテンツに対してクエリを実行し、ソースを引用する必要があります。保持する必要があるものは何ですか？",
+   "options": [
+    "ソースのメタデータと、アクセス許可/セキュリティ トリミング",
+    "音声名のみ",
+    "画像のシードのみ",
+    "モデルの temperature のみ"
+   ],
+   "explanation": "Foundry Agent Service の Azure AI Search ツールで引用にリンクを含めるには、ソースの URL（と任意でタイトル）を持つ取得可能 (retrievable) なフィールドがインデックスに必要です。また、エンタープライズ データでは、ACL やセキュリティ フィルターによるドキュメント レベルのセキュリティ トリミングで、ユーザーのアクセス許可を維持する必要があります。\n音声名のみ、画像のシードのみ、モデルの temperature のみを保持しても、引用元を示すことも、アクセス許可を適用することもできません。\nAzure AI Search のセキュリティ フィルターは、ユーザーやグループの ID を含む文字列に基づいて検索結果をトリミングします。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/ai-search",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-security-trimming-for-azure-search",
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview"
+   ],
+   "terms": [
+    {
+     "term": "セキュリティ トリミング",
+     "note": "ユーザーやグループの ID などに基づいて、そのユーザーがアクセスを許可されていないドキュメントを検索結果から除外することです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "security trimming は「セキュリティ トリミング」と訳しました（Learn 日本語版のページ タイトルは「セキュリティ フィルター パターン」）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q264": {
+   "status": "needs_review",
+   "stem": "ユーザーから、昨日追加されたドキュメントが回答で無視されているという苦情があります。何を調査する必要がありますか？",
+   "options": [
+    "インデクサー/データ取り込みの鮮度と失敗",
+    "TTS 音声のロケール",
+    "画像生成のマスク",
+    "エージェントの表示名"
+   ],
+   "explanation": "新しいドキュメントが回答に反映されない場合は、インデックスが古くなっている可能性があります。インデクサーの実行状態（成功/失敗）、エラーや警告、実行履歴を監視し、スケジュールと変更検出によって新しいコンテンツが取り込まれているかを確認します。\nTTS 音声のロケール、画像生成のマスク、エージェントの表示名は、インデックスへのデータの取り込みとは関係がないため、新しいドキュメントが反映されない原因の調査対象にはなりません。\nAzure AI Search のインデクサーは、クラウドのデータ ソースからテキスト データを抽出して検索インデックスに取り込むクローラーで、スケジュールを設定して定期的に実行できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-monitor-indexers",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-howto-schedule-indexers"
+   ],
+   "terms": [
+    {
+     "term": "インデクサー",
+     "note": "Azure AI Search で、クラウドのデータ ソースからデータを抽出し、フィールドのマッピングに従って検索インデックスに取り込むクローラーです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q265": {
+   "status": "needs_review",
+   "stem": "RAG システムで、PDF、スキャンした画像、Word 文書のインデックスを作成する必要があります。最も必要になる可能性が高い前処理はどれですか？",
+   "options": [
+    "OCR/レイアウト抽出、チャンク分割、埋め込み、メタデータの保持、インデックス作成",
+    "TTS 合成のみ",
+    "temperature の調整のみ",
+    "画像のウォーターマーク付与のみ"
+   ],
+   "explanation": "Azure AI Search の取得拡張生成 (RAG) の概要では、画像や PDF には OCR やドキュメント抽出のスキル、大きな文書には自動チャンク分割、類似検索には統合ベクター化（埋め込み）を使ってインデックスを構築すると説明されています。PDF、スキャンした画像、Word 文書を取り込むには、これらの前処理とメタデータの保持が必要です。\nTTS 合成のみ、temperature の調整のみ、画像のウォーターマーク付与のみでは、文書からテキストを抽出して検索できるようにすることはできません。\nAzure AI Search のインデクサーとスキルセットを使うと、抽出、チャンク分割、ベクター化などの AI エンリッチメントをインデックス作成のパイプラインに組み込めます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents"
+   ],
+   "terms": [
+    {
+     "term": "統合ベクター化",
+     "note": "Azure AI Search のインデックス作成とクエリのパイプラインを拡張し、インデクサーによるインデックス作成時とクエリ時にベクター（埋め込み）の生成を行う機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q266": {
+   "status": "needs_review",
+   "stem": "200 ページのポリシー文書を 1 つのベクターとしてインデックス化すると、取得の品質が低くなります。何をする必要がありますか？",
+   "options": [
+    "文書を意味的にまとまりのあるセクションにチャンク分割する",
+    "音声の音量を上げる",
+    "画像のインペインティングを使用する",
+    "すべてのメタデータを無効にする"
+   ],
+   "explanation": "Learn のチャンク分割のガイドでは、チャンク分割はソース文書がモデルの最大入力サイズを超える場合に必要で、内容が 1 つのベクターではうまく表現されない場合にも、より細かい粒度でチャンク分割すると良い結果が得られると説明されています。200 ページの文書は、見出しなどの文書構造に基づいて、意味的にまとまりのあるセクションに分割するのが有効です。\n音声の音量を上げることや画像のインペインティングは検索の粒度に影響しません。すべてのメタデータを無効にしても文書全体が 1 つのベクターのままであることは変わらず、取得の品質は改善しません。\nAzure AI Search では、統合ベクター化と Text Split スキルを使って、インデックス作成時に文書をチャンク分割できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents",
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview"
+   ],
+   "terms": [
+    {
+     "term": "Text Split スキル",
+     "note": "Azure AI Search のスキルで、インデックス作成時にテキストをページ（文字数）や文の単位でチャンクに分割します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "stem: 「文書を…としてインデックスを作成すると」が「を」の重複で不自然だったため、意味を変えずに語順を修正"
+    ]
+   }
+  },
+  "q267": {
+   "status": "needs_review",
+   "stem": "チャンクに重複部分（オーバーラップ）を含めることがあるのはなぜですか？",
+   "options": [
+    "チャンクの境界をまたいでコンテキストを保持するため",
+    "すべてのトークン使用量をゼロにするため",
+    "顔のライブネス検出を有効にするため",
+    "音声モデルを作成するため"
+   ],
+   "explanation": "固定サイズでチャンク分割する場合、チャンク間で少量のテキストを重複させると、隣接するチャンク間の連続性とコンテキストを維持できます。Azure AI Search のガイダンスでは、512 トークンのチャンクに 25%（128 トークン）の重複から始めることが推奨されています。\n重複は同じ内容を複数のチャンクに含めるため、トークン使用量をゼロにするものではなく、むしろチャンク数は増えます。顔のライブネス検出や音声モデルの作成は、それぞれ Face や Azure Speech（音声サービス）の機能であり、チャンク分割とは関係ありません。\nAzure AI Search の Text Split スキルでは、pageOverlapLength で前のページの末尾から次のページの先頭に含める文字数を指定できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents"
+   ],
+   "terms": [
+    {
+     "term": "Text Split スキル",
+     "note": "Azure AI Search の組み込みスキルで、テキストを指定した長さのチャンクに分割し、チャンク間の重複の長さも指定できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q268": {
+   "status": "needs_review",
+   "stem": "ある文書には重要な見出しと表が含まれています。取得拡張生成 (RAG) のために構造を保持するのに役立つエンリッチメントはどれですか？",
+   "options": [
+    "Document Layout スキル、またはレイアウトを認識した Markdown への抽出",
+    "テキスト読み上げの SSML",
+    "画像マスクのみ",
+    "エージェントのメモリのみ"
+   ],
+   "explanation": "Document Layout スキルは Azure Document Intelligence のレイアウト モデルを使って見出しや表などの文書構造を検出し、Markdown またはテキスト形式で出力するため、見出し単位のチャンク分割など構造を生かした RAG が可能になります。\nテキスト読み上げの SSML は、ピッチや話す速度などの音声出力を調整するためのマークアップ言語で、文書構造の抽出には使いません。画像マスクのみやエージェントのメモリのみでは、文書から見出しや表を検出して構造化することはできません。\nなお、現在のドキュメントでは、表や図を Markdown 形式で出力できる Azure Content Understanding スキルに利点があると説明されています（Document Layout スキルは表をプレーン テキストとして出力します）。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-how-to-semantic-chunking",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-content-understanding"
+   ],
+   "terms": [
+    {
+     "term": "Document Layout スキル",
+     "note": "Azure AI Search のスキルで、Azure Document Intelligence のレイアウト モデルを使って文書の構造を検出し、Markdown またはテキストとして出力します。"
+    },
+    {
+     "term": "Azure Content Understanding スキル",
+     "note": "Azure AI Search のスキルで、表や図を Markdown 形式で出力し、複数ページにまたがる表も1つの単位として抽出できます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Document Layout skill は製品名部分を英語のまま残し「Document Layout スキル」と表記（ja-jp のページ タイトルは「ドキュメントレイアウトスキル」）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q269": {
+   "status": "needs_review",
+   "stem": "引用付きのグラウンディングされた回答をサポートするために、検索インデックスに格納すべき項目はどの2つですか？",
+   "options": [
+    "人が読めるチャンクのテキスト",
+    "文書タイトル、URL、ページ、セグメントなどのソース メタデータ",
+    "TTS の話者オブジェクト",
+    "ランダムな画像シード"
+   ],
+   "explanation": "取得拡張生成 (RAG) では、検索で取得したチャンクのテキストをグラウンディング データとしてモデルに渡すため、人が読めるチャンク本文をインデックスに格納する必要があります。また、インデックスには文書タイトル、URL、ファイル名など引用の品質を高めるフィールドも格納でき、これらのソース メタデータによって回答に出典を示せます。\nTTS の話者オブジェクトは音声合成、画像シードは画像生成に関する値であり、引用付きの回答には役立ちません。\nAzure AI Search は RAG シナリオで推奨されるインデックス ストアで、ベクター データとテキスト データの両方に対する検索をサポートします。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents"
+   ],
+   "terms": [
+    {
+     "term": "Azure AI Search",
+     "note": "検索インデックスに格納したテキストやベクターに対してキーワード検索、ベクター検索、ハイブリッド検索などを実行できるサービスで、RAG のインデックス ストアとして推奨されています。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q278": {
+   "status": "needs_review",
+   "stem": "標準的な請求書から、信頼度スコア付きでフィールドを抽出する必要があります。通常、最も適しているサービスはどれですか？",
+   "options": [
+    "Azure AI Document Intelligence の事前構築済み請求書モデル",
+    "Video Indexer",
+    "Web 検索のみ",
+    "DALL-E"
+   ],
+   "explanation": "Azure Document Intelligence の請求書モデル（モデル ID: prebuilt-invoice）は、OCR を使って請求書から顧客情報、ベンダー情報、明細などのキー フィールドを抽出します。分析結果には、抽出結果が正しく検出された統計的な確からしさを示す信頼度スコアが含まれます。\nVideo Indexer は動画や音声の分析、DALL-E は画像生成のためのもので、請求書のフィールド抽出には適しません。Web 検索のみでは、手元の請求書からフィールドを抽出できません。\nAzure Document Intelligence（旧称 Azure AI Document Intelligence）は Foundry Tools の一部で、請求書などの一般的な文書向けに事前構築済みモデルを提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/prebuilt/invoice",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/concept/accuracy-confidence"
+   ],
+   "terms": [
+    {
+     "term": "Azure Document Intelligence",
+     "note": "文書からテキスト、キー フィールド、表などを抽出する Foundry Tools のサービスで、請求書や領収書などの事前構築済みモデルがあります。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "現在の製品名は Azure Document Intelligence in Foundry Tools。選択肢は原文どおり「Azure AI Document Intelligence」を維持。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q301": {
+   "status": "needs_review",
+   "stem": "計画チームは、ポリシー文書に対する長文の推論とツールの使用を必要としています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "グラウンディングとツールをサポートする大規模言語モデル",
+    "小規模な分類器のみ",
+    "音声合成の音声",
+    "事前構築済みの領収書モデル"
+   ],
+   "explanation": "大規模言語モデル (LLM)、特に推論モデルは、契約書や法務文書の比較のような複雑な文書の分析に適しており、一部のモデルはツール呼び出しの合間にも推論を行えます。Foundry Agent Service では、エージェントはモデル、指示、ツールを組み合わせて構成されるため、文書によるグラウンディングとツールの使用を両立できます。\n小規模な分類器のみでは、長文に対する推論やツールの使用という要件を満たせません。音声合成の音声はテキストを音声に変換するためのもの、事前構築済みの領収書モデルは領収書からフィールドを抽出するためのもので、いずれもこの要件に合いません。\nMicrosoft Foundry では、モデル カタログのモデルと、ファイル検索、コード インタープリター、Web 検索などのツールを組み合わせてエージェントを構築できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/reasoning",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/overview"
+   ],
+   "terms": [
+    {
+     "term": "Foundry Agent Service",
+     "note": "モデル、指示、ツールを組み合わせたエージェントを構築・実行し、会話やツール呼び出し、エージェントのライフサイクルを管理する Microsoft Foundry のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "解説: ツール呼び出しの合間の推論は Learn では一部のモデル（gpt-5.4/gpt-5.5）のみの機能として説明されており、推論モデル全般のように断定していたため「一部のモデルは」に限定した"
+    ]
+   }
+  },
+  "q303": {
+   "status": "needs_review",
+   "stem": "ソリューションは、1つのプロンプト内でスクリーンショットとユーザーのテキストに対して推論する必要があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "マルチモーダル モデル",
+    "テキスト専用の埋め込みモデル",
+    "キーワード検索インデックスのみ",
+    "TTS 音声モデル"
+   ],
+   "explanation": "ビジョン対応のチャット モデルは大規模マルチモーダル モデル (LMM) であり、画像を解析して、その内容に関する質問にテキストで応答できます。そのため、スクリーンショットとユーザーのテキストを1つのプロンプトで扱うにはマルチモーダル モデルが適しています。\nテキスト専用の埋め込みモデルはテキストをベクター検索用の数値表現に変換するもので、画像を入力として推論できません。キーワード検索インデックスは検索のための仕組みで推論は行わず、TTS 音声モデルはテキストを音声に変換するためのものです。\nMicrosoft Foundry では、ビジョン対応のチャット モデルをデプロイし、チャットで画像を入力として使用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q304": {
+   "status": "needs_review",
+   "stem": "製品チームは、モデルのデプロイ、ツール、評価、エージェントを1つのプロジェクトで調整したいと考えています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "Microsoft Foundry プロジェクトとエージェント/モデル リソース",
+    "Azure DNS のみ",
+    "キーをハードコードしたローカル ノートブック",
+    "Speech Studio のオーディオ コンテンツ作成のみ"
+   ],
+   "explanation": "Microsoft Foundry は、エージェント、モデル、ツールを単一の管理グループに統合し、トレース、監視、評価などのエンタープライズ向け機能を組み込みで提供します。そのため、Foundry プロジェクトを使うと、モデルのデプロイ、ツール、評価、エージェントを1か所で調整できます。\nAzure DNS は名前解決のサービスであり、AI リソースの調整には使いません。キーをハードコードしたローカル ノートブックは一元管理ができず、セキュリティ上も望ましくありません。Speech Studio のオーディオ コンテンツ作成は、テキスト読み上げの音声をコードを書かずに調整するツールです。\nFoundry では、ロールベースのアクセス制御 (RBAC)、ネットワーク、ポリシーを1つの Azure リソース プロバイダー名前空間で統一的に管理できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/what-is-foundry"
+   ],
+   "terms": [
+    {
+     "term": "Foundry プロジェクト",
+     "note": "Microsoft Foundry でエージェント、モデル、ツール、評価などをまとめて管理する作業単位で、新しい機能への投資は Foundry プロジェクトに集中しています。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q306": {
+   "status": "needs_review",
+   "stem": "取得拡張生成 (RAG) アプリでは、見出し、表、ページ番号、引用を保持する必要があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "メタデータと埋め込みを伴うレイアウト認識型のチャンク分割",
+    "PDF 全体を1つのベクターとして格納する",
+    "すべてのメタデータを削除する",
+    "モデルの temperature のみを使用する"
+   ],
+   "explanation": "Document Layout スキルや Azure Content Understanding スキルを使うと、見出しなどの文書構造に沿ってチャンク分割し、ページ番号などの位置メタデータを出力し、各チャンクの埋め込みを生成できます。これにより、構造を保ったチャンクを検索でき、出典を示す引用も可能になります。\nPDF 全体を1つのベクターにすると、モデルの入力トークン制限を超えたり、多様な内容を1つのベクターでうまく表現できなかったりします。メタデータを削除するとページ番号や引用を示せなくなり、temperature は出力のランダム性に関わるパラメーターで、構造の保持には関係しません。\nAzure AI Search では、スキルセットとインデックス プロジェクションを使って、チャンクと埋め込みを検索インデックスのフィールドにマップできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-how-to-semantic-chunking",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-how-to-semantic-chunking-content-understanding",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding スキル",
+     "note": "Azure AI Search のスキルで、レイアウトを認識したチャンク分割を行い、表や図を Markdown 形式で出力します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q309": {
+   "status": "needs_review",
+   "stem": "チームは、プロンプト、フロー、アプリの変更を開発、テスト、本番の各環境へ昇格させる必要があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "再現可能なデプロイのためにソース管理と CI/CD パイプラインを使用する",
+    "ポータルでの手動編集のみ",
+    "デプロイ構成をチャット履歴に保存する",
+    "バージョン管理を無効にする"
+   ],
+   "explanation": "Microsoft Foundry のドキュメントでは、GitHub Actions や Azure DevOps と Azure Developer CLI (azd) を使ってホステッド エージェントのデプロイを自動化する CI/CD パイプラインの構成方法が説明されています。環境ごとに状態を分けて管理し、同じ手順で繰り返しデプロイすることで、変更を開発から本番へ確実に昇格できます。\nポータルでの手動編集のみでは手順の再現性が確保できず、デプロイ構成をチャット履歴に保存したりバージョン管理を無効にしたりすると、変更の管理と再現が困難になります。\nCI/CD パイプラインでは、エージェントのデプロイ後にスモーク テストのメッセージを送るなどの検証も自動化できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/quickstarts/set-up-cicd-hosted-agent",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/set-up-ci-cd-cli"
+   ],
+   "terms": [
+    {
+     "term": "Azure Developer CLI (azd)",
+     "note": "コマンド ラインからホステッド エージェント プロジェクトのスキャフォールディング、実行、テスト、デプロイを行えるツールです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "stem の flow は Prompt flow を指す可能性があるが、一般語として「フロー」と訳出。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q310": {
+   "status": "needs_review",
+   "stem": "あるデプロイで、ピーク時にレート制限エラーが発生しています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "TPM/RPM クォータ、スケーリング、再試行の動作、デプロイの割り当てを見直す",
+    "temperature を上げる",
+    "アバターの色を変更する",
+    "引用を削除する"
+   ],
+   "explanation": "Azure OpenAI のクォータは1分あたりのトークン数 (TPM) 単位でデプロイに割り当てられ、TPM に比例した1分あたりの要求数 (RPM) のレート制限も適用されます。429 エラーを抑えるには、再試行ロジックの実装、ワークロードの段階的な増加、クォータの増加要求やデプロイへの割り当ての見直しが推奨されています。\ntemperature は出力のランダム性に関わるパラメーター、アバターの色は見た目の設定、引用は回答の根拠を示すためのもので、いずれも容量の問題を解決しません。\nMicrosoft Foundry ポータルでは、デプロイごとのクォータ割り当てを編集し、未使用のクォータを解放したり割り当てを増やしたりできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/quotas-limits",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/quota"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q311": {
+   "status": "needs_review",
+   "stem": "経営陣から、ツールとトレースを追加した後にエージェントのコストが2倍になった理由を尋ねられています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "トークン使用量、モデルの選択、ツール呼び出し、待機時間、取得量を確認する",
+    "CSS のみを調べる",
+    "TTS の音声のみを変更する",
+    "すべての監査ログを無効にする"
+   ],
+   "explanation": "Microsoft Foundry のモデルはトークン ベースで課金され、モデルを呼び出すたびに入力と出力のトークン数に応じて料金が発生し、課金の単位や単価はモデルやデプロイの種類によって異なります。そのため、コスト増加の原因を調べるには、トークン使用量、使用しているモデル、ツール呼び出し、取得するデータ量などを確認します。\nCSS や TTS の音声はエージェントのコスト増加の調査対象ではなく、監査ログを無効にしても原因の特定には役立たず、監査性が失われます。\nFoundry ポータルでは、プロジェクト内のエージェントの推定コストを確認できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/manage-costs",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/overview"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "latency（待機時間）自体は直接の課金要素ではない（バッチのレビューメモどおり）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q313": {
+   "status": "needs_review",
+   "stem": "取り込み後、新しいドキュメントが回答に表示されません。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "インデクサーの失敗、取り込みの鮮度、スキルセットのエラー、ドキュメント数を確認する",
+    "最大トークン数のみを増やす",
+    "音声のロケールを変更する",
+    "temperature を下げる"
+   ],
+   "explanation": "Azure AI Search では、インデクサーの実行状態、開始・終了時刻、実行ごとのエラーと警告を監視できます。インデクサーのトラブルシューティング ガイドでは、ドキュメントが見つからない場合や、データ ソースとインデックスでドキュメント数が一致しない場合の対処方法が説明されているため、新しいドキュメントが回答に出ないときはまず取り込みの状況を確認します。\n最大トークン数や temperature はモデルの出力に関する設定、音声のロケールは音声機能の設定であり、インデックスに取り込まれていないドキュメントの問題は解決できません。\nスキルセットの処理が実行時間の上限内に終わらない場合、インデクサーは残りのドキュメントを未処理のまま停止することがあります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-monitor-indexers",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-indexer-troubleshooting"
+   ],
+   "terms": [
+    {
+     "term": "インデクサー",
+     "note": "Azure AI Search で外部データ ソースからドキュメントや行を抽出し、検索ドキュメントを作成してインデックスに取り込む仕組みです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q316": {
+   "status": "needs_review",
+   "stem": "ユーザーが有害なプロンプトやポリシーに違反するプロンプトを送信する可能性があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "安全フィルター、モデレーション、ガードレール、リスク検出を構成する",
+    "セマンティック ランカーのみを追加する",
+    "カスタム音声のみを追加する",
+    "ドキュメントのチャンク分割のみを行う"
+   ],
+   "explanation": "Microsoft Foundry のガードレールは、検出するリスク、リスクをスキャンする介入ポイント、リスク検出時のアクションを定義するコントロールの集合です。Azure AI Content Safety の分類モデルを使って有害なコンテンツを検出し、ユーザー入力、ツール呼び出し、ツール応答、出力の各介入ポイントで対処できるため、有害なプロンプトへの対策に適しています。\nセマンティック ランカーは検索結果の関連性を高める機能、カスタム音声は音声合成の機能、チャンク分割は文書をインデックス用に分割する処理であり、いずれも有害なプロンプトを検出しません。\nAzure AI Content Safety は、ガードレールで有害コンテンツの分類に使われるサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/guardrails/guardrails-overview"
+   ],
+   "terms": [
+    {
+     "term": "ガードレール",
+     "note": "Microsoft Foundry で、リスク、介入ポイント、検出時のアクションを定義してモデルやエージェントの有害コンテンツに対処するコントロールの集合です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q317": {
+   "status": "needs_review",
+   "stem": "セキュリティ部門は、エージェントのツール呼び出しと承認の記録を必要としています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "トレース ログ、来歴メタデータ、承認ワークフローの記録を有効にする",
+    "回答のたびにログを削除する",
+    "最終スコアのみをログに記録する",
+    "CSS の変更のみを保存する"
+   ],
+   "explanation": "Microsoft Foundry のエージェント トレースは OpenTelemetry に基づき、スパンと属性によって関数のパラメーターや戻り値などの操作を記録するため、ツール呼び出しの内容を追跡できます。また、MCP ツールのドキュメントでは、監査のためにリモート MCP サーバーと共有するデータをログに記録し、アクセス許可と承認要件を適用することが推奨されています。\n回答のたびにログを削除したり、最終スコアや CSS の変更だけを記録したりすると、ツール呼び出しや承認の経緯を後から確認できません。\nトレースのスパンは入れ子にでき、操作の呼び出し階層と順序を確認できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/model-context-protocol"
+   ],
+   "terms": [
+    {
+     "term": "OpenTelemetry",
+     "note": "テレメトリ データの収集とルーティングのための標準化されたプロトコルで、Foundry のトレースはそのセマンティック規則に従います。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "provenance metadata は「来歴メタデータ」と訳出（用語表に記載なし）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q318": {
+   "status": "needs_review",
+   "stem": "自律型エージェントが返金 API を呼び出すことができます。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "スキーマ、アクセス許可、承認、監督モードでツールへのアクセスを制限する",
+    "既定ですべてのツールを許可する",
+    "ツール呼び出しをログから隠す",
+    "メモリのみを使用する"
+   ],
+   "explanation": "Foundry Agent Service のツールのベスト プラクティスでは、構造化出力を想定したスキーマで検証し、既知のフィールドと操作のみを許可し、重大な操作の前にユーザーの承認を求めることが推奨されています。MCP ツールでも allowed_tools でツールを制限し、モデルの判断とは独立してアクセス許可と承認要件を適用することが推奨されているため、返金のような操作ではツールへのアクセスを制限するのが適切です。\nすべてのツールを既定で許可すると不要な操作まで実行できてしまい、ツール呼び出しをログから隠すと監査ができなくなります。メモリのみでは、ツールの実行を制御できません。\nMicrosoft Agent Framework では、関数ツールごとに実行前の人による承認を必須にする、ヒューマン イン ザ ループのパターンを実装できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/tool-best-practice",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/model-context-protocol",
+    "https://learn.microsoft.com/ja-jp/agent-framework/agents/tools/tool-approval"
+   ],
+   "terms": [
+    {
+     "term": "ヒューマン イン ザ ループ",
+     "note": "関数呼び出しの承認など、エージェントの処理の途中で人の入力を求めるパターンです。"
+    }
+   ],
+   "lowConfidence": true,
+   "reviewNotes": "「oversight mode」は Learn で確認できる正式な機能名ではなく意味が曖昧なため、人による監督の運用モードと解釈して「監督モード」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q391": {
+   "status": "needs_review",
+   "stem": "アプリは Python から Foundry プロジェクトに接続する必要があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "プロジェクト エンドポイントと DefaultAzureCredential を構成する",
+    "TTS の音声名のみを使用する",
+    "画像シードのみを使用する",
+    "認証を省略する"
+   ],
+   "explanation": "Foundry SDK は、単一のプロジェクト エンドポイントを通じて Foundry プロジェクトのすべての API にアクセスできるシン クライアント SDK です。Python では AIProjectClient(endpoint=project_endpoint, credential=DefaultAzureCredential()) のように、プロジェクト エンドポイントと Microsoft Entra ID 認証の資格情報を指定して接続します。\nTTS の音声名や画像シードはプロジェクトへの接続情報ではなく、認証を省略するとプロジェクトにアクセスできません。\nDefaultAzureCredential は Azure Identity ライブラリが提供する、あらかじめ構成された資格情報のチェーンです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/how-to/develop/sdk-overview"
+   ],
+   "terms": [
+    {
+     "term": "DefaultAzureCredential",
+     "note": "Azure Identity ライブラリが提供する、あらかじめ構成された資格情報のチェーンで、Microsoft Entra ID 認証に使います。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q393": {
+   "status": "needs_review",
+   "stem": "監査担当者は、ポリシーに関するすべての回答で出典ページを示すことを求めています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "インデックス作成から応答生成まで、ソース メタデータを保持する",
+    "容量を節約するためにメタデータを削除する",
+    "モデルのメモリのみを使用する",
+    "音声翻訳のみを使用する"
+   ],
+   "explanation": "取得拡張生成 (RAG) では、インデックスに文書タイトル、URL、ファイル名など引用の品質を高めるフィールドを格納でき、応答に出典への引用を含められます。Document Layout スキルの locationMetadata はページ番号などの位置情報を提供するため、これをインデックス作成から応答生成まで保持することで、各回答に出典ページを示せます。\nメタデータを削除すると出典ページを示せなくなります。モデルのメモリのみでは取得した文書の出典を示せず、音声翻訳は音声を別の言語に翻訳する機能でこの要件とは関係ありません。\nMicrosoft Foundry では、プロジェクトを Azure AI Search のサービスとインデックスに接続して RAG の取得に使用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q394": {
+   "status": "needs_review",
+   "stem": "請求処理のプロセスでは、抽出、検証、要約、最終承認が必要です。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "ツールと承認ゲートを備えたマルチステップ ワークフローを使用する",
+    "制限のない単一の直接プロンプト",
+    "TTS のみのパイプライン",
+    "顔検出モデル"
+   ],
+   "explanation": "Microsoft Foundry のワークフローは、複数のエージェントやステップを反復可能なプロセスとして編成でき、承認要求などのヒューマン イン ザ ループのステップも組み込めます。抽出、検証、要約、最終承認という多段階の業務には、ツールと承認ゲートを備えたマルチステップ ワークフローが適しています。\n制限のない単一のプロンプトでは各ステップの制御や人による承認を組み込めず、TTS のみのパイプラインや顔検出モデルは文書の抽出や要約を行う仕組みではありません。\nAzure アーキテクチャ センターでは、前の段階の結果を次の段階に渡す多段階の処理にシーケンシャル オーケストレーション パターンが適すると説明されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/workflow",
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "ワークフロー (Microsoft Foundry)",
+     "note": "複数のエージェントやステップを反復可能なプロセスとして編成する機能で、新しく構築する場合は Microsoft Agent Framework の使用が案内されています。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "claims process は保険金請求などを含む一般的な「請求処理」と訳出。Foundry のワークフロー デザイナーは退役予定で Microsoft Agent Framework への移行が案内されているが、選択肢は製品非依存のため解説では触れていない。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q395": {
+   "status": "needs_review",
+   "stem": "モデルは、アップロードされた CSV ファイルから合計を計算する必要があります。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "コード インタープリターまたはカスタム関数ツールを使用する",
+    "モデルに推測させる",
+    "画像生成を使用する",
+    "ツールを使用しない"
+   ],
+   "explanation": "コード インタープリターを有効にすると、エージェントはサンドボックス環境で Python コードを記述・実行し、アップロードした CSV ファイルのデータ分析や数学の計算を行えます。また、関数呼び出しを使えば、モデルの応答に基づいてアプリ側の関数を呼び出し、その結果をモデルに返すこともできます。\nモデルに推測させたりツールを使わなかったりすると、正確な計算結果は保証されません。画像生成は画像を作成する機能で、数値の集計には使いません。\nFoundry Agent Service では、Web 検索、ファイル検索、コード インタープリター、MCP サーバー、カスタム関数などのツールをエージェントで使用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/code-interpreter",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/function-calling"
+   ],
+   "terms": [
+    {
+     "term": "コード インタープリター",
+     "note": "Microsoft Foundry のエージェントがサンドボックス環境で Python コードを実行し、データ分析やグラフ生成を行えるようにするツールです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q396": {
+   "status": "needs_review",
+   "stem": "生成された回答は関連性はあるものの、取得したコンテキストによって裏付けられていません。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "groundedness と取得の評価を使用する",
+    "単語エラー率のみを使用する",
+    "アバターの品質のみを使用する",
+    "CSS の検証のみを使用する"
+   ],
+   "explanation": "Microsoft Foundry の RAG エバリュエーターのうち、Groundedness は応答が提供されたコンテキストに基づいており捏造がないかを評価し、Retrieval は取得したコンテキストのチャンクがクエリにどれだけ関連しているかを評価します。関連性はあってもコンテキストに裏付けられていない回答を検出するには、これらの評価が適しています。\n単語エラー率 (WER) は音声認識の精度を評価する指標であり、アバターの品質や CSS の検証も回答の groundedness（根拠性）とは関係ありません。\nGroundedness エバリュエーターでは、query、response、context の3つのフィールドをすべて指定すると最も良い結果が得られます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "Groundedness エバリュエーター",
+     "note": "応答が提供されたコンテキストに基づいており、捏造を含まないかを評価する Microsoft Foundry の組み込みエバリュエーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q397": {
+   "status": "needs_review",
+   "stem": "モデルが存在しないポリシーを作り出しています。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "捏造/groundedness を評価し、取得またはプロンプトを改善する",
+    "temperature を上げる",
+    "引用を削除する",
+    "安全フィルターを無効にする"
+   ],
+   "explanation": "Groundedness エバリュエーターは、応答が提供されたコンテキストに基づいており、捏造を含まないかを評価します。グラウンディングしていてもモデルが不正確な応答を生成することがあるため、引用を有効にし、明確なシステム メッセージとプロンプトで取得したコンテンツに従うよう指示することが推奨されています。\ntemperature を上げると出力のランダム性が高まり、引用を削除すると回答の根拠を確認できなくなります。安全フィルターは有害コンテンツへの対策であり、無効にしても捏造は減りません。\n取得の品質が原因の場合は、Retrieval エバリュエーターで取得したチャンクのクエリへの関連性を確認できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q399": {
+   "status": "needs_review",
+   "stem": "下流の自動化処理には有効な JSON が必要です。この要件を最もよく満たすのはどれですか？",
+   "options": [
+    "構造化出力/スキーマ検証を使用し、無効な応答を処理する",
+    "壊れやすい文字列分割で自由形式のテキストを解析する",
+    "TTS を使用する",
+    "画像キャプションのみを使用する"
+   ],
+   "explanation": "構造化出力は、推論 API の呼び出しで指定した JSON Schema にモデルの出力を従わせる機能で、有効な JSON は保証してもスキーマへの厳密な準拠は保証できなかった従来の JSON モードとは異なります。ドキュメントのサンプルでも、モデルが要求を拒否した場合 (refusal) を確認して処理しているため、下流の自動化には構造化出力と無効な応答の処理を組み合わせるのが適切です。\n自由形式のテキストを文字列分割で解析する方法は出力の形式が変わると壊れやすく、TTS や画像キャプションは JSON の出力を保証する仕組みではありません。\n関数呼び出しでも、strict: true を指定すると構造化出力を有効にできます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/structured-outputs"
+   ],
+   "terms": [
+    {
+     "term": "構造化出力",
+     "note": "推論 API の呼び出しで指定した JSON Schema に従ってモデルに出力させる機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q400": {
+   "status": "needs_review",
+   "stem": "エージェントが営業としての振る舞いとコンプライアンスとしての振る舞いの間で切り替わり続けます。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "明確な役割、目標、指示、制約を定義する",
+    "すべての指示を削除する",
+    "モデル名のみを使用する",
+    "ランダムなツールを使用する"
+   ],
+   "explanation": "エージェントの振る舞いを一貫させるには、役割・目標・指示・制約を明確に定義することが有効です。Learn のシステム メッセージのガイダンスでも、一貫した振る舞いを得るために「役割とタスク」や「範囲と境界」を明示的に定義することが推奨されています。\nすべての指示を削除したり、モデル名だけを指定したりしても、エージェントがどちらの振る舞いをとるべきかは定まりません。ランダムなツールを使用しても、振る舞いの一貫性にはつながりません。\nシステム メッセージは、モデルに役割・指示・制約などを与えてエージェントの振る舞いを方向付けるための仕組みです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/system-message"
+   ],
+   "terms": [
+    {
+     "term": "システム メッセージ",
+     "note": "モデルに役割や指示、応答の範囲・形式などを与えて振る舞いを方向付けるメッセージです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q402": {
+   "status": "needs_review",
+   "stem": "モデルは、注文 ID が含まれている場合にのみ get_order_status を呼び出す必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "必須パラメーターの検証を伴う関数呼び出しを使用する",
+    "毎ターン API を呼び出す",
+    "メモリのみを使用する",
+    "画像 OCR のみを使用する"
+   ],
+   "explanation": "関数呼び出しでは、モデルがコンテキストに基づいて関数を呼び出すかどうかを判断し、関数スキーマで required パラメーターを定義できます。Learn では、値が不足している場合は推測せずに確認を求めるようモデルに指示し、生成された関数呼び出しのパラメーターを検証することが推奨されているため、注文 ID がある場合にのみ get_order_status を呼び出す要件に合致します。\n毎ターン API を呼び出すと、注文 ID がない場合にも呼び出してしまいます。メモリや画像 OCR だけでは、条件に応じて関数を呼び出す仕組みになりません。\n関数呼び出しでは、モデルが指定された関数に対する呼び出しと構造化された引数を生成し、アプリケーションが関数を実行して結果をモデルに返します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/function-calling"
+   ],
+   "terms": [
+    {
+     "term": "関数呼び出し (function calling)",
+     "note": "モデルが定義済みの関数と引数を判断して出力し、アプリケーション側がその関数を実行する仕組みです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q403": {
+   "status": "needs_review",
+   "stem": "チューターは、セッションをまたいで学習レベルを記憶する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "最小限の永続的な学習者設定をメモリに保存する",
+    "すべての非公開ドキュメントをメモリに保存する",
+    "毎ターン忘れる",
+    "ベクター検索のみを使用する"
+   ],
+   "explanation": "Foundry Agent Service のメモリは、セッションをまたいで知識を保持する長期メモリです。ユーザー プロファイル メモリには言語設定やアクセシビリティ要件などの永続的なユーザー設定を保存できるため、学習レベルのような最小限の永続的な学習者設定をメモリに保存するのが適切です。\nすべての非公開ドキュメントをメモリに保存すると、必要以上の情報を保持することになり、プライバシーやコンプライアンスの面で望ましくありません。毎ターン忘れるとセッションをまたいだ記憶ができず、ベクター検索だけではユーザーごとの設定を保持する仕組みになりません。\nFoundry Agent Service のメモリには、プライバシーやコンプライアンスとのバランスを取るための保持の制御も用意されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/what-is-memory"
+   ],
+   "terms": [
+    {
+     "term": "メモリ (Foundry Agent Service)",
+     "note": "エージェントがセッションをまたいでユーザー設定などの情報を保持できる長期メモリの機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q405": {
+   "status": "needs_review",
+   "stem": "下書きを作成し、送信前にポリシーに照らしてチェックする必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "maker-checker またはレビュー担当エージェントのパターンを使用する",
+    "レビューを省略する",
+    "キーワード検索のみを使用する",
+    "TTS を使用する"
+   ],
+   "explanation": "Azure Architecture Center の AI エージェント オーケストレーション パターンでは、作成側のエージェントが作成・提案したものをチェック側のエージェントが評価する maker-checker ループが説明されており、品質保証やコンプライアンス検証のシナリオに適用できます。下書きを作成し、送信前にポリシーに照らして確認する要件にそのまま当てはまります。\nレビューを省略すると、ポリシー違反を送信前に検出できません。キーワード検索や TTS（テキスト読み上げ）は、下書きの作成とポリシーの確認という流れを実現するものではありません。\nmaker-checker ループは、グループ チャット オーケストレーションの一種として位置付けられているパターンです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [
+    {
+     "term": "maker-checker ループ",
+     "note": "一方のエージェントが成果物を作成・提案し、もう一方のエージェントがそれを評価する反復型のオーケストレーション パターンです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q406": {
+   "status": "needs_review",
+   "stem": "エージェントは予約のスケジュール設定とメールの送信を行うことができます。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "外部アクションに承認ゲートを設けた半自律モードを使用する",
+    "取り消しできないアクションをレビューなしで許可する",
+    "トレースを無効にする",
+    "ツールの出力を非表示にする"
+   ],
+   "explanation": "Azure Architecture Center では、ヒューマン イン ザ ループ (HITL) のゲートをエージェントの出力全体ではなく特定のツール呼び出しに限定し、それ以外の処理は自律的に進められる構成が説明されています。Foundry の MCP ツールでも、データを書き込むツールなどの高リスクな操作には承認を必須にすることが推奨されているため、予約やメール送信などの外部アクションには承認ゲート付きの半自律モードが適しています。\n取り消しできないアクションをレビューなしで許可すると、誤った予約や送信を防げません。トレースの無効化やツール出力の非表示は、エージェントの動作の確認を難しくするだけで、外部アクションの安全策にはなりません。\nFoundry の MCP ツールでは、require_approval パラメーターでツール呼び出しの実行前に承認を求めるかどうかを設定できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/model-context-protocol"
+   ],
+   "terms": [
+    {
+     "term": "ヒューマン イン ザ ループ (HITL)",
+     "note": "エージェントの処理の途中で人間が確認・承認・介入できるようにする設計です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "原文の問題文には満たすべき具体的な要件が書かれていないが、原文どおりに「この要件」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q407": {
+   "status": "needs_review",
+   "stem": "エージェントが誤ったツールを選択することがよくあります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "ツール呼び出しの精度、トレース、失敗、ユーザーの成果を追跡する",
+    "フォント サイズのみを調べる",
+    "画像の数のみを数える",
+    "TTS のロケールのみを確認する"
+   ],
+   "explanation": "Microsoft Foundry には Tool Call Accuracy や Tool Selection などのエージェント向けエバリュエーター（評価器）があり、トレースではツール呼び出しとその結果が記録されます。ツール呼び出しの精度、トレース、失敗、ユーザーの成果を追跡すれば、エージェントがどこで誤ったツールを選んでいるかを分析できます。\nフォント サイズ、画像の数、TTS のロケールは、いずれもツール選択の誤りとは関係がありません。\nFoundry のトレースは、ツール呼び出しやその結果などのエージェントの実行ステップを記録し、エラーの原因となったステップの特定に役立ちます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/agent-evaluators",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept"
+   ],
+   "terms": [
+    {
+     "term": "Tool Call Accuracy",
+     "note": "エージェントが適切なツールを正しい引数で呼び出したかを評価する、Foundry のエージェント向けエバリュエーターです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q408": {
+   "status": "needs_review",
+   "stem": "レイテンシが高く、ユーザーが会話を途中でやめてしまいます。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "モデル呼び出し、取得、ツール呼び出し、トークン使用量、レイテンシの内訳をトレースする",
+    "ブランド カラーのみを変更する",
+    "回答の長さのみを増やす",
+    "メモリのみを追加する"
+   ],
+   "explanation": "Foundry のトレースは「どのステップでエラーやレイテンシの急増が発生したか」を特定するための機能で、ツール呼び出しとその結果、トークン消費、所要時間やレイテンシなどを記録します。モデル呼び出し、取得、ツール呼び出し、トークン使用量、レイテンシの内訳をトレースすれば、遅いステップを特定できます。\nブランド カラーの変更、回答の長さの増加、メモリの追加は、いずれもどのステップが遅いのかを特定する手段になりません。\nFoundry の可観測性機能では、トレースによってエージェントの各ステップの処理内容や所要時間を確認できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "retrieval は TERMS の RAG の訳（取得拡張生成）に合わせて「取得」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q409": {
+   "status": "needs_review",
+   "stem": "ワークフローには、小規模な分類器、LLM による推論、決定論的なルールが必要です。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "タスクのニーズに基づいて複数のモデルとルールをオーケストレーションする",
+    "すべてのステップに最大のモデルを 1 つ使用する",
+    "分類に TTS を使用する",
+    "OCR のみを使用する"
+   ],
+   "explanation": "Azure Architecture Center では、各エージェントにタスクの複雑さに見合ったモデルを割り当てることが推奨されており、分類や抽出などは小規模で安価なモデルでも全体の品質を落とさずに実行できることが多いと説明されています。また、タスクのルーティングが決定論的でルール ベースの場合のパターンも示されているため、小規模な分類器、LLM による推論、決定論的なルールをタスクに応じて組み合わせるオーケストレーションが最適です。\nすべてのエージェントに最も高性能なモデルが必要なわけではないため、すべてのステップに最大のモデルを使用するとコストが不必要に高くなります。TTS は分類のための機能ではなく、OCR だけでは推論やルールの適用を実現できません。\nAI エージェント オーケストレーション パターンは、複数のエージェントやモデルを組み合わせてタスクを処理する方法を整理したガイダンスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/architecture/ai-ml/guide/ai-agent-design-patterns"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q487": {
+   "status": "needs_review",
+   "stem": "デザイナーは、提供された製品画像に沿った出力にしたいと考えています。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "サポートされている場合は参照メディアの制御を使用する",
+    "キーワード検索のみを使用する",
+    "TTS のみを使用する",
+    "入力画像を使用しない"
+   ],
+   "explanation": "画像生成モデルの画像編集 API では入力画像を指定でき、input_fidelity パラメーターで入力画像のスタイルや特徴にどの程度一致させるかを制御できます。Sora 2 でも input_reference で参照画像を指定できるため、提供された製品画像に出力を沿わせるには、サポートされている参照メディアの制御を使います。\nキーワード検索や TTS は、画像や動画の生成を制御する機能ではありません。入力画像を使用しなければ、提供された製品画像を出力に反映できません。\nSora 2 は Microsoft Foundry でプレビューとして提供されている動画生成モデルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/dall-e",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/video-generation"
+   ],
+   "terms": [
+    {
+     "term": "Sora 2",
+     "note": "テキストの指示や入力画像・動画から動画を生成する、Microsoft Foundry で利用できるモデル（プレビュー）です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q489": {
+   "status": "needs_review",
+   "stem": "キャンペーンでは、テキスト プロンプトから短い動画を作成する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "利用可能な場合は Foundry の動画生成の制御を使用する",
+    "ドキュメント OCR を使用する",
+    "感情分析を使用する",
+    "ハイブリッド検索を使用する"
+   ],
+   "explanation": "Microsoft Foundry の Sora 2 は、テキストによる指示や入力画像・動画から動画シーンを生成するモデルで、テキストから動画を生成するモダリティをサポートしています。テキスト プロンプトから短い動画を作成するには、Foundry の動画生成機能を使います。\nドキュメント OCR は文書からテキストを読み取る機能、感情分析はテキストの感情を判定する機能、ハイブリッド検索はキーワード検索とベクター検索を組み合わせる検索手法であり、いずれも動画を生成しません。\nSora 2 は Microsoft Foundry でプレビューとして提供されている動画生成モデルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/video-generation"
+   ],
+   "terms": [
+    {
+     "term": "Sora 2",
+     "note": "テキストの指示や入力画像・動画から動画を生成する、Microsoft Foundry で利用できるモデル（プレビュー）です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q490": {
+   "status": "needs_review",
+   "stem": "生成されたクリップに、プロンプトに基づく修正を加える必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "サポートされている動画編集ワークフローの制御を使用する",
+    "TTS の音声スタイルを使用する",
+    "請求書モデルを使用する",
+    "検索ファセットを使用する"
+   ],
+   "explanation": "Sora 2 の Remix（リミックス）機能では、完了済みの動画の ID と更新したプロンプトを指定することで、動画をゼロから再生成せずに特定の部分だけを調整できます。生成済みのクリップをプロンプトに基づいて修正するには、このようなプラットフォームの動画編集機能を使います。\nTTS の音声スタイルは読み上げ音声の調整、請求書モデルは請求書からのデータ抽出、検索ファセットは検索結果の絞り込みのための機能であり、いずれも動画を編集するものではありません。\nSora 2 は Microsoft Foundry でプレビューとして提供されている動画生成モデルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/video-generation"
+   ],
+   "terms": [
+    {
+     "term": "Remix (Sora 2)",
+     "note": "既存の動画をゼロから再生成せず、プロンプトで指定した部分だけを調整する Sora 2 の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q493": {
+   "status": "needs_review",
+   "stem": "スクリーン リーダーには詳細な画像説明が必要です。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "アクセシビリティのニーズに沿った拡張された画像説明を生成する",
+    "ランダムな代替テキストを生成する",
+    "インデクサーの状態のみを使用する",
+    "TTS のみを使用する"
+   ],
+   "explanation": "Image Analysis の透明性に関するドキュメントでは、目の不自由な人やロービジョンの人を支援するための画像説明や、アクセシビリティ目的の代替テキストの生成が用途として挙げられています。Image Analysis 4.0 の Dense Captions は画像の最大 10 個の領域についても説明を生成し、vision 対応のチャット モデルも画像を分析して内容に基づく詳細な説明を生成できるため、アクセシビリティのニーズに沿った詳細な画像説明を生成するのが適切です。\nランダムな代替テキストは画像の内容を正しく伝えません。インデクサーの状態は Azure AI Search のインデックス作成の状況を示すものであり、TTS だけでは画像の内容を説明するテキストを作れません。\nImage Analysis 4.0 は、画像からキャプションやタグ、オブジェクトなどの視覚的特徴を抽出する機能を提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/responsible-ai/computer-vision/image-analysis-transparency-note",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-describe-images-40",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [
+    {
+     "term": "Dense Captions",
+     "note": "画像全体に加えて最大 10 個の領域それぞれについて 1 文の説明を生成する、Image Analysis 4.0 の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "解説: vision 対応チャット モデルが「通常のキャプションより詳細」という比較は参照資料で確認できないため、Learn の記述（画像を分析して内容に基づく詳細な説明を提供）に合わせた"
+    ]
+   }
+  },
+  "q495": {
+   "status": "needs_review",
+   "stem": "メディア アーカイブでは、動画から文字起こし、シーン、要約を得る必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "Video Indexer や Content Understanding などの動画分析ワークフローを使用する",
+    "TTS のみを使用する",
+    "プロンプトの temperature のみを使用する",
+    "RBAC のみを使用する"
+   ],
+   "explanation": "Azure Content Understanding の動画分析では、WebVTT 形式の文字起こし、定義したカテゴリに基づくシーンのセグメント分割、セグメントの説明や要約などを生成モデルで抽出できます。文字起こし・シーン・要約が必要なメディア アーカイブには、Content Understanding や Azure AI Video Indexer などの動画分析ワークフローが適しています。\nTTS はテキストを音声に変換する機能、temperature は生成の多様性を調整するパラメーター、RBAC はアクセス制御の仕組みであり、いずれも動画を分析しません。\nAzure Content Understanding は、生成 AI を使用してドキュメント、画像、動画、音声などのコンテンツをユーザー定義の出力形式に変換するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/video/overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding",
+     "note": "生成 AI を使ってドキュメント、画像、動画、音声から構造化された情報を抽出する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q496": {
+   "status": "needs_review",
+   "stem": "品質管理アプリでは、損傷した部品を含む領域を特定する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "オブジェクト/部品/領域の検出、またはマルチモーダル理解を使用する",
+    "翻訳のみを使用する",
+    "メモリのみを使用する",
+    "課金データのエクスポートのみを使用する"
+   ],
+   "explanation": "Image Analysis 4.0 のオブジェクト検出は、画像内で検出した各オブジェクトの境界ボックスの座標を返します。損傷した部品を含む領域を特定するには、このようなオブジェクト・部品・領域の検出や、vision 対応のマルチモーダル モデルによる画像理解を使います。\n翻訳、メモリ、課金データのエクスポートは、いずれも画像内の領域を特定する機能ではありません。\nなお、Image Analysis 4.0 の汎用的なオブジェクト検出には、小さいオブジェクトや密集したオブジェクトを検出しにくいといった制限があります。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-object-detection-40",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [
+    {
+     "term": "Image Analysis 4.0",
+     "note": "画像からキャプション、タグ、オブジェクトなどの視覚的特徴を抽出する Azure Vision の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "「A quality app」は文脈から「品質管理アプリ」と訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q497": {
+   "status": "needs_review",
+   "stem": "ユーザーがアップロードした画像に、禁止されているシンボルが含まれている可能性があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "安全でない/許可されていない視覚コンテンツを分類し、ポリシーを適用する",
+    "テキストのセマンティック ランキングのみを行う",
+    "音声合成のみを行う",
+    "PDF のチャンク分割のみを行う"
+   ],
+   "explanation": "Azure AI Content Safety の Analyze image API は、画像をヘイト、性的、暴力、自傷行為の各カテゴリと重大度レベルで分類します。ヘイト カテゴリにはナチスや KKK のシンボルなどの表現が含まれ、画像にも対応したカスタム カテゴリで独自のパターンを検出することもできるため、禁止シンボルを含む画像を分類してポリシーを適用するのが適切です。\nセマンティック ランキングはテキストの検索結果の並べ替え、音声合成はテキストの読み上げ、PDF のチャンク分割はドキュメントの分割処理であり、いずれも画像内の禁止コンテンツを検出しません。\nAzure AI Content Safety は、アプリケーション内のユーザー生成コンテンツや AI 生成コンテンツに含まれる有害なコンテンツを検出するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/concepts/harm-categories",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure AI Content Safety",
+     "note": "テキストや画像に含まれる有害なコンテンツをカテゴリと重大度レベルで検出するサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "option2・解説: 「セマンティック ランク付け」を用語表の「セマンティック ランキング」に統一"
+    ]
+   }
+  },
+  "q527": {
+   "status": "needs_review",
+   "stem": "コンプライアンス チームは、苦情から繰り返し現れるテーマを把握する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "トピック/キー フレーズ抽出、または LLM による要約を使用する",
+    "音声合成のみを使用する",
+    "動画生成のみを使用する",
+    "マネージド ID のみを使用する"
+   ],
+   "explanation": "Azure Language のキー フレーズ抽出は、テキスト内の主要な概念をすばやく識別する機能です。LLM による要約でも苦情に共通するテーマを抽出できるため、トピック/キー フレーズ抽出や LLM による要約が要件に合致します。\n音声合成と動画生成はコンテンツを生成する機能、マネージド ID は認証のための仕組みであり、テキストからテーマを抽出するものではありません。\nキー フレーズ抽出は、Foundry Tools の Azure Language で提供される自然言語処理機能の 1 つです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/key-phrase-extraction/overview"
+   ],
+   "terms": [
+    {
+     "term": "キー フレーズ抽出",
+     "note": "テキストから主要な概念を表す語句を取り出す Azure Language の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q530": {
+   "status": "needs_review",
+   "stem": "チャット アプリでは、安全でないテキストや機密性の高いテキストを検出する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "安全性と機密コンテンツの検出を構成する",
+    "フィルターを無効にする",
+    "ベクターの top のみを使用する",
+    "画像のシードを使用する"
+   ],
+   "explanation": "Azure AI Content Safety の Analyze text API はテキスト内の有害なコンテンツをカテゴリと重大度レベルで検出し、Azure Language の PII 検出は機密データを識別・分類・マスクします。安全でないテキストや機密性の高いテキストを検出するには、こうした安全性と機密コンテンツの検出を構成します。\nフィルターを無効にすると、危険なテキストを検出できなくなります。ベクター検索の上位件数の設定や画像生成のシードは、テキストの安全性や機密性を判定する機能ではありません。\nAzure Language の PII 検出は、テキスト内の個人を特定できる情報 (PII) を識別してマスクできる機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/personally-identifiable-information/overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure AI Content Safety",
+     "note": "テキストや画像に含まれる有害なコンテンツをカテゴリと重大度レベルで検出するサービスです。"
+    }
+   ],
+   "lowConfidence": true,
+   "reviewNotes": "誤答肢「Use only vector top」の意味が不明確（ベクター検索の top/top-k を指すと推測）なため「ベクターの top」と原文に近い形で訳した。「image seed」も画像生成のシード値と推測して訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q531": {
+   "status": "needs_review",
+   "stem": "サポート アプリでは、サポートされている言語間で予測可能な翻訳を行う必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "Azure Translator in Foundry Tools または LLM による翻訳フローを使用する",
+    "Document Intelligence を使用する",
+    "顔検出を使用する",
+    "モデルのクォータを使用する"
+   ],
+   "explanation": "Azure Translator in Foundry Tools はクラウドベースのニューラル機械翻訳サービスで、新しいバージョンでは指定した大規模言語モデル (LLM) を翻訳に選択することもできます。サポートされている言語間で予測可能な翻訳を行うには、Azure Translator または LLM による翻訳フローを使います。\nDocument Intelligence は文書からテキストや構造を抽出する機能、顔検出は画像内の顔を検出する機能、モデルのクォータは使用量の上限に関する設定であり、いずれも翻訳を行うものではありません。\nAzure Translator は、多数の言語間でテキストを翻訳するための Foundry Tools のサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/translator/overview"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q532": {
+   "status": "needs_review",
+   "stem": "コンプライアンス向けの要約ツールでは、規制に関する用語を使用する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "プロンプト、例、スキーマ、ドメインのグラウンディングをカスタマイズする",
+    "汎用的なプロンプトのみを使用する",
+    "検証を行わない",
+    "TTS のみを使用する"
+   ],
+   "explanation": "Learn のプロンプト エンジニアリングのガイドでは、few-shot の例や補足コンテンツを与えてモデルを望ましい出力に導くことと、生成結果を必ず検証することが説明されています。システム メッセージでもドメイン固有の規約を指定できるため、規制用語に沿った要約を生成するには、プロンプト、例、スキーマ、ドメインのグラウンディングをカスタマイズします。\n汎用的なプロンプトだけではドメイン固有の用語が反映されにくく、検証を行わないと誤った用語や内容を見逃します。TTS はテキストを音声に変換する機能であり、要約に使う用語の制御には関係しません。\nプロンプト エンジニアリングは、指示・例・コンテキストを工夫してモデルの出力を望ましい形に導く手法です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/prompt-engineering",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/concepts/system-message"
+   ],
+   "terms": [
+    {
+     "term": "グラウンディング",
+     "note": "モデルの応答を、提供したドメインの資料やデータなどの根拠に基づかせることです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q533": {
+   "status": "needs_review",
+   "stem": "エージェントは、推論の前にマイク入力を受け取ります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "言語の推論の前に音声をテキストに変換する",
+    "最初に画像を生成する",
+    "請求書の抽出を使用する",
+    "セマンティック キャプションを使用する"
+   ],
+   "explanation": "Azure Speech（音声サービス）の音声テキスト変換は、ライブ音声のリアルタイム文字起こしなどで音声をテキストに変換します。マイク入力を受け取るエージェントでは、言語の推論を行う前に音声をテキストに変換するのが基本的な流れです。\n画像の生成や請求書の抽出は音声入力を扱う機能ではなく、セマンティック キャプションは Azure AI Search の検索結果から関連する文章を抜き出す機能です。\nAzure Speech は、音声テキスト変換やテキスト読み上げなどの音声機能を提供する Foundry Tools のサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/speech-to-text"
+   ],
+   "terms": [
+    {
+     "term": "Azure Speech（音声サービス）",
+     "note": "音声テキスト変換やテキスト読み上げなどの音声機能を提供する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q534": {
+   "status": "needs_review",
+   "stem": "エージェントは、最終的な回答をユーザーに音声で伝える必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "テキスト読み上げによる音声合成を使用する",
+    "ベクター検索を使用する",
+    "ドキュメント レイアウトを使用する",
+    "Content Safety のみを使用する"
+   ],
+   "explanation": "Azure Speech（音声サービス）のテキスト読み上げは、テキストを人間のような合成音声に変換する機能です。エージェントが最終的な回答をユーザーに音声で伝えるには、テキスト読み上げによる音声合成を使います。\nベクター検索は意味的に類似した情報の検索、ドキュメント レイアウトは文書の構造の抽出、Content Safety は有害なコンテンツの検出のための機能であり、いずれも音声を出力しません。\nAzure Speech は、音声テキスト変換やテキスト読み上げなどの音声機能を提供する Foundry Tools のサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/text-to-speech"
+   ],
+   "terms": [
+    {
+     "term": "テキスト読み上げ (text to speech)",
+     "note": "テキストを人間のような合成音声に変換する Azure Speech の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "option4・解説: 製品名 Content Safety がカタカナ（コンテンツ セーフティ）になっており用語表と不一致のため英語表記に修正"
+    ]
+   }
+  },
+  "q535": {
+   "status": "needs_review",
+   "stem": "リアルタイムのチューターは、音声を聞き取って音声で応答する必要があります。この要件を最も適切に満たす選択肢はどれですか？",
+   "options": [
+    "音声をエージェントのモダリティとして統合するか、Voice Live を使用する",
+    "バッチ専用の PDF 抽出を使用する",
+    "音声を使用しない",
+    "キーワード検索のみを使用する"
+   ],
+   "explanation": "Voice Live API は、音声認識、生成 AI、テキスト読み上げを単一のインターフェイスに統合し、音声エージェント向けに低遅延の音声対音声の対話を提供します。Learn では対話型の学習やトレーニングのための仮想チューターも用途として挙げられているため、リアルタイムに聞き取って音声で応答するチューターに適しています。\nバッチ専用の PDF 抽出ではリアルタイムの音声対話を実現できず、音声を使用しなければ聞き取りも音声での応答もできません。キーワード検索だけでも音声の入出力は扱えません。\nVoice Live API は、Foundry Tools の Azure Speech（音声サービス）の機能として提供されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live"
+   ],
+   "terms": [
+    {
+     "term": "Voice Live API",
+     "note": "音声認識、生成 AI、テキスト読み上げを統合し、低遅延の音声対話を実現する API です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q536": {
+   "status": "needs_review",
+   "stem": "業界の専門用語を含む場合や雑音の多い環境で、認識に失敗します。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "必要に応じて Custom Speech またはフレーズ リストを使用する",
+    "カスタム音声のみを使用する",
+    "画像のインペインティングを使用する",
+    "セマンティック ランカーのみを使用する"
+   ],
+   "explanation": "Custom Speech は、ドメイン固有の語彙を含むテキスト データでベース モデルを拡張して業界用語などの認識を改善でき、参照用の文字起こし付き音声データを使えば雑音などアプリ固有の音響条件での認識精度も改善できます。フレーズ リストはモデルのトレーニングなしで実行時に適用でき、業界や組織に固有の単語や略語の認識を強化できます。\nカスタム音声はテキスト読み上げで独自の合成音声を作る機能であり、音声認識の精度改善には使えません。画像のインペインティングは画像編集、セマンティック ランカーは検索結果の再ランク付けの機能で、音声認識とは無関係です。\nAzure Speech（音声サービス）は、音声テキスト変換やテキスト読み上げなどの音声機能を提供するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/custom-speech-overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/improve-accuracy-phrase-list"
+   ],
+   "terms": [
+    {
+     "term": "Custom Speech",
+     "note": "Custom Speech は、独自のテキストや音声データでベース モデルを拡張し、アプリケーション固有の語彙や音響条件での音声認識精度を改善する機能です。"
+    },
+    {
+     "term": "フレーズ リスト",
+     "note": "フレーズ リストは、名前や業界固有の用語などを実行時に指定し、モデルのトレーニングなしで認識精度を高める機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "stem の \"Recognition\" は原文どおり「認識」と訳し、「音声認識」とは補っていない。",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "explanation: 「業界用語」が「音響条件」の例として書かれており、テキスト データ（語彙）と音声データ（音響条件）の役割の対応が不正確だった"
+    ]
+   }
+  },
+  "q537": {
+   "status": "needs_review",
+   "stem": "会議アシスタントは、音声入力に基づいて推論する必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "要約の前に、文字起こしを行うか、マルチモーダルな音声推論を使用する",
+    "音声を無視する",
+    "画像生成のみを使用する",
+    "CSS のみを使用する"
+   ],
+   "explanation": "音声入力を推論に使うには、Azure Speech の音声テキスト変換で文字起こしするか、gpt-audio などの音声対応モデルに音声を直接入力して分析させる必要があります。そのうえで要約などの推論を行うため、要約の前に文字起こしまたはマルチモーダルな音声推論を行う方法が正解です。\n音声を無視すると、話された内容を推論に使えません。画像生成や CSS は音声の処理とは無関係です。\nMicrosoft Foundry の gpt-audio モデルは、テキスト、音声、テキストと音声の組み合わせの入出力に対応しています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/audio-completions-quickstart",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-recognize-speech?pivots=programming-language-python"
+   ],
+   "terms": [
+    {
+     "term": "gpt-audio",
+     "note": "gpt-audio は、テキストと音声の入出力に対応し、音声ベースの対話や音声の分析に使えるモデルです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q539": {
+   "status": "needs_review",
+   "stem": "語学学習アプリで、流暢さと正確性をスコア付けします。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "発音評価を使用する",
+    "Custom Neural Voice を使用する",
+    "ベクター検索を使用する",
+    "セマンティック キャプションを使用する"
+   ],
+   "explanation": "発音評価は Speech SDK の音声テキスト変換を使って話者の発音を評価し、正確性 (AccuracyScore) や流暢さ (FluencyScore) などのスコアでフィードバックを返す機能です。そのため、流暢さと正確性のスコア付けには発音評価が適しています。\nCustom Neural Voice はテキスト読み上げ用の独自の合成音声を作る機能であり、話者の発音を採点するものではありません。ベクター検索やセマンティック キャプションは Azure AI Search の検索機能で、発話の評価には使いません。\nAzure Speech（音声サービス）は、音声テキスト変換、テキスト読み上げ、発音評価などの音声機能を提供します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-pronunciation-assessment"
+   ],
+   "terms": [
+    {
+     "term": "発音評価",
+     "note": "発音評価は、話された音声の正確性や流暢さなどを評価し、話者にフィードバックを返す Azure Speech の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q541": {
+   "status": "needs_review",
+   "stem": "カスタマー アシスタントには、低遅延の音声対音声 (speech-to-speech) の対話が必要です。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "Voice Live API、または Foundry エージェントと組み合わせた Voice Live を使用する",
+    "バッチの STT と TTS のみを手動で連結する",
+    "キーワード検索のみを使用する",
+    "請求書の抽出のみを使用する"
+   ],
+   "explanation": "Voice Live API は、音声認識、生成 AI、テキスト読み上げを単一のインターフェイスに統合し、音声エージェント向けに低遅延の音声対音声の対話を実現します。Foundry Agent Service のエージェントとも接続できるため、これが正解です。\nSTT と TTS などのモジュールを手動で連結する方式は、エンジニアリングの複雑さとユーザーが感じる遅延が増えます。キーワード検索や請求書の抽出は、音声の対話を実現する機能ではありません。\nVoice Live API はフル マネージドで、開発者が生成 AI モデルのデプロイや管理、バックエンドのオーケストレーションを行う必要はありません。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/voice-live-agents-quickstart"
+   ],
+   "terms": [
+    {
+     "term": "Voice Live API",
+     "note": "Voice Live API は、音声認識、生成 AI、テキスト読み上げを統合し、低遅延の音声エージェントを構築できる API です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "\"speech-to-speech\" は Learn 日本語版の表記「音声対音声」に英語を併記した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q566": {
+   "status": "needs_review",
+   "stem": "ナレッジ ベースには、PDF、画像、音声、動画が含まれています。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "コンテンツを抽出し、エンリッチ、チャンク分割、埋め込み、インデックス作成を行い、メタデータを保持する",
+    "生のファイルのみを保存する",
+    "TTS のみを使用する",
+    "ソース情報を削除する"
+   ],
+   "explanation": "Azure Content Understanding は文書、画像、音声、動画からコンテンツを抽出でき、その結果を RAG 用の検索インデックスに取り込めます。コンテンツを抽出し、エンリッチ、チャンク分割、埋め込みの生成、インデックス作成を行い、出典のメタデータを保持するパイプラインによって、多様な形式のデータを検索やグラウンディングに使えるようになります。\n生のファイルを保存するだけでは検索可能な表現にならず、ソース情報を削除すると出典を示せなくなります。TTS はテキストを音声に変換する機能で、ナレッジ ベースの構築には役立ちません。\nAzure AI Search のマルチモーダル検索は、テキストと画像を含むドキュメントの取り込みと取得をネイティブにサポートします。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/tutorial/build-rag-solution",
+    "https://learn.microsoft.com/ja-jp/azure/search/multimodal-search-overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding",
+     "note": "Content Understanding は、文書、画像、音声、動画からコンテンツを抽出・分析し、検索や RAG に使える形に変換するサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "stem は状況説明のみで「要件」が明示されていないが、原文どおりに訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q567": {
+   "status": "needs_review",
+   "stem": "ユーザーは、ポリシーのテキストに対して自然言語で質問します。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "有用な場面でセマンティック検索を構成する",
+    "完全一致のキーワード照合のみを使用する",
+    "TTS のみを使用する",
+    "顔検出のみを使用する"
+   ],
+   "explanation": "Azure AI Search のセマンティック ランカーは、Microsoft の言語理解モデルを使ってクエリの意味に近い結果を上位に再ランク付けし、質問形式のクエリにはセマンティック アンサーも返せます。そのため、自然言語の質問に対する関連性を高めるには、セマンティック検索の構成が適しています。\n完全一致のキーワード照合だけでは、クエリの意味を考慮した再ランク付けが行われません。TTS や顔検出は、テキストの検索とは無関係です。\nなお、Azure AI Search のドキュメントでは、この機能はセマンティック ランカー（セマンティック ランキング）という名前で説明されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/semantic-search-overview"
+   ],
+   "terms": [
+    {
+     "term": "セマンティック ランカー",
+     "note": "セマンティック ランカーは、言語理解モデルで検索結果を再ランク付けし、関連性を高める Azure AI Search の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "\"policy text\" は社内規程か保険証券か文脈上不明なため「ポリシーのテキスト」とした。\"semantic search\" は試験ガイドの表記に合わせ「セマンティック検索」とした。",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "explanation: 「試験ガイドの semantic search が現在はセマンティック ランカーという機能名」という記述は根拠資料で確認できないため、Learn で確認できる表現に修正"
+    ]
+   }
+  },
+  "q569": {
+   "status": "needs_review",
+   "stem": "RAG アプリは、完全に一致する単語ではなく意味に基づいて取得を行います。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "埋め込みを生成し、ベクター フィールドを構成する",
+    "ランダムな ID のみを使用する",
+    "音声スタイルのみを使用する",
+    "OCR のロケールのみを使用する"
+   ],
+   "explanation": "ベクター検索は、コンテンツの数値表現である埋め込みを使って類似度で照合するため、単語が一致しなくても概念的に近い内容を取得できます。そのため、埋め込みを生成し、インデックスにベクター フィールドを構成する方法が正解です。\nランダムな ID は内容の意味を表しません。音声スタイルはテキスト読み上げの設定、OCR のロケールは文字認識の言語設定であり、意味に基づく取得には使えません。\nAzure AI Search のインデックスでは、ベクター フィールドに埋め込みを格納してベクター クエリを実行できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-overview",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-what-is-an-index"
+   ],
+   "terms": [
+    {
+     "term": "埋め込み",
+     "note": "埋め込みは、テキストなどのコンテンツの意味を数値のベクターで表したもので、類似度による検索に使われます。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q570": {
+   "status": "needs_review",
+   "stem": "スキャンした PDF について、インデックス作成時に OCR とレイアウト抽出を行う必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "OCR、テキスト、画像、レイアウトのエンリッチメントに組み込みスキルまたはカスタム スキルを使用する",
+    "エンリッチメントを省略する",
+    "モデルの temperature のみを使用する",
+    "アバターのみを使用する"
+   ],
+   "explanation": "Azure AI Search の AI エンリッチメントはインデクサーに接続したスキルセットで実行され、組み込みの OCR スキル（PDF に埋め込まれた画像にも対応）やドキュメント レイアウト スキル、外部の処理を呼び出すカスタム スキルを利用できます。そのため、スキャンした PDF の OCR とレイアウト抽出には、これらのスキルを使う方法が適切です。\nエンリッチメントを省略すると、スキャン画像からテキストや構造を抽出できません。temperature は生成モデルの出力に関する設定、アバターはテキスト読み上げの視覚表現であり、インデックス作成時の抽出とは無関係です。\nスキルセットは、インデクサーの実行中にコンテンツを抽出・変換して検索可能にするスキルの集まりです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-concept-intro",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-ocr",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout"
+   ],
+   "terms": [
+    {
+     "term": "スキルセット",
+     "note": "スキルセットは、インデクサーに接続して OCR やレイアウト抽出などの AI エンリッチメントを実行するスキルの集まりです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q571": {
+   "status": "needs_review",
+   "stem": "スキャンした契約書を、条項とページ単位で検索できるようにする必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "OCR、レイアウト抽出、チャンク分割、メタデータのマッピング、インデックス作成を実行する",
+    "1 つの巨大なチャンクを使用する",
+    "ページ番号を削除する",
+    "OCR を使用しない"
+   ],
+   "explanation": "OCR スキルで画像や PDF 内の画像からテキストを抽出し、ドキュメント レイアウト スキルで構造の検出とチャンク分割を行い、locationMetadata でページ番号などの位置情報を出力できます。これらを出力フィールド マッピングでインデックスに格納すれば、条項やページ単位で検索できます。\n1 つの巨大なチャンクでは条項ごとに取得できず、ページ番号を削除するとページを特定できません。OCR を使用しないと、スキャン画像からテキストを取り出せません。\nドキュメント レイアウト スキルは、Azure Document Intelligence のレイアウト モデルを使って文書の構造を解析する Azure AI Search のスキルです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-ocr",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-concept-intro"
+   ],
+   "terms": [
+    {
+     "term": "ドキュメント レイアウト スキル",
+     "note": "ドキュメント レイアウト スキルは、Azure Document Intelligence のレイアウト モデルで文書の構造を解析し、Markdown またはテキスト形式で出力するスキルです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q572": {
+   "status": "needs_review",
+   "stem": "エージェントは、企業のナレッジを照会し、出典を引用する必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "取得パイプラインを、権限付きのエージェント ツールとして接続する",
+    "エージェントに推測させる",
+    "セキュリティ トリミングを無効にする",
+    "メモリのみを使用する"
+   ],
+   "explanation": "Foundry エージェントに Azure AI Search ツールを接続すると、インデックス化された文書を取得し、インライン引用付きの回答を生成できます。Foundry IQ のナレッジ ベースもクエリ時にユーザーの権限を適用し、引用付きのグラウンディングされた回答を返すため、権限を考慮した取得パイプラインをエージェント ツールとして接続する方法が正解です。\nエージェントに推測させると根拠のない回答になり、メモリだけでは企業のナレッジを検索して出典を引用できません。セキュリティ トリミングを無効にすると、ユーザーがアクセスできない文書まで回答に使われるおそれがあります。\nFoundry IQ では、1 つのナレッジ ベースを複数のエージェントに接続できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/ai-search",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/concepts/what-is-foundry-iq"
+   ],
+   "terms": [
+    {
+     "term": "Foundry IQ",
+     "note": "Foundry IQ は、複数のデータ ソースをまとめたナレッジ ベースを構成し、ユーザーの権限を考慮した引用付きの回答をエージェントに提供する機能です。"
+    },
+    {
+     "term": "Azure AI Search ツール",
+     "note": "Azure AI Search ツールは、Foundry エージェントが Azure AI Search のインデックスから文書を取得し、引用付きで回答できるようにするツールです。"
+    }
+   ],
+   "lowConfidence": true,
+   "reviewNotes": "正解選択肢の \"with permissions\" が「ユーザー権限を考慮した取得」か「エージェントに付与するアクセス権限」か曖昧なため、「権限付きの」と直訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q574": {
+   "status": "needs_review",
+   "stem": "フォームには、テーブル、チェックボックス、ドキュメントのレイアウトが含まれています。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "OCR とレイアウト/フィールド抽出を組み合わせて使用する",
+    "TTS を使用する",
+    "モデルのメモリのみを使用する",
+    "翻訳のみを使用する"
+   ],
+   "explanation": "Azure Document Intelligence のレイアウト モデルは、OCR と深層学習モデルを組み合わせて、テキスト、テーブル、選択マーク（チェックボックス）、文書構造を抽出します。Content Understanding の文書分析もレイアウト解析、選択マークの抽出、フィールド抽出に対応するため、OCR とレイアウト/フィールド抽出を組み合わせる方法が正解です。\nTTS はテキストを音声に変換する機能であり、モデルのメモリでは文書の内容を読み取れません。翻訳だけでは、テーブルやチェックボックスの構造を抽出できません。\nAzure Document Intelligence は、文書からテキストや構造化データを抽出するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/document-intelligence/prebuilt/layout",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/document/overview"
+   ],
+   "terms": [
+    {
+     "term": "レイアウト モデル",
+     "note": "レイアウト モデルは、テキスト、テーブル、選択マーク、文書構造を抽出する Azure Document Intelligence の事前構築済みモデルです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q576": {
+   "status": "needs_review",
+   "stem": "RAG パイプラインには、見出しとテーブルを含むクリーンなドキュメント テキストが必要です。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "下流の推論のために、構造化された出力または Markdown 出力を生成する",
+    "構造化されていないプレーンな OCR のみを使用する",
+    "音声出力を使用する",
+    "メタデータを使用しない"
+   ],
+   "explanation": "Azure Content Understanding は非構造化文書を GitHub Flavored Markdown に変換し、見出しやテーブルなどのコンテンツとレイアウトを保持したまま下流の処理に渡せます。ドキュメント レイアウト スキルも既定で Markdown 出力を生成するため、構造化された出力や Markdown 出力を生成する方法が正解です。\n構造化されていないプレーンな OCR だけでは、見出しやテーブルの構造が失われます。音声出力は文書テキストの準備には使えず、メタデータを使用しないと出典などの情報を活用できません。\nドキュメント レイアウト スキルの出力形式は markdown（既定）と text から選べます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/document/markdown",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout"
+   ],
+   "terms": [
+    {
+     "term": "GitHub Flavored Markdown",
+     "note": "GitHub Flavored Markdown は、Content Understanding が文書の内容とレイアウトを表現するために出力する Markdown 形式です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q577": {
+   "status": "needs_review",
+   "stem": "応答では、ドキュメントのタイトルとページを引用する必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "タイトル、ページ、URL/パス、チャンク ID、権限のメタデータを保存する",
+    "埋め込みベクターのみを保存する",
+    "音声名のみを保存する",
+    "ランダム シードのみを保存する"
+   ],
+   "explanation": "Azure AI Search ツールで引用を表示するには、引用するテキストを含むフィールドに加えて、ソース URL（および任意でタイトル）を含む取得可能 (retrievable) なフィールドが必要です。ドキュメント レイアウト スキルの locationMetadata でページ番号も取得できるため、タイトル、ページ、URL/パス、チャンク ID などのメタデータを保存する方法が正解です。\n埋め込みベクターだけではタイトルやページを示せず、音声名やランダム シードは引用とは無関係です。\nなお、権限のメタデータは引用自体には必須ではありませんが、セキュリティ トリミングに利用できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/ai-search",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-document-intelligence-layout"
+   ],
+   "terms": [
+    {
+     "term": "locationMetadata",
+     "note": "locationMetadata は、ドキュメント レイアウト スキルが出力する、ページ番号など抽出元の位置情報です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q579": {
+   "status": "needs_review",
+   "stem": "ユーザーが、自分のアクセスできるドキュメントのみを取得できるようにする必要があります。この要件を最もよく満たす選択肢はどれですか？",
+   "options": [
+    "セキュリティ トリミングと、承認を考慮した取得を適用する",
+    "すべてを公開状態でインデックスに登録する",
+    "RBAC を無視する",
+    "モデルのメモリのみを使用する"
+   ],
+   "explanation": "Azure AI Search は、ドキュメント レベルのアクセス制御（ACL との連携）や、ユーザーまたはグループの ID を含む文字列で検索結果を絞り込むセキュリティ フィルター（セキュリティ トリミング）をサポートします。そのため、ユーザーが権限を持つ文書だけを取得させるには、セキュリティ トリミングと承認を考慮した取得を適用します。\nすべてを公開状態でインデックスに登録したり RBAC を無視したりすると、権限のないユーザーにも文書が返されます。モデルのメモリだけでは、ユーザーごとのアクセス権を適用できません。\nセキュリティ フィルターは、クエリ時のフィルター式でユーザーのグループ ID などと照合して結果を絞り込む手法です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-security-trimming-for-azure-search",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-document-level-access-overview"
+   ],
+   "terms": [
+    {
+     "term": "セキュリティ トリミング",
+     "note": "セキュリティ トリミングは、ユーザーやグループの ID に基づいて、アクセス権のない文書を検索結果から除外する手法です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q601": {
+   "status": "needs_review",
+   "stem": "Azure AI ソリューションにおけるマネージド ID について、正しい記述はどの 2 つですか？",
+   "options": [
+    "コードにシークレットをハードコーディングせずに済む",
+    "対象リソースにアクセスするには、引き続き RBAC が必要である",
+    "プライベート エンドポイントを自動的に無効にする",
+    "すべてのデプロイ クォータを置き換える"
+   ],
+   "explanation": "マネージド ID を使うと、開発者が資格情報を管理する必要がなくなり、アクセス キーやパスワードなどのシークレットを使わずに Microsoft Entra のトークンを取得できます。ただし ID を有効にするだけではアクセスできず、RBAC のロール割り当てなどで対象リソースへのアクセス許可を付与する必要があります。\nマネージド ID は認証のための ID であり、プライベート エンドポイントを無効にしたり、デプロイのクォータを置き換えたりする機能はありません。\nたとえば Foundry の Azure AI Search ツールでは、Foundry アカウントのシステム割り当てマネージド ID に検索サービスの RBAC ロールを割り当ててキーレス認証を行います。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/entra/identity/managed-identities-azure-resources/overview",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/ai-search"
+   ],
+   "terms": [
+    {
+     "term": "マネージド ID",
+     "note": "マネージド ID は、Azure リソースが資格情報を管理せずに Microsoft Entra のトークンを取得できるようにする ID です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q602": {
+   "status": "needs_review",
+   "stem": "安全でない生成出力を減らすために一般的に使用されるコントロールはどの 2 つですか？",
+   "options": [
+    "コンテンツ セーフティ フィルター",
+    "プロンプト シールドまたはガードレール",
+    "TTS の音声の選択",
+    "セマンティック キャプションのみ"
+   ],
+   "explanation": "Foundry のガードレールは、分類モデルで有害なコンテンツを検出し、ユーザー入力や出力などの介入ポイントでフィルター処理します。プロンプト シールドは、ユーザー プロンプト攻撃やドキュメント攻撃を検出し、モデルの動作が操作されるのを防ぎます。\nTTS の音声の選択は読み上げの声を決める設定であり、セマンティック キャプションは検索結果の要約を表示する機能なので、どちらも安全でない出力の抑制には役立ちません。\nガードレールは、検出するリスク、スキャンする介入ポイント、検出時のアクションを定義するコントロールの集合です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/guardrails/guardrails-overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/concepts/jailbreak-detection"
+   ],
+   "terms": [
+    {
+     "term": "プロンプト シールド",
+     "note": "プロンプト シールドは、ユーザー プロンプト攻撃やドキュメントを介した攻撃を検出する Azure AI Content Safety の機能です。"
+    },
+    {
+     "term": "ガードレール",
+     "note": "ガードレールは、検出するリスク、介入ポイント、検出時のアクションを定義した Microsoft Foundry のコントロールの集合です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "\"Content safety filters\" は用語表にないため「コンテンツ セーフティ フィルター」とした。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q603": {
+   "status": "needs_review",
+   "stem": "RAG システムでグラウンディングの問題を診断するのに役立つシグナルはどの 2 つですか？",
+   "options": [
+    "取得の関連性",
+    "groundedness（根拠性）の評価",
+    "アバターのフレーム レート",
+    "音声合成の所要時間のみ"
+   ],
+   "explanation": "Foundry の RAG エバリュエーターには、取得したコンテキスト チャンクがクエリにどれだけ関連しているかを測る Retrieval や Document Retrieval（プロセス評価）と、応答がコンテキストに沿っていて内容を捏造していないかを測る Groundedness があります。グラウンディングの問題は取得の品質と応答の根拠性の両面から診断できるため、この 2 つが正解です。\nアバターのフレーム レートや音声合成の所要時間は出力の提示に関する指標であり、グラウンディングの問題の診断には使えません。\nMicrosoft Foundry の評価機能では、組み込みのエバリュエーターで RAG の取得品質や応答品質を測定できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators"
+   ],
+   "terms": [
+    {
+     "term": "Groundedness エバリュエーター",
+     "note": "Groundedness エバリュエーターは、生成された応答が与えられたコンテキストに沿っており、内容を捏造していないかを測定します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q604": {
+   "status": "needs_review",
+   "stem": "プライベートな Azure AI デプロイで検証すべき領域はどの 2 つですか？",
+   "options": [
+    "プライベート エンドポイントまたはプライベート リンクの経路",
+    "DNS とネットワークの名前解決",
+    "プロンプトの長さ",
+    "画像生成のシード"
+   ],
+   "explanation": "Foundry のネットワーク分離では、プライベート エンドポイントを使って Foundry リソースとプロジェクトへのプライベート接続を構成します。また、仮想ネットワーク内のクライアントが同じ接続文字列でプライベート IP アドレスに名前解決できるよう、privatelink のプライベート DNS ゾーンなどの DNS 構成も検証する必要があります。\nプロンプトの長さや画像生成のシードはモデルへの入力やパラメーターに関するもので、プライベート接続の検証対象ではありません。\nAzure portal では、プライベート エンドポイント接続が承認済みか、仮想ネットワーク内から DNS がプライベート IP アドレスに解決されるかを確認できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/how-to/configure-private-link"
+   ],
+   "terms": [
+    {
+     "term": "プライベート エンドポイント",
+     "note": "プライベート エンドポイントは、仮想ネットワーク内のプライベート IP アドレスを使って Foundry リソースなどに接続するための仕組みです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q621": {
+   "status": "needs_review",
+   "stem": "RAG ワークフローの中核となるステップはどの 2 つですか？",
+   "options": [
+    "関連するチャンクを取得する",
+    "グラウンディングされたコンテキストをモデルに送信する",
+    "TTS アバターを選択する",
+    "Custom Neural Voice をトレーニングする"
+   ],
+   "explanation": "RAG では、ユーザーのクエリをもとにグラウンディング用の文書コーパスから関連するチャンクを取得し、取得したコンテキストを AI モデルに渡して根拠に基づく応答を生成させます。そのため、関連するチャンクの取得と、グラウンディングされたコンテキストのモデルへの送信が中核のステップです。\nTTS アバターの選択や Custom Neural Voice のトレーニングは音声出力に関する作業で、RAG の取得や生成には含まれません。\nAzure AI Search は、RAG の取得部分を担う情報検索システムとして使われます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/evaluation-evaluators/rag-evaluators",
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview"
+   ],
+   "terms": [
+    {
+     "term": "取得拡張生成 (RAG)",
+     "note": "RAG は、検索で取得した情報をモデルに渡し、根拠に基づく応答を生成させる手法です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q622": {
+   "status": "needs_review",
+   "stem": "ツール定義に含めるべき項目はどの 2 つですか？",
+   "options": [
+    "関数の明確な説明",
+    "パラメーター スキーマ",
+    "ランダムな画像シード",
+    "CSS テーマ"
+   ],
+   "explanation": "Foundry エージェントの関数呼び出しでは、関数の名前 (name)、パラメーター (parameters)、説明 (description) を定義し、モデルはその定義をもとにアプリへ関数の呼び出しを要求します。そのため、関数の明確な説明と、JSON スキーマで記述したパラメーター スキーマがツール定義に含まれます。\nランダムな画像シードや CSS テーマは、モデルが関数を正しく呼び出すための情報ではありません。\n関数呼び出しでは、アプリが関数を実行して結果を返し、エージェントはその結果を使って会話を続けます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/agents/how-to/tools/function-calling"
+   ],
+   "terms": [
+    {
+     "term": "関数呼び出し",
+     "note": "関数呼び出しは、定義した関数の呼び出しをモデルがアプリに要求し、その結果を使って会話を続けられるようにする機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q623": {
+   "status": "needs_review",
+   "stem": "エージェント ワークフローで、トレースがキャプチャすべき項目はどの 2 つですか？",
+   "options": [
+    "ツールの呼び出し",
+    "モデルの待機時間",
+    "最終的な CSS の状態のみ",
+    "ブラウザーのタイトルのみ"
+   ],
+   "explanation": "Foundry のトレースは、ユーザー入力とエージェントの出力、ツールの呼び出しとその結果、トークンの使用量、期間や待機時間などの時間に関するシグナルをキャプチャします。そのため、ツールの呼び出しとモデルの待機時間が正解です。\n最終的な CSS の状態やブラウザーのタイトルは、ワークフローがどのように実行され、どこで時間がかかったかを示しません。\nトレースは Foundry ポータルや Azure Monitor Application Insights で確認でき、エラーや待機時間の急増が発生したステップの特定に役立ちます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/observability/concepts/trace-agent-concept"
+   ],
+   "terms": [
+    {
+     "term": "トレース",
+     "note": "トレースは、エージェント実行中の入力と出力、ツールの使用、トークン使用量、待機時間などを記録し、問題の原因特定に役立てる機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "\"latency\" は Learn 日本語版のトレース概要ページの表記に合わせて「待機時間」とした。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q624": {
+   "status": "needs_review",
+   "stem": "信頼性の高い JSON 出力を得るのに役立つプラクティスはどの 2 つですか？",
+   "options": [
+    "必須フィールドを定義する",
+    "スキーマに照らして応答を検証する",
+    "temperature を 2.0 に上げる",
+    "アプリケーション側のチェックを削除する"
+   ],
+   "explanation": "構造化出力では JSON スキーマで出力の構造を定義し、プロパティを required（必須）に指定することで、モデルの応答をスキーマに厳密に準拠させます。また、Zod の zodResponseFormat ヘルパーのように、スキーマに照らしてモデルの応答を検証することで信頼性がさらに高まります。\ntemperature を上げると出力のランダム性が高まるため、形式の安定には逆効果です。アプリケーション側のチェックを削除すると、不正な出力を検出できなくなります。\n構造化出力は、有効な JSON を保証するだけでスキーマへの厳密な準拠は保証できなかった以前の JSON モードとは異なり、指定した JSON スキーマに従わせる機能です。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/structured-outputs",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/reference"
+   ],
+   "terms": [
+    {
+     "term": "構造化出力",
+     "note": "構造化出力は、モデルの応答を指定した JSON スキーマに厳密に従わせる機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q641": {
+   "status": "needs_review",
+   "stem": "モデルが画像を受け付ける場合に考慮すべきリスクはどの2つですか？",
+   "options": [
+    "安全でないビジュアル コンテンツ",
+    "埋め込まれたテキストによる間接プロンプト インジェクション",
+    "インデックスの鮮度のみ",
+    "TTS のキャンセルのみ"
+   ],
+   "explanation": "画像を入力として受け付けるモデルでは、安全でないビジュアル コンテンツと、画像内に埋め込まれたテキストを介した間接プロンプト インジェクションの両方に対処する必要があります。AI-103 の試験範囲でも、マルチモーダル コンテンツの責任ある AI として、安全でない画像を分類するフィルターと、埋め込みテキストによる間接プロンプト インジェクションの検出・軽減が挙げられています。\nインデックスの鮮度は検索インデックスの更新に関する事項で、TTS のキャンセルは音声合成の操作であり、いずれも画像入力に固有のリスクではありません。\nAzure AI Content Safety の画像の分析 API は画像内の性的コンテンツ、暴力、憎悪、自傷行為を複数の重大度レベルでスキャンし、プロンプト シールドはドキュメント コンテンツに埋め込まれた指示による攻撃（ドキュメント攻撃）を検出します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-safety/concepts/jailbreak-detection",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure AI Content Safety",
+     "note": "テキストや画像に含まれる有害コンテンツや、プロンプトへの攻撃を検出する Azure のサービスです。"
+    },
+    {
+     "term": "プロンプト シールド",
+     "note": "ユーザー プロンプトやドキュメントに含まれる、モデルの動作を操作しようとする攻撃を検出する Azure AI Content Safety の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q642": {
+   "status": "needs_review",
+   "stem": "画像ベースのアプリのアクセシビリティ向上に役立つ出力はどの2つですか？",
+   "options": [
+    "代替テキスト",
+    "詳細なキャプション",
+    "セマンティック ランカーのスコア",
+    "クォータ ヘッダー"
+   ],
+   "explanation": "代替テキストは画像の内容をプレーン テキストで説明するもので、スクリーン リーダーが視覚障碍のあるユーザーに画像の内容を伝えるために使われます。詳細なキャプションも画像の内容をより詳しく伝えるため、アクセシビリティの向上に役立ちます。\nセマンティック ランカーのスコアは検索結果の関連性の順位付けに、クォータ ヘッダーは API の利用量の管理に関するもので、画像の内容をユーザーに伝える出力ではありません。\nImage Analysis 4.0 は画像を1文で説明するキャプションや、画像領域ごとの高密度キャプション（Dense Captions）を生成でき、Learn ではこのキャプションを代替テキストとして利用できると説明されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/use-case-alt-text",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/computer-vision/concept-describe-images-40",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Image Analysis 4.0",
+     "note": "画像のキャプション生成などを行う Azure Vision の機能で、2028 年 9 月 25 日に廃止予定です。"
+    },
+    {
+     "term": "Dense Captions（高密度キャプション）",
+     "note": "画像内の複数の領域ごとに、境界ボックス付きのキャプションを生成する Image Analysis 4.0 の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q643": {
+   "status": "needs_review",
+   "stem": "インペインティングのワークフローに合致するタスクはどの2つですか？",
+   "options": [
+    "マスクされたオブジェクトの置き換え",
+    "画像の残りの部分の保持",
+    "音声の翻訳",
+    "請求書の合計金額の抽出"
+   ],
+   "explanation": "インペインティングでは、マスクで指定した領域だけを編集し、それ以外の部分はそのまま保持します。画像編集 API の mask パラメーターでは、モデルに編集させる領域を完全に透明なピクセル（アルファ値 0）で指定します。\n音声の翻訳は音声を別の言語に変換するタスク、請求書の合計金額の抽出はドキュメントからのデータ抽出のタスクであり、いずれも画像の編集とは関係ありません。\nMicrosoft Foundry の画像生成モデルは、マスクとプロンプトを使ったインペインティングによる画像編集をサポートしています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/dall-e",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "fixed",
+    "issues": [
+     "解説: 「モデルはその領域のみを置き換えます」は Learn で確認できない断定のため、mask パラメーターの説明を Learn の記述（編集させる領域を完全に透明なピクセルで指定）に合わせた"
+    ]
+   }
+  },
+  "q644": {
+   "status": "needs_review",
+   "stem": "ビデオ分析ワークフローの一般的な出力はどの2つですか？",
+   "options": [
+    "トランスクリプト",
+    "シーンまたはセグメントの要約",
+    "ベクター DB の資格情報",
+    "RBAC のロール割り当て"
+   ],
+   "explanation": "ビデオ分析では、話された内容をテキスト化したトランスクリプトと、シーンやセグメント単位の内容の説明が代表的な出力です。Azure Content Understanding の事前構築済みビデオ アナライザー（prebuilt-videoAnalysis）は、WEBVTT 形式のトランスクリプト、キーフレーム、セグメントごとの自然言語の説明、シーン単位のセグメンテーションを、取得拡張生成 (RAG) 向けの出力として返します。\nベクター DB の資格情報や RBAC のロール割り当ては認証・認可のための構成情報であり、ビデオの内容を分析して得られる出力ではありません。\nAzure Content Understanding は、ビデオなどのコンテンツから、エージェントや RAG のワークフローでそのまま利用できる Markdown や JSON の出力を生成するサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/video/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding",
+     "note": "ドキュメント、画像、音声、ビデオなどのコンテンツから Markdown や構造化フィールドを抽出する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q661": {
+   "status": "needs_review",
+   "stem": "Azure Speech のワークフローに含まれる機能はどの2つですか？",
+   "options": [
+    "音声テキスト変換",
+    "テキスト読み上げ",
+    "ベクター フィルター処理",
+    "画像の透かし処理"
+   ],
+   "explanation": "Azure Speech（音声サービス）は、音声をテキストに変換する音声テキスト変換と、テキストから音声を合成するテキスト読み上げを中核機能として提供しています。\nベクター フィルター処理はベクター検索に関する機能、画像の透かし処理は画像に関する処理であり、いずれも Azure Speech の機能ではありません。\nAzure Speech は Foundry Tools の一部として提供され、音声の認識や合成などの機能をアプリに組み込めます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/overview"
+   ],
+   "terms": [
+    {
+     "term": "Azure Speech",
+     "note": "音声テキスト変換やテキスト読み上げなどの音声機能を提供する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q662": {
+   "status": "needs_review",
+   "stem": "発音評価は、発話のどの2つの品質の評価に役立ちますか？",
+   "options": [
+    "精度",
+    "流暢さ",
+    "ベクターの類似度",
+    "OCR のページ数"
+   ],
+   "explanation": "発音評価は、話者の発話の精度と流暢さに関するフィードバックを提供します。結果には、音素が母語話者の発音にどれだけ近いかを示す AccuracyScore や、単語間の無音の使い方に基づく FluencyScore などのスコアが含まれます。\nベクターの類似度はベクター検索で使われる指標、OCR のページ数はドキュメントの文字認識に関する値であり、発話の品質を評価するものではありません。\n発音評価は Azure Speech の Speech SDK で音声テキスト変換と組み合わせて使用する機能で、発話のパフォーマンスを採点するために使われます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-pronunciation-assessment"
+   ],
+   "terms": [
+    {
+     "term": "発音評価",
+     "note": "Azure Speech の機能で、話者の発音を精度や流暢さなどの観点で採点し、フィードバックを返します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Accuracy / Fluency は Learn 日本語版（発音評価を使用する）の表記「精度」「流暢さ」に合わせた。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q663": {
+   "status": "needs_review",
+   "stem": "AI-103 のシナリオでユーザーのコンテンツを翻訳できるアプローチはどの2つですか？",
+   "options": [
+    "テキスト向けの Azure Translator",
+    "音声入力向けの音声翻訳",
+    "ドキュメントのレイアウト抽出のみ",
+    "画像のインペインティング"
+   ],
+   "explanation": "Azure Translator はテキスト翻訳によりテキストをリアルタイムで翻訳し、Azure Speech の音声翻訳は音声ストリームをリアルタイムで別の言語のテキストや音声に翻訳します。AI-103 でもテキスト翻訳と音声翻訳の両方がスキルとして挙げられています。\nドキュメントのレイアウト抽出はテキストや表などの構造を取り出す処理、画像のインペインティングは画像の一部を編集する処理であり、いずれも翻訳は行いません。\nAzure Translator は、ニューラル機械翻訳によってテキストやドキュメントを翻訳するクラウドベースのサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/translator/overview",
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/speech-translation",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure Translator",
+     "note": "ニューラル機械翻訳でテキストやドキュメントを翻訳するクラウドベースのサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q664": {
+   "status": "needs_review",
+   "stem": "標準的なテキスト分析タスクである機能はどの2つですか？",
+   "options": [
+    "エンティティ認識",
+    "感情分析",
+    "アバターのレンダリング",
+    "セマンティック ハイブリッド検索"
+   ],
+   "explanation": "Azure Language では、名前付きエンティティ認識 (NER) でテキスト内のエンティティを識別・分類し、感情分析でテキストが肯定的か否定的かなどの感情を判定します。AI-103 でもエンティティ抽出と感情検出がテキスト分析のスキルとして挙げられています。\nアバターのレンダリングは映像の生成に関する処理、セマンティック ハイブリッド検索は Azure AI Search の検索手法であり、テキスト分析タスクではありません。\nAzure Language は、自然言語処理によってテキストを理解・分析する機能を提供する Foundry Tools のサービスです。なお、Learn の Azure Language の概要では、感情分析は既存の実装向けのレガシ機能に分類されています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/language-service/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure Language",
+     "note": "エンティティ認識や感情分析など、テキストを分析する自然言語処理機能を提供する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q681": {
+   "status": "needs_review",
+   "stem": "グラウンディングされた取得のために、通常保存すべきデータはどの2つですか？",
+   "options": [
+    "チャンクのテキスト",
+    "引用のためのソース メタデータ",
+    "TTS の音声名のみ",
+    "画像のシードのみ"
+   ],
+   "explanation": "取得拡張生成 (RAG) では文書をチャンクに分割し、各チャンクのテキストをインデックスに格納して検索できるようにします。また、回答に出典を示せるよう、タイトル、URL、ファイル名などのソース メタデータもフィールドとして格納します。\nTTS の音声名は音声合成の設定、画像のシードは画像生成に関する値であり、それだけを保存しても回答の根拠となる内容の取得や引用はできません。\nAzure AI Search は、チャンクのテキストやメタデータを格納したインデックスから関連性の高いコンテンツを取得する仕組みとして、RAG で使われます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q682": {
+   "status": "needs_review",
+   "stem": "AI-103 の取得シナリオで一般的に組み合わせて使われる検索モードはどの2つですか？",
+   "options": [
+    "キーワード検索",
+    "ベクター検索",
+    "音声合成",
+    "画像生成"
+   ],
+   "explanation": "Azure AI Search のハイブリッド検索は、1 回のクエリ要求でフルテキスト（キーワード、BM25）クエリとベクター クエリを並列に実行し、RRF（Reciprocal Rank Fusion）で結果を統合します。そのため、キーワード検索とベクター検索の組み合わせが正解です。\n音声合成はテキストから音声を生成する機能、画像生成はプロンプトから画像を作成する機能であり、検索モードではありません。\nハイブリッド検索では、フルテキスト クエリとベクター クエリの結果が 1 つの結果セットとして返されます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/hybrid-search-overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "ハイブリッド検索",
+     "note": "フルテキスト検索とベクター検索を 1 つのクエリ要求で並列に実行し、RRF で結果を統合する Azure AI Search の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "RRF は Learn 日本語版で「逆ランクフュージョン (RRF)」と表記されているが、機械翻訳的な表記のため英語名（Reciprocal Rank Fusion）を併記した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q683": {
+   "status": "needs_review",
+   "stem": "スキャンした PDF のインデックスを作成する際に一般的な手順はどの2つですか？",
+   "options": [
+    "OCR",
+    "チャンク分割",
+    "音声翻訳",
+    "Code interpreter のみ"
+   ],
+   "explanation": "スキャンした PDF のテキストは画像として埋め込まれているため、まず OCR で画像からテキストを抽出する必要があります。Azure AI Search では、インデクサーの imageAction（PDF ではページごとに正規化画像を生成する generateNormalizedImagePerPage も指定可能）で画像を取り出し、OCR スキルでテキストを抽出します。その後、埋め込みモデルや LLM の入力上限に収まるようにチャンク分割してインデックスに格納します。\n音声翻訳は音声を別の言語に翻訳する機能であり、PDF のインデックス作成には関係しません。Code interpreter はエージェントがコードを実行するためのツールで、それだけでは OCR やチャンク分割を伴うインデックス作成になりません。\nAzure AI Search の OCR スキルは、画像ファイル内の印刷されたテキストと手書きのテキストを認識します。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-concept-image-scenarios",
+    "https://learn.microsoft.com/ja-jp/azure/search/cognitive-search-skill-ocr",
+    "https://learn.microsoft.com/ja-jp/azure/search/vector-search-how-to-chunk-documents"
+   ],
+   "terms": [
+    {
+     "term": "OCR スキル",
+     "note": "Azure AI Search のスキルセットで使う組み込みスキルで、画像内の印刷されたテキストと手書きのテキストを認識します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "Code interpreter はツール名として英語のまま残した（Learn 日本語版では「コード インタープリター」と表記される場合あり）。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q684": {
+   "status": "needs_review",
+   "stem": "下流の取得拡張生成 (RAG) やエージェントで役立つ出力はどの2つですか？",
+   "options": [
+    "構造化されたフィールド",
+    "Markdown またはレイアウトを考慮したテキスト",
+    "ランダムな音声 ID",
+    "CSS トークン"
+   ],
+   "explanation": "Azure Content Understanding は、検索や取得のワークフロー向けにクリーンな Markdown 表現を出力し、構造化データが必要な場合は定義したスキーマに沿ったフィールド（信頼度やグラウンディング情報付き）を出力します。これらは下流の RAG やエージェントで利用しやすい出力です。\nランダムな音声 ID や CSS トークンはドキュメントの内容を表す出力ではなく、下流の RAG やエージェントの回答の根拠として使えません。\nAzure Content Understanding は、OCR やレイアウト認識などでコンテンツを抽出し、Markdown や構造化 JSON として返す Foundry Tools のサービスです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/content-understanding/overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "Azure Content Understanding",
+     "note": "ドキュメント、画像、音声、ビデオなどのコンテンツから Markdown や構造化フィールドを抽出する Foundry Tools のサービスです。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q701": {
+   "status": "needs_review",
+   "stem": "各空欄に最も適切な用語を選んでください。Azure でシークレットのハードコーディングを避けるには、[[drop1]] を使用します。その ID に Azure AI リソースへのアクセス権を付与するには、[[drop2]] を構成します。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "DefaultAzureCredential",
+      "画像生成",
+      "SpeechConfig",
+      "セマンティック キャプション"
+     ],
+     "explanation": "DefaultAzureCredential は、環境変数、マネージド ID、Azure CLI などの資格情報を使って Microsoft Entra ID のトークンを取得する Azure Identity のクラスで、シークレットを使わないキーレス認証を実現します。"
+    },
+    "drop2": {
+     "choices": [
+      "RBAC",
+      "SSML",
+      "Vision Studio",
+      "Top K のみ"
+     ],
+     "explanation": "ロールベースのアクセス制御 (RBAC) のロール割り当てにより、その ID が対象リソースで実行できる操作を制御します。"
+    }
+   },
+   "explanation": "DefaultAzureCredential は、マネージド ID などの既存の ID を使って Microsoft Entra ID のトークンを取得するため、API キーなどのシークレットをコードに埋め込まずに認証できます。その ID が Foundry リソースなどで何をできるかは、ロールベースのアクセス制御 (RBAC) のロール割り当てで制御します。\n画像生成、SpeechConfig、セマンティック キャプション、SSML、Vision Studio、Top K は、それぞれ画像・音声・検索などの機能に関するもので、シークレットを使わない認証やアクセス権の付与には使いません。\nMicrosoft Foundry では、Microsoft Entra ID による認証と RBAC による認可を組み合わせることで、キーを使わずにリソースへのアクセスを管理できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/authentication-authorization-foundry",
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/rbac-foundry"
+   ],
+   "terms": [
+    {
+     "term": "DefaultAzureCredential",
+     "note": "Azure Identity ライブラリのクラスで、環境変数、マネージド ID、Azure CLI などの資格情報を自動的に使って Microsoft Entra ID で認証します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "原文解説の誤り: 第1空欄を「identity creation（ID の作成）」としているが、DefaultAzureCredential は ID を作成せず、既存の ID（マネージド ID など）でトークンを取得する認証クラス。日本語解説では認証（トークン取得）として記述した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q702": {
+   "status": "needs_review",
+   "stem": "取得に関する次の文を完成させてください。グラウンディングされた回答では、通常、インデックスから [[drop1]] を取得し、そのコンテキストを [[drop2]] に送信します。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "関連するチャンク",
+      "音声アバター",
+      "プライベート エンドポイント",
+      "オーディオ スピーカー"
+     ],
+     "explanation": "取得拡張生成 (RAG) では、インデックスから関連するチャンクやパッセージを取得します。"
+    },
+    "drop2": {
+     "choices": [
+      "モデル",
+      "CSS レンダラー",
+      "DNS ゾーン",
+      "RBAC ポータル"
+     ],
+     "explanation": "取得したコンテキストはモデルに渡され、グラウンディングされた回答の生成に使われます。"
+    }
+   },
+   "explanation": "取得拡張生成 (RAG) では、インデックスから関連するチャンクを取得し、それをグラウンディング データとしてモデル（LLM）に渡して回答を生成します。Azure AI Search は関連性の高いチャンクを返し、LLM はそれを基に回答を組み立てます。\n音声アバター、プライベート エンドポイント、オーディオ スピーカーはインデックスから取得する内容ではなく、CSS レンダラー、DNS ゾーン、RBAC ポータルは回答を生成する仕組みではありません。\nAzure AI Search は、RAG においてグラウンディング用のコンテンツをインデックスから取得する役割を担います。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/concepts/retrieval-augmented-generation",
+    "https://learn.microsoft.com/ja-jp/azure/search/retrieval-augmented-generation-overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q703": {
+   "status": "needs_review",
+   "stem": "構造化された JSON 出力を要求するコードを完成させてください。次のスニペットの空欄を埋めてください。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "json_object",
+      "image",
+      "binary",
+      "markdown"
+     ],
+     "explanation": "type に json_object を指定すると JSON モードが有効になり、有効な JSON 形式での出力を要求できます。"
+    },
+    "drop2": {
+     "choices": [
+      "response_format",
+      "voice_name",
+      "indexer_name",
+      "semantic_ranker"
+     ],
+     "explanation": "出力形式を指定するリクエストのプロパティは response_format です。"
+    }
+   },
+   "explanation": "Chat Completions で JSON 出力を要求するには、リクエストに response_format={\"type\": \"json_object\"} を指定します（JSON モード）。JSON モードは有効な JSON の出力を保証しますが、特定のスキーマへの準拠は保証しません。\nimage、binary、markdown は JSON 出力を要求する type の値ではなく、voice_name、indexer_name、semantic_ranker は音声や検索に関連する名前で、出力形式を指定するプロパティではありません。\nなお、Learn ではスキーマへの準拠が必要な場合は構造化出力を使用することが推奨されており、JSON モードは引き続きサポートされています。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/json-mode"
+   ],
+   "terms": [
+    {
+     "term": "JSON モード",
+     "note": "response_format の type に json_object を指定して、モデルに有効な JSON を出力させる機能です。"
+    }
+   ],
+   "lowConfidence": true,
+   "reviewNotes": "原文の「structured JSON output」は構造化出力（Structured Outputs、json_schema）機能を指すとも読めるが、正解は JSON モード（json_object）のため、機能名と誤解されないよう「構造化された JSON 出力」と一般的な表現で訳した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q704": {
+   "status": "needs_review",
+   "stem": "マルチモーダル プロンプトのパターンを完成させてください。マルチモーダルなチャット メッセージには、多くの場合、ユーザーの質問を表す [[drop1]] 項目と、視覚的な入力を表す [[drop2]] 項目が含まれます。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "text",
+      "vector_query",
+      "audio_config",
+      "indexer"
+     ],
+     "explanation": "ユーザーの質問は、通常 text のコンテンツ項目として表します。"
+    },
+    "drop2": {
+     "choices": [
+      "image_url",
+      "rbac_role",
+      "skillset",
+      "voice_profile"
+     ],
+     "explanation": "視覚的な入力は、一般に image_url のコンテンツ項目で渡します。"
+    }
+   },
+   "explanation": "Vision 対応モデルへのチャット メッセージでは、user ロールの content 配列に {\"type\": \"text\"} の項目で質問を、{\"type\": \"image_url\"} の項目で画像を渡します。Learn のサンプルでも、この組み合わせでモデルに画像を説明させています。\nvector_query、indexer、skillset は検索に関する用語、audio_config と voice_profile は音声に関する用語、rbac_role はアクセス制御に関する用語であり、チャット メッセージのコンテンツ項目の種類ではありません。\nマルチモーダル モデルを使うと、テキストと画像を組み合わせた入力に基づいて回答を生成できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/foundry/openai/how-to/gpt-with-vision"
+   ],
+   "terms": [],
+   "lowConfidence": false,
+   "reviewNotes": "選択肢はいずれもコンテンツ項目の type 値・識別子として扱い、英語のまま残した。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q705": {
+   "status": "needs_review",
+   "stem": "Azure Speech のコードを完成させてください。次のスニペットの空欄を埋めてください。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "SpeechRecognizer",
+      "SearchClient",
+      "DocumentIntelligenceClient",
+      "VectorizedQuery"
+     ],
+     "explanation": "SpeechRecognizer は音声認識に使用するクラスです。"
+    },
+    "drop2": {
+     "choices": [
+      "recognize_once_async",
+      "speak_text_async",
+      "begin_analyze_document",
+      "search"
+     ],
+     "explanation": "recognize_once_async は単発（1 回）の音声認識を実行します。"
+    }
+   },
+   "explanation": "Learn の音声認識ガイド（Python）では、speechsdk.SpeechRecognizer(speech_config=speech_config) で認識器を作成し、recognize_once_async().get() で単発の認識結果を取得します。recognize_once_async は ResultFuture を返し、get() で処理の完了を待ちます。\nSearchClient と search は Azure AI Search、DocumentIntelligenceClient と begin_analyze_document は Azure Document Intelligence、VectorizedQuery はベクター検索のクエリで使うものです。speak_text_async は音声合成（テキスト読み上げ）のメソッドであり、音声認識には使いません。\nAzure Speech の Speech SDK は、音声テキスト変換やテキスト読み上げなどの機能をアプリから呼び出すためのライブラリです。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/ai-services/speech-service/how-to-recognize-speech?pivots=programming-language-python",
+    "https://learn.microsoft.com/ja-jp/python/api/azure-cognitiveservices-speech/azure.cognitiveservices.speech.speechrecognizer?view=azure-python",
+    "https://learn.microsoft.com/ja-jp/python/api/azure-cognitiveservices-speech/azure.cognitiveservices.speech.resultfuture?view=azure-python"
+   ],
+   "terms": [
+    {
+     "term": "SpeechRecognizer",
+     "note": "Speech SDK のクラスで、マイクや音声ファイルからの音声をテキストに変換します。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  },
+  "q706": {
+   "status": "needs_review",
+   "stem": "検索の概念に関する次の文を完成させてください。Azure AI Search の [[drop1]] は検索可能なコンテンツを格納します。[[drop2]] は、サポートされているソースからスケジュールに従ってデータをプルします。",
+   "dropdowns": {
+    "drop1": {
+     "choices": [
+      "インデックス",
+      "音声",
+      "モデル デプロイ",
+      "アバター"
+     ],
+     "explanation": "インデックスは検索可能なコンテンツを格納します。"
+    },
+    "drop2": {
+     "choices": [
+      "インデクサー",
+      "プロンプト シールド",
+      "話者プロファイル",
+      "Webhook"
+     ],
+     "explanation": "インデクサーはデータ ソースからコンテンツをプルしてインデックスに読み込みます。"
+    }
+   },
+   "explanation": "Azure AI Search の検索インデックスは、検索可能なコンテンツを格納します。インデクサーは、サポートされているデータ ソースからデータを取り込んでインデックスに投入するプル モデルのクローラーで、オンデマンドまたはスケジュールに従って実行できます。\n音声、モデル デプロイ、アバターは検索可能なコンテンツの格納先ではありません。プロンプト シールドは攻撃の検出、話者プロファイルは話者の識別に関するもので、Webhook はイベントを外部に通知する仕組みであり、いずれもデータ ソースからデータをプルする機能ではありません。\nインデクサーはスキルセットと組み合わせることで、OCR やチャンク分割などの AI エンリッチメントも実行できます。",
+   "references": [
+    "https://learn.microsoft.com/ja-jp/azure/search/search-what-is-an-index",
+    "https://learn.microsoft.com/ja-jp/azure/search/search-indexer-overview",
+    "https://learn.microsoft.com/ja-jp/credentials/certifications/resources/study-guides/ai-103"
+   ],
+   "terms": [
+    {
+     "term": "インデクサー",
+     "note": "サポートされているデータ ソースからデータをプルして検索インデックスに投入する Azure AI Search の機能です。"
+    }
+   ],
+   "lowConfidence": false,
+   "reviewNotes": "英語原文では冠詞「An」から indexer が推測できたが、日本語訳ではこの手がかりは生じない。",
+   "aiCheck": {
+    "result": "ok",
+    "issues": []
+   }
+  }
+ }
+}

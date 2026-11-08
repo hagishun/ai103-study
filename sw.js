@@ -16,6 +16,7 @@ const PRECACHE = [
   "data/domains.json",
   "data/stats.json",
   "data/glossary.json",
+  "data/i18n/ja.json",
 ];
 
 self.addEventListener("install", (event) => {
