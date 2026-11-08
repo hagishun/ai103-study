@@ -1,0 +1,75 @@
+name: Test and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Check generated question data is up to date
+        run: python3 scripts/build_data.py --check
+
+      - name: Install test tools
+        run: npm ci
+
+      - name: Unit and data tests
+        run: npm test
+
+      - name: Browser tests (360px mobile, resume, PWA)
+        run: npm run test:e2e
+        env:
+          CI: "true"
+
+      - name: Assemble static site
+        run: |
+          mkdir -p _site/data _site/js _site/icons
+          cp index.html styles.css manifest.webmanifest sw.js LICENSE .nojekyll _site/
+          cp js/*.js _site/js/
+          cp icons/*.png _site/icons/
+          cp data/bank.json data/domains.json data/stats.json data/glossary.json data/dedup-log.csv _site/data/
+          BUILD_ID="${GITHUB_SHA::12}"
+          sed -i "s/const BUILD_ID = \"dev\";/const BUILD_ID = \"${BUILD_ID}\";/" _site/sw.js
+          grep -q "${BUILD_ID}" _site/sw.js
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6
+      - id: deployment
+        uses: actions/deploy-pages@v5

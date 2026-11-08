@@ -1,148 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI-103 Exam Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>AI-103 学習サイト（非公式）</title>
+    <meta name="description" content="Microsoft AI-103 試験の非公式学習サイト。分野別学習・模擬試験・復習・学習履歴。" />
+    <meta name="theme-color" content="#0f4c81" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="AI-103" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <section id="setupView" class="setup">
-        <div class="masthead">
-          <div>
-            <p class="eyebrow">Microsoft AI-103 practice</p>
-            <h1>Exam simulator</h1>
-            <p class="lede">
-              Original practice questions aligned to Microsoft Learn AI-103 objectives. This is not official Microsoft or Pearson VUE exam content.
-            </p>
-          </div>
-          <div class="scorecard">
-            <span>Pass mark</span>
-            <strong>700 / 1000</strong>
-          </div>
-        </div>
+    <header class="topbar">
+      <a class="brand" href="#/" aria-label="ホームへ">
+        <span class="brand-mark" aria-hidden="true">103</span>
+        <span class="brand-text">AI-103 学習<small>非公式</small></span>
+      </a>
+      <span id="topbarStatus" class="topbar-status" aria-live="polite"></span>
+    </header>
 
-        <div class="setup-grid">
-          <label>
-            Exam mode
-            <select id="modeSelect">
-              <option value="full">Exam simulation: 100 random questions</option>
-              <option value="quick">Quick simulation: 50 questions</option>
-              <option value="code">Code practice: snippet questions</option>
-              <option value="speech">Speech practice: Voice Live and Speech SDK</option>
-              <option value="bank">Full bank review: all questions</option>
-              <option value="section">Section practice</option>
-            </select>
-          </label>
-
-          <label id="sectionPicker" class="is-hidden">
-            Section
-            <select id="sectionSelect"></select>
-          </label>
-
-          <label>
-            Timer
-            <select id="timerSelect">
-              <option value="180">180 minutes</option>
-              <option value="90">90 minutes</option>
-              <option value="45">45 minutes</option>
-              <option value="0">No timer</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="actions">
-          <button id="startBtn" class="primary">Start exam</button>
-          <button id="resumeBtn" class="secondary is-hidden">Resume saved exam</button>
-          <button id="guideBtn" class="secondary">Test-taker guide</button>
-        </div>
-      </section>
-
-      <section id="guideView" class="guide is-hidden">
-        <div class="exam-header">
-          <div>
-            <p class="eyebrow">AI-103 preparation guide</p>
-            <h2>How to use the simulator</h2>
-          </div>
-          <button id="closeGuideBtn" class="secondary" type="button">Back</button>
-        </div>
-
-        <div class="guide-grid">
-          <article>
-            <h3>Before you start</h3>
-            <p>Use Exam simulation for a fresh weighted 100-question attempt. Use Quick simulation for daily revision. Use Code practice for snippet questions. Use Speech practice for Voice Live and Speech SDK topics. Use Section practice after a weak section appears in your score report.</p>
-          </article>
-          <article>
-            <h3>During the exam</h3>
-            <p>Read the final sentence first, then inspect the scenario or code. For multiple-response questions, select every required option and avoid adding an extra plausible but unnecessary answer. Flag uncertain questions and move on.</p>
-          </article>
-          <article>
-            <h3>Code questions</h3>
-            <p>Look for method names, parameter values, environment variable names, selected fields, model deployment names, result reasons, and SDK object types. Many questions ask what exact value is configured or which line enables a capability.</p>
-          </article>
-          <article>
-            <h3>After submission</h3>
-            <p>Review missed and flagged questions. Write down the topic, not just the answer. Revisit Microsoft Learn for the weakest services before taking another simulation.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="examView" class="exam is-hidden">
-        <header class="exam-header">
-          <div>
-            <p id="sectionLabel" class="eyebrow"></p>
-            <h2 id="questionCounter"></h2>
-          </div>
-          <div class="status-strip">
-            <span id="timerLabel">--:--</span>
-            <span id="answeredLabel">0 answered</span>
-            <span id="flaggedLabel">0 flagged</span>
-          </div>
-        </header>
-
-        <div class="exam-layout">
-          <aside class="navigator">
-            <div class="nav-title">Questions</div>
-            <div id="questionNav" class="question-nav"></div>
-          </aside>
-
-          <article class="question-panel">
-            <div class="question-toolbar">
-              <span id="questionType" class="pill"></span>
-              <button id="flagBtn" class="secondary">Flag</button>
-            </div>
-            <h3 id="questionStem"></h3>
-            <pre id="codeBlock" class="code is-hidden"><code></code></pre>
-            <form id="optionsForm" class="options"></form>
-            <div class="question-actions">
-              <button id="prevBtn" class="secondary" type="button">Previous</button>
-              <button id="nextBtn" class="secondary" type="button">Next</button>
-              <button id="finishBtn" class="danger" type="button">Finish exam</button>
-              <button id="cancelBtn" class="secondary" type="button">Cancel exam</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section id="resultView" class="results is-hidden">
-        <div id="resultBanner" class="result-banner"></div>
-        <div class="result-grid">
-          <div>
-            <h2>Section breakdown</h2>
-            <div id="sectionResults" class="breakdown"></div>
-          </div>
-          <div>
-            <h2>Review missed and flagged</h2>
-            <div id="reviewList" class="review-list"></div>
-          </div>
-        </div>
-        <div class="actions">
-          <button id="restartBtn" class="primary">Start new exam</button>
-        </div>
-      </section>
+    <main id="app" class="app" tabindex="-1">
+      <p class="loading">読み込み中…</p>
     </main>
 
-    <script src="app.js"></script>
+    <noscript>このサイトを利用するには JavaScript を有効にしてください。</noscript>
+
+    <script src="js/core.js"></script>
+    <script src="js/app.js"></script>
   </body>
 </html>

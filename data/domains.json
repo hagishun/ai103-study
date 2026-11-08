@@ -1,0 +1,424 @@
+{
+  "exam": "AI-103",
+  "title": "Developing AI Apps and Agents on Azure",
+  "studyGuideUrl": "https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103",
+  "skillsMeasuredAsOf": "2026-04-16",
+  "checkedOn": "2026-11-08",
+  "note": "Domain definitions are kept separate from question data. Update this file when the official study guide changes, then run scripts/build_data.py.",
+  "domains": [
+    {
+      "id": "plan",
+      "name": "Plan and manage an Azure AI solution",
+      "nameJa": "Azure AI ソリューションの計画と管理",
+      "shortJa": "計画と管理",
+      "weight": "25–30%",
+      "sourceSections": [
+        "Plan and manage an Azure AI solution"
+      ],
+      "groups": [
+        {
+          "id": "1.1",
+          "name": "Choose the appropriate Foundry services for generative AI and agents",
+          "nameJa": "生成AI・エージェント向け Foundry サービスの選択",
+          "skills": [
+            {
+              "id": "1.1.1",
+              "name": "Choose an appropriate model for each task, including large language models (LLMs), small language models, multimodal models, and Foundry Tools"
+            },
+            {
+              "id": "1.1.2",
+              "name": "Choose the appropriate Foundry services for generative tasks, grounding, vector search, agent workflows, or multimodal processing"
+            },
+            {
+              "id": "1.1.3",
+              "name": "Choose an appropriate method for retrieval and indexing"
+            },
+            {
+              "id": "1.1.4",
+              "name": "Choose appropriate memory, tool, and knowledge integration services for agent solutions"
+            }
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Set up AI solutions in Foundry",
+          "nameJa": "Foundry での AI ソリューションのセットアップ",
+          "skills": [
+            {
+              "id": "1.2.1",
+              "name": "Design Azure infrastructure for AI apps and agent-based solutions"
+            },
+            {
+              "id": "1.2.2",
+              "name": "Choose appropriate deployment options"
+            },
+            {
+              "id": "1.2.3",
+              "name": "Configure model and agent deployments"
+            },
+            {
+              "id": "1.2.4",
+              "name": "Integrate Foundry projects with continuous integration and continuous deployment (CI/CD) pipelines"
+            }
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Manage, monitor, and secure AI systems",
+          "nameJa": "AI システムの管理・監視・セキュリティ",
+          "skills": [
+            {
+              "id": "1.3.1",
+              "name": "Manage quotas, scaling, rate limits, and cost footprints for model and agent workloads"
+            },
+            {
+              "id": "1.3.2",
+              "name": "Monitor model performance, drift, safety events, and grounding quality"
+            },
+            {
+              "id": "1.3.3",
+              "name": "Monitor data ingestion quality, search index health, and relevance performance"
+            },
+            {
+              "id": "1.3.4",
+              "name": "Configure security, including managed identity, private networking, keyless credentials, and role policies"
+            }
+          ]
+        },
+        {
+          "id": "1.4",
+          "name": "Implement responsible AI across generative AI and agentic systems",
+          "nameJa": "生成AI・エージェントにおける責任ある AI の実装",
+          "skills": [
+            {
+              "id": "1.4.1",
+              "name": "Configure safety filters, guardrails, risk detection, and content moderation"
+            },
+            {
+              "id": "1.4.2",
+              "name": "Apply responsible AI instrumentation, including evaluators, safety evaluations, and explanation tooling"
+            },
+            {
+              "id": "1.4.3",
+              "name": "Implement auditing through trace logging, provenance metadata, and approval workflows"
+            },
+            {
+              "id": "1.4.4",
+              "name": "Govern agent behavior with oversight modes, constraints, and tool-access controls"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "genai",
+      "name": "Implement generative AI and agentic solutions",
+      "nameJa": "生成AI・エージェントソリューションの実装",
+      "shortJa": "生成AI・エージェント",
+      "weight": "30–35%",
+      "sourceSections": [
+        "Implement generative AI and agentic solutions"
+      ],
+      "groups": [
+        {
+          "id": "2.1",
+          "name": "Build generative applications by using Foundry",
+          "nameJa": "Foundry による生成AIアプリの構築",
+          "skills": [
+            {
+              "id": "2.1.1",
+              "name": "Deploy and consume LLMs, small models, code models, and multimodal models"
+            },
+            {
+              "id": "2.1.2",
+              "name": "Implement retrieval-augmented generation (RAG) in an application"
+            },
+            {
+              "id": "2.1.3",
+              "name": "Design workflows, tool-augmented flows, and multistep reasoning pipelines"
+            },
+            {
+              "id": "2.1.4",
+              "name": "Evaluate models and apps, including detecting fabrications, relevance, quality, and safety"
+            },
+            {
+              "id": "2.1.5",
+              "name": "Integrate generative workflows into applications by using Foundry SDKs and connectors"
+            },
+            {
+              "id": "2.1.6",
+              "name": "Configure an application to connect to a Foundry project"
+            }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Build agents by using Foundry",
+          "nameJa": "Foundry によるエージェントの構築",
+          "skills": [
+            {
+              "id": "2.2.1",
+              "name": "Define agent roles, goals, conversation-tracking approach, and tool schemas"
+            },
+            {
+              "id": "2.2.2",
+              "name": "Build agents that integrate retrieval, function-calling, and conversation memory"
+            },
+            {
+              "id": "2.2.3",
+              "name": "Integrate agent tools, including APIs, knowledge stores, search, content understanding, and custom functions"
+            },
+            {
+              "id": "2.2.4",
+              "name": "Implement orchestrated multi-agent solutions"
+            },
+            {
+              "id": "2.2.5",
+              "name": "Build autonomous or semiautonomous workflows with safeguards and approval flow controls"
+            },
+            {
+              "id": "2.2.6",
+              "name": "Integrate monitoring into deployed agents, evaluate agent behavior, and perform error analysis"
+            }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Optimize and operationalize generative AI systems",
+          "nameJa": "生成AIシステムの最適化と運用",
+          "skills": [
+            {
+              "id": "2.3.1",
+              "name": "Tune generation behavior, such as prompt engineering and adjusting model parameters"
+            },
+            {
+              "id": "2.3.2",
+              "name": "Implement model reflection, chain-of-thought evaluations, and self-critique loops"
+            },
+            {
+              "id": "2.3.3",
+              "name": "Set up observability by implementing tracing, token analytics, safety signals, and latency breakdowns"
+            },
+            {
+              "id": "2.3.4",
+              "name": "Orchestrate multiple models, flows, or hybrid LLM and rules engines"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vision",
+      "name": "Implement computer vision solutions",
+      "nameJa": "コンピュータービジョンソリューションの実装",
+      "shortJa": "コンピュータービジョン",
+      "weight": "10–15%",
+      "sourceSections": [
+        "Implement computer vision solutions"
+      ],
+      "groups": [
+        {
+          "id": "3.1",
+          "name": "Design and implement image- and video-generation solutions",
+          "nameJa": "画像・動画生成ソリューションの設計と実装",
+          "skills": [
+            {
+              "id": "3.1.1",
+              "name": "Implement a solution that generates images from text prompts and reference media"
+            },
+            {
+              "id": "3.1.2",
+              "name": "Implement a solution that generates videos from text prompts and reference media"
+            },
+            {
+              "id": "3.1.3",
+              "name": "Configure image-editing workflows, including inpainting, mask-based edits, and prompt-driven modifications"
+            },
+            {
+              "id": "3.1.4",
+              "name": "Implement workflows to edit generated videos"
+            },
+            {
+              "id": "3.1.5",
+              "name": "Select and apply appropriate generation and editing controls provided by the platform"
+            }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Design and implement multimodal understanding workflows",
+          "nameJa": "マルチモーダル理解ワークフローの設計と実装",
+          "skills": [
+            {
+              "id": "3.2.1",
+              "name": "Build a solution that analyzes visual context by using multimodal models"
+            },
+            {
+              "id": "3.2.2",
+              "name": "Configure apps to produce concise or detailed captions for single or multiple images"
+            },
+            {
+              "id": "3.2.3",
+              "name": "Implement a solution that enables question-answering grounded in visual evidence"
+            },
+            {
+              "id": "3.2.4",
+              "name": "Configure generation of alt-text and extended image descriptions aligned to accessibility guidelines"
+            },
+            {
+              "id": "3.2.5",
+              "name": "Implement visual understanding by configuring Azure Content Understanding in Foundry Tools to extract visual characteristics"
+            },
+            {
+              "id": "3.2.6",
+              "name": "Implement video analysis workflows to process and interpret video segments"
+            },
+            {
+              "id": "3.2.7",
+              "name": "Configure single-task and pro-mode Content Understanding pipelines"
+            },
+            {
+              "id": "3.2.8",
+              "name": "Implement solutions that identify objects, components, or regions within images or video"
+            }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Implement responsible AI for multimodal content",
+          "nameJa": "マルチモーダルコンテンツにおける責任ある AI",
+          "skills": [
+            {
+              "id": "3.3.1",
+              "name": "Implement filters to classify unsafe or disallowed visual content"
+            },
+            {
+              "id": "3.3.2",
+              "name": "Detect and mitigate indirect prompt injection by using embedded text in images"
+            },
+            {
+              "id": "3.3.3",
+              "name": "Enforce visual policy rules, such as applying watermarks, flagging prohibited symbols, upholding brand usage requirements, and detecting potentially inappropriate content"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text",
+      "name": "Implement text analysis solutions",
+      "nameJa": "テキスト分析ソリューションの実装",
+      "shortJa": "テキスト分析",
+      "weight": "10–15%",
+      "sourceSections": [
+        "Implement text analysis solutions"
+      ],
+      "groups": [
+        {
+          "id": "4.1",
+          "name": "Apply language model text analysis",
+          "nameJa": "言語モデルによるテキスト分析",
+          "skills": [
+            {
+              "id": "4.1.1",
+              "name": "Implement solutions to extract entities, topics, summaries, and structured JSON outputs by using generative prompting and Foundry Tools"
+            },
+            {
+              "id": "4.1.2",
+              "name": "Configure detection of sentiment, tone, safety issues, and sensitive content"
+            },
+            {
+              "id": "4.1.3",
+              "name": "Build solutions that translate text by using Azure Translator in Foundry Tools or LLM-powered translation flows"
+            },
+            {
+              "id": "4.1.4",
+              "name": "Customize language model outputs for domain tasks, such as compliance summarization and domain extraction"
+            }
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Implement speech solutions",
+          "nameJa": "音声ソリューションの実装",
+          "skills": [
+            {
+              "id": "4.2.1",
+              "name": "Implement workflows to convert speech to text and text to speech for agentic interactions"
+            },
+            {
+              "id": "4.2.2",
+              "name": "Integrate speech as an agent modality, including custom speech models"
+            },
+            {
+              "id": "4.2.3",
+              "name": "Enable multimodal reasoning from audio inputs"
+            },
+            {
+              "id": "4.2.4",
+              "name": "Translate speech into other languages by using language models and Foundry Tools"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extract",
+      "name": "Implement information extraction solutions",
+      "nameJa": "情報抽出ソリューションの実装",
+      "shortJa": "情報抽出",
+      "weight": "10–15%",
+      "sourceSections": [
+        "Implement information extraction solutions"
+      ],
+      "groups": [
+        {
+          "id": "5.1",
+          "name": "Build retrieval and grounding pipelines",
+          "nameJa": "検索・グラウンディングパイプラインの構築",
+          "skills": [
+            {
+              "id": "5.1.1",
+              "name": "Ingest and index content, such as documents, images, audio, and video"
+            },
+            {
+              "id": "5.1.2",
+              "name": "Configure semantic search, hybrid search, and vector search for grounding"
+            },
+            {
+              "id": "5.1.3",
+              "name": "Implement enrichment by using custom or built-in skills for text, images, and layout"
+            },
+            {
+              "id": "5.1.4",
+              "name": "Configure RAG ingestion flow, including documents and using optical character recognition (OCR)"
+            },
+            {
+              "id": "5.1.5",
+              "name": "Connect retrieval pipelines directly to workflows and agent tools"
+            }
+          ]
+        },
+        {
+          "id": "5.2",
+          "name": "Extract content from documents",
+          "nameJa": "ドキュメントからのコンテンツ抽出",
+          "skills": [
+            {
+              "id": "5.2.1",
+              "name": "Extract information by using multimodal pipelines that combine OCR, layout analysis, and field extraction"
+            },
+            {
+              "id": "5.2.2",
+              "name": "Produce clean, grounded representations to use with agents and RAG by using Content Understanding"
+            },
+            {
+              "id": "5.2.3",
+              "name": "Implement analyzers for generating structured or markdown outputs for downstream reasoning by using Content Understanding"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

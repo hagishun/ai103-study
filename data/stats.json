@@ -1,0 +1,354 @@
+{
+ "sourceTotal": 748,
+ "afterExactDedup": 425,
+ "total": 172,
+ "removed": 576,
+ "relations": {
+  "canonical": 172,
+  "exact_duplicate": 299,
+  "choice_order_variant": 24,
+  "template_variant": 150,
+  "semantic_duplicate": 103
+ },
+ "status": {
+  "verified": 169,
+  "unverified": 0,
+  "outdated": 2,
+  "ambiguous": 1,
+  "out_of_scope": 0
+ },
+ "type": {
+  "single": 142,
+  "multiple": 24,
+  "dropdown": 6
+ },
+ "domains": {
+  "plan": {
+   "name": "Plan and manage an Azure AI solution",
+   "source": 193,
+   "total": 31,
+   "status": {
+    "verified": 30,
+    "unverified": 0,
+    "outdated": 1,
+    "ambiguous": 0,
+    "out_of_scope": 0
+   }
+  },
+  "genai": {
+   "name": "Implement generative AI and agentic solutions",
+   "source": 231,
+   "total": 46,
+   "status": {
+    "verified": 45,
+    "unverified": 0,
+    "outdated": 1,
+    "ambiguous": 0,
+    "out_of_scope": 0
+   }
+  },
+  "vision": {
+   "name": "Implement computer vision solutions",
+   "source": 108,
+   "total": 23,
+   "status": {
+    "verified": 23,
+    "unverified": 0,
+    "outdated": 0,
+    "ambiguous": 0,
+    "out_of_scope": 0
+   }
+  },
+  "text": {
+   "name": "Implement text analysis solutions",
+   "source": 108,
+   "total": 42,
+   "status": {
+    "verified": 41,
+    "unverified": 0,
+    "outdated": 0,
+    "ambiguous": 1,
+    "out_of_scope": 0
+   }
+  },
+  "extract": {
+   "name": "Implement information extraction solutions",
+   "source": 108,
+   "total": 30,
+   "status": {
+    "verified": 30,
+    "unverified": 0,
+    "outdated": 0,
+    "ambiguous": 0,
+    "out_of_scope": 0
+   }
+  }
+ },
+ "skills": {
+  "1.1.1": {
+   "total": 4,
+   "verified": 4
+  },
+  "1.1.2": {
+   "total": 2,
+   "verified": 2
+  },
+  "1.1.3": {
+   "total": 4,
+   "verified": 4
+  },
+  "1.1.4": {
+   "total": 3,
+   "verified": 3
+  },
+  "1.2.1": {
+   "total": 2,
+   "verified": 2
+  },
+  "1.2.2": {
+   "total": 1,
+   "verified": 1
+  },
+  "1.2.3": {
+   "total": 1,
+   "verified": 0
+  },
+  "1.2.4": {
+   "total": 1,
+   "verified": 1
+  },
+  "1.3.1": {
+   "total": 3,
+   "verified": 3
+  },
+  "1.3.2": {
+   "total": 2,
+   "verified": 2
+  },
+  "1.3.3": {
+   "total": 3,
+   "verified": 3
+  },
+  "1.3.4": {
+   "total": 8,
+   "verified": 8
+  },
+  "1.4.1": {
+   "total": 4,
+   "verified": 4
+  },
+  "1.4.2": {
+   "total": 0,
+   "verified": 0
+  },
+  "1.4.3": {
+   "total": 1,
+   "verified": 1
+  },
+  "1.4.4": {
+   "total": 3,
+   "verified": 3
+  },
+  "2.1.1": {
+   "total": 2,
+   "verified": 2
+  },
+  "2.1.2": {
+   "total": 9,
+   "verified": 9
+  },
+  "2.1.3": {
+   "total": 2,
+   "verified": 2
+  },
+  "2.1.4": {
+   "total": 6,
+   "verified": 6
+  },
+  "2.1.5": {
+   "total": 1,
+   "verified": 1
+  },
+  "2.1.6": {
+   "total": 2,
+   "verified": 1
+  },
+  "2.2.1": {
+   "total": 5,
+   "verified": 5
+  },
+  "2.2.2": {
+   "total": 5,
+   "verified": 5
+  },
+  "2.2.3": {
+   "total": 7,
+   "verified": 6
+  },
+  "2.2.4": {
+   "total": 6,
+   "verified": 6
+  },
+  "2.2.5": {
+   "total": 2,
+   "verified": 2
+  },
+  "2.2.6": {
+   "total": 3,
+   "verified": 3
+  },
+  "2.3.1": {
+   "total": 4,
+   "verified": 4
+  },
+  "2.3.2": {
+   "total": 0,
+   "verified": 0
+  },
+  "2.3.3": {
+   "total": 3,
+   "verified": 3
+  },
+  "2.3.4": {
+   "total": 1,
+   "verified": 1
+  },
+  "3.1.1": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.1.2": {
+   "total": 1,
+   "verified": 1
+  },
+  "3.1.3": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.1.4": {
+   "total": 1,
+   "verified": 1
+  },
+  "3.1.5": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.2.1": {
+   "total": 4,
+   "verified": 4
+  },
+  "3.2.2": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.2.3": {
+   "total": 3,
+   "verified": 3
+  },
+  "3.2.4": {
+   "total": 3,
+   "verified": 3
+  },
+  "3.2.5": {
+   "total": 1,
+   "verified": 1
+  },
+  "3.2.6": {
+   "total": 3,
+   "verified": 3
+  },
+  "3.2.7": {
+   "total": 0,
+   "verified": 0
+  },
+  "3.2.8": {
+   "total": 1,
+   "verified": 1
+  },
+  "3.3.1": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.3.2": {
+   "total": 2,
+   "verified": 2
+  },
+  "3.3.3": {
+   "total": 2,
+   "verified": 2
+  },
+  "4.1.1": {
+   "total": 7,
+   "verified": 7
+  },
+  "4.1.2": {
+   "total": 5,
+   "verified": 5
+  },
+  "4.1.3": {
+   "total": 3,
+   "verified": 3
+  },
+  "4.1.4": {
+   "total": 1,
+   "verified": 1
+  },
+  "4.2.1": {
+   "total": 17,
+   "verified": 17
+  },
+  "4.2.2": {
+   "total": 9,
+   "verified": 8
+  },
+  "4.2.3": {
+   "total": 1,
+   "verified": 1
+  },
+  "4.2.4": {
+   "total": 6,
+   "verified": 6
+  },
+  "5.1.1": {
+   "total": 7,
+   "verified": 7
+  },
+  "5.1.2": {
+   "total": 13,
+   "verified": 13
+  },
+  "5.1.3": {
+   "total": 4,
+   "verified": 4
+  },
+  "5.1.4": {
+   "total": 8,
+   "verified": 8
+  },
+  "5.1.5": {
+   "total": 4,
+   "verified": 3
+  },
+  "5.2.1": {
+   "total": 5,
+   "verified": 5
+  },
+  "5.2.2": {
+   "total": 4,
+   "verified": 4
+  },
+  "5.2.3": {
+   "total": 5,
+   "verified": 5
+  }
+ },
+ "unmappedQuestions": [],
+ "uncoveredSkills": [
+  "1.4.2",
+  "2.3.2",
+  "3.2.7"
+ ],
+ "unverifiedOnlySkills": [
+  "1.2.3"
+ ]
+}
